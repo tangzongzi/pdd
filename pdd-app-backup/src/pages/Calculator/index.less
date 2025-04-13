@@ -1,0 +1,336 @@
+@import '../../theme.less';
+
+.calculator-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+  
+  .main-card {
+    width: 100%;
+    max-width: 1200px;
+    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-color-light) 100%);
+    }
+  }
+  
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    
+    .header-icon {
+      font-size: 28px;
+      margin-right: 16px;
+      padding: 8px;
+      background-color: var(--primary-color);
+      color: #fff;
+      border-radius: 8px;
+      margin-top: 4px;
+    }
+    
+    h3.ant-typography {
+      margin-bottom: 4px;
+      color: var(--heading-color);
+    }
+    
+    .subtitle {
+      color: var(--text-color-secondary);
+      margin-bottom: 0;
+    }
+  }
+  
+  // 输入区域和结果区域通用样式
+  .input-section,
+  .results-section {
+    padding: 20px;
+    background-color: @primary-color-light;
+    border-radius: 8px;
+    height: 100%;
+    
+    .section-title {
+      margin-bottom: 16px;
+      color: @primary-color;
+      font-weight: 600;
+      position: relative;
+      padding-left: 12px;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 16px;
+        background-color: @primary-color;
+        border-radius: 2px;
+      }
+    }
+  }
+  
+  // 输入表单样式
+  .calculator-form {
+    padding: 0;
+    
+    .ant-form-item {
+      margin-bottom: 24px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .ant-form-item-label {
+        label {
+          color: @heading-color;
+          font-weight: 500;
+        }
+      }
+    }
+    
+    .ant-input-number {
+      width: 100%;
+      background-color: white;
+      border: 1px solid @border-color-base;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s;
+      
+      &:hover {
+        border-color: @primary-color;
+      }
+      
+      &-focused {
+        box-shadow: 0 0 0 2px rgba(26, 54, 93, 0.1);
+      }
+      
+      &-input {
+        font-weight: 600;
+        font-size: 16px;
+        text-align: left;
+        padding-left: 40px;
+      }
+      
+      &-handler-wrap {
+        opacity: 1;
+        border-left: 1px solid @border-color-base;
+      }
+    }
+    
+    .ant-input-prefix {
+      color: @primary-color;
+      font-size: 16px;
+      margin-right: 8px;
+    }
+    
+    .help-text {
+      color: @text-color-secondary;
+      font-size: 12px;
+    }
+    
+    @media (max-width: 992px) {
+      padding: 0;
+    }
+  }
+  
+  // 结果区域样式
+  .results-section {
+    .result-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+    
+    .result-card {
+      background-color: white;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s @animation-easing-base;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      
+      .result-label {
+        color: @text-color-secondary;
+        font-size: 13px;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        
+        .anticon {
+          margin-left: 4px;
+          color: @accent-color;
+          font-size: 10px;
+        }
+      }
+      
+      .result-value {
+        font-size: 20px;
+        font-weight: 600;
+        
+        &.primary {
+          color: @primary-color;
+        }
+        
+        &.profit {
+          color: @success-color;
+        }
+        
+        &.loss {
+          color: @error-color;
+        }
+      }
+    }
+    
+    @media (max-width: 767px) {
+      .result-group {
+        flex-direction: column;
+        
+        .result-card {
+          min-width: 100%;
+        }
+      }
+    }
+  }
+  
+  .calculation-note {
+    padding: 8px 0;
+    margin-top: 24px;
+    
+    .ant-alert {
+      border-radius: 8px;
+      background-color: rgba(var(--primary-rgb), 0.04);
+      border: 1px solid rgba(var(--primary-rgb), 0.15);
+      
+      .note-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        
+        .anticon {
+          margin-right: 6px;
+          color: @accent-color;
+        }
+      }
+      
+      .note-list {
+        padding-left: 24px;
+        margin-bottom: 0;
+        
+        li {
+          list-style-type: disc;
+          margin-bottom: 4px;
+          color: @text-color-secondary;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+  
+  .ant-divider {
+    margin: 16px 0 20px;
+  }
+  
+  .ant-form-item-extra {
+    font-size: 12px;
+    margin-top: 2px;
+  }
+}
+
+// 响应式设计
+@media (max-width: 992px) {
+  .calculator-page {
+    .input-section,
+    .results-section {
+      padding: 16px;
+    }
+    
+    .results-section {      
+      .result-group {
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      
+      .result-card {
+        padding: 14px;
+        
+        .result-value {
+          font-size: 18px;
+        }
+      }
+    }
+    
+    .calculation-note {
+      margin-top: 20px;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .calculator-page {
+    .input-section,
+    .results-section {
+      padding: 12px;
+    }
+    
+    .results-section {      
+      .result-group {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      
+      .result-card {
+        padding: 12px;
+        
+        .result-label {
+          font-size: 12px;
+        }
+        
+        .result-value {
+          font-size: 16px;
+        }
+      }
+    }
+    
+    .calculation-note {
+      margin-top: 16px;
+      
+      .note-list {
+        padding-left: 20px;
+        
+        li {
+          margin-bottom: 3px;
+          font-size: 13px;
+        }
+      }
+    }
+  }
+} 

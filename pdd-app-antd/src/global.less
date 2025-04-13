@@ -1,0 +1,367 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+@import './theme.less';
+
+body {
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+               'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 
+               'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  margin: 0;
+  padding: 0;
+  background-color: @layout-body-background;
+  color: @text-color;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// 响应式样式
+@media (max-width: 992px) {
+  body {
+    padding-left: 0;
+    padding-top: 50px;
+  }
+}
+
+// 滚动条美化
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+// 利润和亏损颜色
+.profit {
+  color: @success-color !important;
+  font-weight: 600;
+}
+
+.loss {
+  color: @error-color !important;
+  font-weight: 600;
+}
+
+// 卡片阴影效果
+.card-shadow {
+  box-shadow: @card-shadow;
+  transition: all 0.3s;
+  
+  &:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// 重置一些常用元素样式
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  color: @heading-color;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: @space-md;
+  line-height: 1.7;
+}
+
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: @accent-color;
+  text-decoration: none;
+  transition: color 0.2s, transform 0.2s;
+  
+  &:hover {
+    color: lighten(@accent-color, 10%);
+  }
+}
+
+// 帮助文本样式
+.help-text {
+  color: @text-color-secondary;
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+// 动画效果
+.fade-in {
+  animation: fadeIn 0.3s @animation-easing-base;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// 微交互动画
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// 加载动画
+.loading {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(49, 130, 206, 0.2);
+  border-radius: 50%;
+  border-top-color: @accent-color;
+  animation: spin 0.8s @animation-easing-base infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// 页面切换动画
+.page-transition-enter {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 300ms, transform 300ms;
+}
+
+// 自定义组件样式
+.divider {
+  height: 1px;
+  margin: @space-md 0;
+  overflow: hidden;
+  background-color: @border-color-base;
+}
+
+// 文本颜色辅助类
+.text-primary { color: @primary-color; }
+.text-success { color: @success-color; }
+.text-danger { color: @error-color; }
+.text-warning { color: @warning-color; }
+.text-info { color: @accent-color; }
+.text-muted { color: @text-color-secondary; }
+
+// 背景颜色辅助类
+.bg-primary { background-color: @primary-color; color: #fff; }
+.bg-success { background-color: @success-color; color: #fff; }
+.bg-danger { background-color: @error-color; color: #fff; }
+.bg-warning { background-color: @warning-color; color: #333; }
+.bg-info { background-color: @accent-color; color: #fff; }
+.bg-light { background-color: @primary-color-light; color: @text-color; }
+.bg-dark { background-color: @primary-color-dark; color: #fff; }
+
+// 字重辅助类
+.font-weight-light { font-weight: 300; }
+.font-weight-normal { font-weight: 400; }
+.font-weight-medium { font-weight: 500; }
+.font-weight-bold { font-weight: 600; }
+.font-weight-black { font-weight: 700; }
+
+// 字体大小
+.text-xs { font-size: 0.75rem; }
+.text-sm { font-size: 0.875rem; }
+.text-md { font-size: 1rem; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; }
+
+// 间距辅助类
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: @space-xs; }
+.mt-2 { margin-top: @space-sm; }
+.mt-3 { margin-top: @space-md; }
+.mt-4 { margin-top: @space-lg; }
+.mt-5 { margin-top: @space-xl; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: @space-xs; }
+.mb-2 { margin-bottom: @space-sm; }
+.mb-3 { margin-bottom: @space-md; }
+.mb-4 { margin-bottom: @space-lg; }
+.mb-5 { margin-bottom: @space-xl; }
+
+// 覆盖ant-design组件样式
+// 卡片样式增强
+.ant-card {
+  border-radius: @border-radius-base;
+  box-shadow: @card-shadow;
+  border: none;
+  overflow: hidden;
+  
+  &.hover-effect {
+    transition: all 0.3s @animation-easing-base;
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  .ant-card-head {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 0 16px;
+    min-height: 48px;
+    font-weight: 600;
+    color: @heading-color;
+  }
+  
+  .ant-card-body {
+    padding: 16px;
+  }
+}
+
+// 调整栅格间距
+.ant-row {
+  margin-left: -12px !important;
+  margin-right: -12px !important;
+}
+
+[class*="ant-col-"] {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+// 减小表单组件间距
+.ant-form-item {
+  margin-bottom: 16px;
+  
+  .ant-form-item-label {
+    padding-bottom: 6px;
+    
+    > label {
+      font-size: 14px;
+      font-weight: 500;
+      color: @heading-color;
+    }
+  }
+  
+  .ant-form-item-extra {
+    margin-top: 4px;
+  }
+}
+
+// 表单控件增强
+.ant-input, .ant-input-affix-wrapper, .ant-select-selector, .ant-input-number {
+  border-radius: @border-radius-base;
+  transition: all 0.3s;
+  border-color: #cbd5e0;
+
+  &:hover {
+    border-color: #a0aec0;
+  }
+  
+  &:focus, &-focused {
+    border-color: @accent-color;
+    box-shadow: 0 0 0 2px fade(@accent-color, 20%);
+  }
+}
+
+// 按钮样式增强
+.ant-btn {
+  border-radius: @btn-border-radius-base;
+  font-weight: @btn-font-weight;
+  transition: all 0.3s;
+  height: 36px;
+  
+  // 主按钮增强
+  &-primary {
+    background: linear-gradient(to right, @primary-color, lighten(@primary-color, 5%));
+    border: none;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.15);
+      background: linear-gradient(to right, lighten(@primary-color, 3%), lighten(@primary-color, 8%));
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+  }
+  
+  // 默认按钮增强
+  &-default {
+    border-color: #e2e8f0;
+    color: @text-color;
+    
+    &:hover {
+      color: @accent-color;
+      border-color: @accent-color;
+    }
+  }
+}
+
+// 表格样式改进
+.ant-table {
+  border-radius: @border-radius-base;
+  
+  .ant-table-thead > tr > th {
+    background: @table-header-bg;
+    color: @table-header-color;
+    font-weight: 600;
+    padding: 12px 16px;
+  }
+  
+  .ant-table-tbody > tr > td {
+    padding: 12px 16px;
+  }
+  
+  .ant-table-tbody > tr:hover > td {
+    background: @table-row-hover-bg;
+  }
+}
+
+// 提示框样式增强
+.ant-alert {
+  border-radius: @border-radius-base;
+  
+  &-info {
+    border-color: fade(@accent-color, 20%);
+    background-color: fade(@accent-color, 5%);
+  }
+}
+
+// 分割线样式
+.ant-divider {
+  margin: 12px 0;
+  border-color: @border-color-base;
+} 

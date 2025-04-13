@@ -1,0 +1,433 @@
+@import '../../theme.less';
+
+.calculator-page {
+  width: 100%;
+  padding: 0;
+  
+  .main-card {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    background-color: #fff;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, @primary-color, lighten(@primary-color, 15%));
+    }
+  }
+  
+  .page-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .header-icon {
+      font-size: 28px;
+      margin-right: 16px;
+      padding: 10px;
+      background-color: @primary-color;
+      color: #fff;
+      border-radius: 8px;
+    }
+    
+    h3.ant-typography {
+      margin-bottom: 4px;
+      color: @heading-color;
+      font-weight: 600;
+    }
+    
+    .subtitle {
+      color: @text-color-secondary;
+      margin-bottom: 0;
+    }
+  }
+  
+  .calculator-content {
+    margin-top: 8px;
+  }
+  
+  // 输入区域样式
+  .input-section {
+    .form-item-price {
+      margin-bottom: 28px;
+      
+      .ant-form-item-label {
+        label {
+          color: @heading-color;
+          font-weight: 500;
+          font-size: 15px;
+        }
+      }
+      
+      &:last-child {
+        margin-bottom: 16px;
+      }
+    }
+    
+    .price-input-wrapper {
+      display: flex;
+      align-items: center;
+      height: 48px;
+      background-color: #f9fafc;
+      border: 1px solid #e6e8f0;
+      border-radius: 8px;
+      padding: 0 4px;
+      transition: all 0.2s;
+      
+      &:hover {
+        border-color: #c0c6d0;
+      }
+      
+      &:focus-within {
+        background-color: #fff;
+        border-color: @primary-color;
+        box-shadow: 0 0 0 2px rgba(red(@primary-color), green(@primary-color), blue(@primary-color), 0.1);
+      }
+      
+      .price-prefix-icon {
+        color: @primary-color;
+        font-size: 18px;
+        margin: 0 12px;
+      }
+      
+      .price-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        height: 48px;
+        font-size: 16px;
+        font-weight: 500;
+        
+        .ant-input-number-input {
+          height: 48px;
+          font-size: 16px;
+          font-weight: 500;
+        }
+        
+        &:focus {
+          box-shadow: none;
+        }
+      }
+      
+      .price-suffix {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 48px;
+        padding: 0 12px;
+        color: @text-color-secondary;
+        font-size: 14px;
+        background-color: #f0f2f5;
+        border-radius: 0 8px 8px 0;
+        margin-right: -4px;
+        border-left: 1px solid #e6e8f0;
+      }
+    }
+    
+    .input-hint {
+      margin-top: 6px;
+      color: @text-color-secondary;
+      font-size: 13px;
+    }
+  }
+  
+  // 结果区域样式
+  .results-section-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .results-section {
+    background-color: #f5f7fa;
+    border-radius: 12px;
+    padding: 20px;
+    height: 100%;
+    
+    .section-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .title-bar {
+        width: 4px;
+        height: 18px;
+        background-color: @primary-color;
+        border-radius: 2px;
+        margin-right: 8px;
+      }
+      
+      .ant-typography {
+        font-size: 16px;
+        color: @heading-color;
+      }
+    }
+    
+    .results-grid {
+      margin-top: 4px;
+    }
+    
+    .result-card {
+      background-color: white;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      height: 100%;
+      transition: all 0.25s;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      
+      .result-label {
+        color: @text-color-secondary;
+        font-size: 13px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        
+        .arrow-icon {
+          font-size: 10px;
+          margin: 0 4px;
+          color: @text-color-secondary;
+          opacity: 0.7;
+        }
+        
+        .info-icon,
+        .percent-icon {
+          margin-left: 4px;
+          font-size: 12px;
+          color: @primary-color;
+          opacity: 0.7;
+        }
+      }
+      
+      .result-value {
+        font-size: 22px;
+        font-weight: 600;
+        color: @primary-color;
+        
+        &.positive {
+          color: @success-color;
+        }
+        
+        &.negative {
+          color: @error-color;
+        }
+      }
+    }
+    
+    // 特殊卡片样式
+    .backend-group-price,
+    .single-price {
+      .result-value {
+        color: @primary-color;
+      }
+    }
+    
+    .group-profit,
+    .single-profit,
+    .discount-profit {
+      .result-value {
+        &.positive {
+          color: @success-color;
+        }
+        
+        &.negative {
+          color: @error-color;
+        }
+      }
+    }
+    
+    .discount-price {
+      .result-value {
+        color: #5c6ac4;
+      }
+    }
+    
+    .group-fee,
+    .single-fee {
+      .result-value {
+        color: @error-color;
+        font-size: 18px;
+      }
+    }
+  }
+  
+  // 计算说明区域
+  .calculation-note {
+    margin-top: 24px;
+    
+    .ant-alert {
+      border-radius: 8px;
+      background-color: rgba(red(@primary-color), green(@primary-color), blue(@primary-color), 0.04);
+      border: 1px solid rgba(red(@primary-color), green(@primary-color), blue(@primary-color), 0.12);
+      padding: 16px;
+      
+      .note-title {
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        color: @primary-color;
+        
+        .anticon {
+          margin-right: 8px;
+          font-size: 16px;
+        }
+      }
+      
+      .note-list {
+        padding-left: 24px;
+        margin-bottom: 0;
+        
+        li {
+          list-style-type: disc;
+          margin-bottom: 4px;
+          color: @text-color-secondary;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 992px) {
+  .calculator-page {
+    .calculator-content {
+      margin-top: 0;
+    }
+    
+    .results-section {
+      padding: 16px;
+      margin-top: 16px;
+      
+      .result-card {
+        padding: 14px;
+        
+        .result-value {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .calculator-page {
+    .page-header {
+      .header-icon {
+        font-size: 24px;
+        padding: 8px;
+      }
+      
+      h3.ant-typography {
+        font-size: 20px;
+      }
+    }
+    
+    .input-section {
+      .form-item-price {
+        margin-bottom: 20px;
+      }
+      
+      .price-input-wrapper {
+        height: 44px;
+        
+        .price-prefix-icon {
+          font-size: 16px;
+          margin: 0 8px;
+        }
+        
+        .price-input {
+          height: 44px;
+          font-size: 15px;
+          
+          .ant-input-number-input {
+            height: 44px;
+            font-size: 15px;
+          }
+        }
+        
+        .price-suffix {
+          height: 44px;
+          padding: 0 10px;
+          font-size: 13px;
+        }
+      }
+    }
+    
+    .results-section {
+      padding: 12px;
+      
+      .section-title {
+        margin-bottom: 12px;
+        
+        .title-bar {
+          height: 16px;
+        }
+        
+        .ant-typography {
+          font-size: 15px;
+        }
+      }
+      
+      .results-grid {
+        margin-top: 0;
+      }
+      
+      .result-card {
+        padding: 12px;
+        margin-bottom: 10px;
+        
+        .result-label {
+          font-size: 12px;
+          margin-bottom: 6px;
+        }
+        
+        .result-value {
+          font-size: 18px;
+        }
+        
+        &.group-fee,
+        &.single-fee {
+          .result-value {
+            font-size: 16px;
+          }
+        }
+      }
+    }
+    
+    .calculation-note {
+      margin-top: 16px;
+      
+      .ant-alert {
+        padding: 12px;
+      }
+      
+      .note-title {
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      
+      .note-list {
+        padding-left: 20px;
+        
+        li {
+          margin-bottom: 3px;
+          font-size: 12px;
+        }
+      }
+    }
+  }
+} 
