@@ -49,8 +49,8 @@ export const Calculator: React.FC = () => {
         <div className="page-header">
           <CalculatorOutlined className="header-icon" />
           <div>
-            <Title level={3}>PDD价格计算器</Title>
-            <Paragraph className="subtitle">快速计算拼单价和单买价，包含平台手续费(0.6%)</Paragraph>
+            <Title level={3}>PDD拼单计算</Title>
+            <Paragraph className="subtitle">快速计算拼单价和单买价，含平台手续费(0.6%)</Paragraph>
           </div>
         </div>
 
@@ -188,7 +188,7 @@ export const Calculator: React.FC = () => {
                 <div className="result-card">
                   <div className="result-label">
                     99折价格
-                    <Tooltip title={`计算公式: ${groupPrice} × 0.99 = ${discountPrice.toFixed(2)}`}>
+                    <Tooltip title={`计算公式: 后台拼单价 ${backendGroupPrice} × 0.99 - ${priceAddition} = ${discountPrice.toFixed(2)}`}>
                       <PercentageOutlined style={{fontSize: '12px', opacity: 0.7, marginLeft: '4px'}} />
                     </Tooltip>
                   </div>
@@ -198,7 +198,7 @@ export const Calculator: React.FC = () => {
                 <div className="result-card">
                   <div className="result-label">
                     99折后利润
-                    <Tooltip title={`计算公式: ${discountPrice} - ${supplyPrice} - ${priceAddition} - (${discountPrice} × 0.6%) = ${discountProfit.toFixed(2)}`}>
+                    <Tooltip title={`计算公式: ${discountPrice} - ${supplyPrice} - (${discountPrice} × 0.6%) = ${discountProfit.toFixed(2)}`}>
                       <InfoCircleOutlined style={{fontSize: '12px', opacity: 0.7, marginLeft: '4px'}} />
                     </Tooltip>
                   </div>
@@ -247,9 +247,7 @@ export const Calculator: React.FC = () => {
                   <li>后台拼单价 = 拼单价 + {priceAddition}元</li>
                   <li>单买价 = 后台拼单价 + {priceAddition}元</li>
                   <li>手续费 = 价格 × 0.6%</li>
-                  <li>99折价格 = 拼单价 × 0.99</li>
-                  <li>利润 = 售卖价 - 供货价 - (售卖价×0.6%)</li>
-                  <li>99折后利润 = 99折价 - 供货价 - 加价金额 - (99折价×0.6%)</li>
+                  <li>99折价格 = 后台拼单价 × 0.99 - {priceAddition}元</li>
                 </ul>
               </div>
             }

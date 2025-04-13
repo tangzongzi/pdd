@@ -29,7 +29,7 @@ export const BasicLayout = () => {
             className={`nav-item ${currentPath === '/' ? 'active' : ''}`}
           >
             <CalculatorOutlined />
-            价格计算器
+            拼单计算
           </Link>
           <Link 
             to="/batch" 

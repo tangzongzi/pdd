@@ -106,7 +106,7 @@ export const History: React.FC = () => {
     >
       <div className="history-item-content">
         <div className="history-item-header">
-          <Tag color="blue" icon={<CalculatorOutlined />}>单个计算</Tag>
+          <Tag color="blue" icon={<CalculatorOutlined />}>拼单计算</Tag>
           <span className="history-time">{formatDate(record.timestamp)}</span>
         </div>
         <div className="history-item-details">
@@ -188,7 +188,7 @@ export const History: React.FC = () => {
         <div className="detail-modal-content">
           <div className="detail-header">
             <div className="detail-title">
-              <CalculatorOutlined /> 单个计算详情
+              <CalculatorOutlined /> 拼单计算详情
             </div>
             <div className="detail-time">
               {formatDate(record.timestamp)}
@@ -328,7 +328,7 @@ export const History: React.FC = () => {
           <TabPane 
             tab={
               <span>
-                <CalculatorOutlined /> 单个计算
+                <CalculatorOutlined /> 拼单计算
               </span>
             } 
             key="single" 
@@ -380,7 +380,7 @@ export const History: React.FC = () => {
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
               <span>
-                暂无{activeTab === 'all' ? '' : activeTab === 'single' ? '单个' : '批量'}计算历史记录
+                暂无{activeTab === 'all' ? '' : activeTab === 'single' ? '拼单' : '批量'}计算历史记录
               </span>
             }
             className="empty-history"
