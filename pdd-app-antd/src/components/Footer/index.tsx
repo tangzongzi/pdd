@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layout } from 'antd';
-import { ShopOutlined, LinkOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { ShopOutlined } from '@ant-design/icons';
 import './index.less';
 
 const { Footer: AntFooter } = Layout;
@@ -18,15 +18,6 @@ export const Footer = () => {
         
         <div className="footer-copyright">
           © {currentYear} 拼多多卖家助手 | 专业电商数据分析工具
-        </div>
-        
-        <div className="footer-links">
-          <a href="https://help.pinduoduo.com/home" target="_blank" rel="noopener noreferrer" className="footer-link">
-            <QuestionCircleOutlined />
-          </a>
-          <a href="https://www.pinduoduo.com" target="_blank" rel="noopener noreferrer" className="footer-link">
-            <LinkOutlined />
-          </a>
         </div>
       </div>
     </AntFooter>
