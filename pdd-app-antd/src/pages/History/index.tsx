@@ -307,22 +307,6 @@ export const History: React.FC = () => {
             <Title level={3}>计算历史记录</Title>
             <Paragraph className="subtitle">查看、恢复之前的价格计算记录</Paragraph>
           </div>
-          
-          <Popconfirm
-            title="确定要清空所有历史记录吗？"
-            description="此操作不可撤销，所有计算历史将被永久删除。"
-            onConfirm={handleClearHistory}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button 
-              danger 
-              icon={<DeleteOutlined />} 
-              className="clear-history-btn"
-            >
-              清空历史
-            </Button>
-          </Popconfirm>
         </div>
 
         <Divider />
@@ -361,15 +345,36 @@ export const History: React.FC = () => {
 
         {/* 历史记录列表 */}
         {filteredHistory.length > 0 ? (
-          <List
-            className="history-list"
-            dataSource={filteredHistory}
-            renderItem={(record) => 
-              record.type === 'single' 
-                ? renderSingleCalculation(record as SingleCalculationHistory)
-                : renderBatchCalculation(record as BatchCalculationHistory)
-            }
-          />
+          <>
+            <List
+              className="history-list"
+              dataSource={filteredHistory}
+              renderItem={(record) => 
+                record.type === 'single' 
+                  ? renderSingleCalculation(record as SingleCalculationHistory)
+                  : renderBatchCalculation(record as BatchCalculationHistory)
+              }
+            />
+            
+            {/* 清空历史按钮 - 移至列表底部 */}
+            <div className="clear-history-container">
+              <Popconfirm
+                title="确定要清空所有历史记录吗？"
+                description="此操作不可撤销，所有计算历史将被永久删除。"
+                onConfirm={handleClearHistory}
+                okText="确定"
+                cancelText="取消"
+              >
+                <Button 
+                  danger 
+                  icon={<DeleteOutlined />} 
+                  className="clear-history-btn"
+                >
+                  清空历史
+                </Button>
+              </Popconfirm>
+            </div>
+          </>
         ) : (
           <Empty 
             image={Empty.PRESENTED_IMAGE_SIMPLE}
