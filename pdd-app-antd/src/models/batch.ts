@@ -137,13 +137,16 @@ export const useBatchAnalysisStore = create<BatchAnalysisState>((set, get) => ({
 function calculateProductPrices(product: ProductItem, priceAddition: number): ProductItem {
   const { supplyPrice, sellPrice } = product;
 
-  // 99折后售卖价
-  const discountedSellPrice = sellPrice * 0.99;
-  
-  // 计算拼单价
+  // 计算拼单价（后台售卖价）
   const groupPrice = sellPrice + priceAddition;
   
-  // 计算99折价
+  // 计算99折后的销售价（按正确规则计算）
+  // 1. 后台拼单价打99折
+  const backendDiscount = groupPrice * 0.99;
+  // 2. 减去加价金额得到实际售价
+  const discountedSellPrice = backendDiscount - priceAddition;
+  
+  // 计算常规99折价（仅供显示，实际不使用）
   const discountedGroupPrice = groupPrice * 0.99;
   
   // 计算利润（减去0.6%手续费）
@@ -151,8 +154,8 @@ function calculateProductPrices(product: ProductItem, priceAddition: number): Pr
   const profit = sellPrice - supplyPrice - fee;
   
   // 计算99折后的利润（减去0.6%手续费）
-  const discountedFee = discountedGroupPrice * 0.006;
-  const discountedProfit = discountedGroupPrice - supplyPrice - priceAddition - discountedFee;
+  const discountedFee = discountedSellPrice * 0.006;
+  const discountedProfit = discountedSellPrice - supplyPrice - discountedFee;
   
   return {
     ...product,

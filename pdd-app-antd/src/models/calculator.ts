@@ -73,10 +73,15 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     const groupProfit = groupPrice - supplyPrice - groupPlatformFee;
     const singleProfit = singlePrice - supplyPrice - singlePlatformFee;
     
-    // 计算99折价格和利润
-    const discountPrice = groupPrice * 0.99;
+    // 计算99折价格和利润 - 修正计算逻辑
+    // 1. 后台拼单价(拼单价+6元)打99折
+    const backendDiscount = backendGroupPrice * 0.99;
+    // 2. 减去6元得到实际售价
+    const discountPrice = backendDiscount - priceAddition;
+    // 3. 计算手续费（按实际售价计算）
     const discountPlatformFee = discountPrice * 0.006;
-    const discountProfit = discountPrice - supplyPrice - priceAddition - discountPlatformFee;
+    // 4. 计算最终利润：实际售价 - 供货价 - 手续费
+    const discountProfit = discountPrice - supplyPrice - discountPlatformFee;
 
     set({
       backendGroupPrice,
