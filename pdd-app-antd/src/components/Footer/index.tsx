@@ -5,7 +5,7 @@ import './index.less';
 
 const { Footer: AntFooter } = Layout;
 
-export const Footer: React.FC = () => {
+export const Footer = () => {
   const currentYear = new Date().getFullYear();
   
   return (

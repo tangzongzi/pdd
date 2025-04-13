@@ -4,7 +4,7 @@ import { Menu } from 'antd';
 import { CalculatorOutlined, LineChartOutlined, HistoryOutlined } from '@ant-design/icons';
 import './index.less';
 
-export const SideNav: React.FC = () => {
+export const SideNav = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 

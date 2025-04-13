@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { useHistoryStore } from './history';
+import { useHistoryStore } from '@/models/history';
 
 interface CalculatorState {
   supplyPrice: number;

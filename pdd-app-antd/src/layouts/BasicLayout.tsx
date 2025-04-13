@@ -12,7 +12,7 @@ import './BasicLayout.less';
 
 const { Content } = Layout;
 
-export const BasicLayout: React.FC = () => {
+export const BasicLayout = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
