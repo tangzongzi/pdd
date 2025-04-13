@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Card, Typography, Tabs, List, Button, Tag, Empty, 
-  Popconfirm, Tooltip, Divider, Space, Modal
+  Popconfirm, Tooltip, Divider, Space, Modal, Pagination
 } from 'antd';
 import { 
   HistoryOutlined, 
@@ -22,11 +22,15 @@ import './index.less';
 const { Title, Paragraph, Text } = Typography;
 const { TabPane } = Tabs;
 
+// 每页显示的记录数量
+const PAGE_SIZE = 5;
+
 export const History: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   
   // 获取历史记录
   const { history, clearHistory } = useHistoryStore();
@@ -39,6 +43,23 @@ export const History: React.FC = () => {
   const filteredHistory = activeTab === 'all' 
     ? history 
     : history.filter(record => record.type === activeTab);
+  
+  // 根据当前页码获取分页数据
+  const paginatedHistory = filteredHistory.slice(
+    (currentPage - 1) * PAGE_SIZE, 
+    currentPage * PAGE_SIZE
+  );
+  
+  // 处理页码变化
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+  
+  // 当标签切换时重置页码
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
   
   // 格式化日期
   const formatDate = (timestamp: number) => {
@@ -79,6 +100,7 @@ export const History: React.FC = () => {
   // 清空历史记录
   const handleClearHistory = () => {
     clearHistory();
+    setCurrentPage(1);
   };
   
   // 渲染单个计算记录
@@ -314,7 +336,7 @@ export const History: React.FC = () => {
         {/* 标签页筛选 */}
         <Tabs 
           activeKey={activeTab} 
-          onChange={setActiveTab} 
+          onChange={handleTabChange} 
           className="history-tabs"
         >
           <TabPane 
@@ -348,7 +370,7 @@ export const History: React.FC = () => {
           <>
             <List
               className="history-list"
-              dataSource={filteredHistory}
+              dataSource={paginatedHistory}
               renderItem={(record) => 
                 record.type === 'single' 
                   ? renderSingleCalculation(record as SingleCalculationHistory)
@@ -356,7 +378,21 @@ export const History: React.FC = () => {
               }
             />
             
-            {/* 清空历史按钮 - 移至列表底部 */}
+            {/* 分页控件 */}
+            {filteredHistory.length > PAGE_SIZE && (
+              <div className="pagination-container">
+                <Pagination
+                  current={currentPage}
+                  onChange={handlePageChange}
+                  total={filteredHistory.length}
+                  pageSize={PAGE_SIZE}
+                  size="small"
+                  showSizeChanger={false}
+                />
+              </div>
+            )}
+            
+            {/* 清空历史按钮 - 放在分页控件下方 */}
             <div className="clear-history-container">
               <Popconfirm
                 title="确定要清空所有历史记录吗？"
