@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { 
   Card, Typography, Input, InputNumber, Button, Table, 
-  Row, Col, Form, Alert, Empty, Divider, Space, Tooltip 
+  Row, Col, Form, Alert, Empty, Divider, Space, Tooltip, Badge 
 } from 'antd';
 import { 
   LineChartOutlined, 
@@ -137,24 +137,21 @@ export const BatchAnalysis: React.FC = () => {
 
         <Divider />
 
-        {/* 输入区域 */}
-        <div className="input-section">
-          <Form layout="vertical">
-            <Form.Item 
-              label={
-                <Space>
-                  <span>粘贴产品信息</span>
-                  <Tooltip title="从拼多多后台复制产品信息，包含规格和价格数据">
-                    <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-                  </Tooltip>
-                </Space>
-              }
-              className="product-info-form-item"
-            >
-              <TextArea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder={`示例格式:
+        {/* 步骤式输入流程 */}
+        <div className="input-flow">
+          {/* 第一步：粘贴产品信息 */}
+          <div className="step-section">
+            <div className="step-header">
+              <Badge count={1} color="#1a365d" />
+              <Typography.Title level={5}>粘贴产品信息</Typography.Title>
+              <Tooltip title="从拼多多后台复制产品信息，包含规格和价格数据">
+                <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
+              </Tooltip>
+            </div>
+            
+            <TextArea
+              className="product-input"
+              placeholder={`示例格式:
 金汤酸菜鱼430g*3袋
 ¥34
 2632件可售
@@ -163,65 +160,70 @@ export const BatchAnalysis: React.FC = () => {
 ¥67.92
 2226件可售
 0`}
-                rows={10}
-                className="product-input"
-              />
-            </Form.Item>
-
-            <div className="action-section">
-              <Row gutter={16} align="middle" justify="space-between" className="action-row">
-                <Col xs={24} md={12} className="price-addition-col">
-                  <Form.Item 
-                    label={
-                      <Space>
-                        <span>拼单价加价金额</span>
-                        <Tooltip title="设置后台加价金额，影响最终拼单价计算">
-                          <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
-                        </Tooltip>
-                      </Space>
-                    }
-                    className="price-addition-form-item"
-                  >
-                    <div className="price-input-wrapper">
-                      <InputNumber
-                        min={0}
-                        step={1}
-                        precision={0}
-                        value={priceAddition}
-                        onChange={(value) => setPriceAddition(Number(value) || 0)}
-                        className="price-addition-input"
-                        controls={false}
-                      />
-                      <div className="price-addition-unit">元</div>
-                    </div>
-                    <div className="price-addition-hint">默认为6元，用于计算拼单价 = 售卖价 + 加价金额</div>
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12} className="action-button-col">
-                  <Button 
-                    type="primary" 
-                    block 
-                    icon={<SyncOutlined />}
-                    onClick={parseProductInfo}
-                    size="large"
-                    className="parse-button"
-                  >
-                    解析产品信息
-                  </Button>
-                </Col>
-              </Row>
+              rows={8}
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+            />
+          </div>
+          
+          {/* 第二步和第三步：设置加价金额和解析 */}
+          <div className="operation-section">
+            <div className="step-row">
+              <div className="price-setting">
+                <div className="step-header">
+                  <Badge count={2} color="#1a365d" />
+                  <Typography.Title level={5}>设置加价金额</Typography.Title>
+                  <Tooltip title="设置后台加价金额，影响最终拼单价计算">
+                    <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
+                  </Tooltip>
+                </div>
+                
+                <div className="price-input-row">
+                  <InputNumber
+                    addonBefore="加价金额"
+                    addonAfter="元"
+                    min={0}
+                    step={1}
+                    precision={0}
+                    value={priceAddition}
+                    onChange={(value) => setPriceAddition(Number(value) || 0)}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                <div className="price-hint">默认为6元，用于计算拼单价 = 售卖价 + 加价金额</div>
+              </div>
+              
+              <div className="parse-section">
+                <div className="step-header">
+                  <Badge count={3} color="#1a365d" />
+                  <Typography.Title level={5}>解析信息</Typography.Title>
+                </div>
+                
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<SyncOutlined />}
+                  onClick={parseProductInfo}
+                  className="parse-button"
+                  block
+                >
+                  解析产品信息
+                </Button>
+              </div>
             </div>
-          </Form>
+          </div>
         </div>
 
         {/* 结果表格区域 */}
         {products.length > 0 && (
-          <div className="results-table">
-            <Divider orientation="left">
-              <Text strong style={{ fontSize: '16px', color: '#1a365d' }}>
-                <LineChartOutlined /> 价格计算结果
-              </Text>
+          <div className="results-section">
+            <Divider>
+              <Space>
+                <LineChartOutlined />
+                <Typography.Text strong>价格计算结果</Typography.Text>
+              </Space>
             </Divider>
+            
             <Table
               dataSource={products}
               columns={columns}
@@ -229,7 +231,7 @@ export const BatchAnalysis: React.FC = () => {
               rowKey="id"
               scroll={{ x: 1000 }}
               bordered
-              className="analysis-table"
+              className="result-table"
             />
           </div>
         )}
@@ -250,16 +252,13 @@ export const BatchAnalysis: React.FC = () => {
                 <div className="note-title">
                   <InfoCircleOutlined /> 使用说明
                 </div>
-                <ul className="note-list">
-                  <li>从拼多多后台复制产品信息，粘贴到上方文本框</li>
-                  <li>设置"拼单价加价金额"（默认为6元）</li>
-                  <li>点击"解析产品信息"按钮，系统会自动提取产品规格和供货价</li>
-                  <li>在"PDD最终售卖价"列输入您想设置的售卖价格</li>
-                  <li>系统会自动计算99折后的售卖价、拼单价、99折价以及利润</li>
-                  <li><Text type="danger" strong>红色标记的拼单价</Text>是最终要填入平台的价格</li>
-                  <li>利润 = 售卖价 - 供货价 - (售卖价×0.6%)</li>
-                  <li>99折后利润 = 99折价 - 供货价 - 加价金额 - (99折价×0.6%)</li>
-                </ul>
+                <ol className="note-list">
+                  <li>从拼多多商家后台复制产品规格和价格信息</li>
+                  <li>粘贴到输入框中，设置加价金额（默认6元）</li>
+                  <li>点击"解析产品信息"按钮，系统自动解析</li>
+                  <li>在表格中输入每个规格的最终售卖价</li>
+                  <li>系统自动计算拼单价、99折价和利润</li>
+                </ol>
               </div>
             }
             type="info"

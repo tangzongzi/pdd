@@ -2,283 +2,205 @@
 
 .batch-analysis-page {
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px;
+  min-height: calc(100vh - 64px);
   
   .main-card {
-    box-shadow: @card-shadow;
-    border-radius: 8px;
+    width: 100%;
+    max-width: 1200px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-color-light) 100%);
+    }
   }
-
+  
   .page-header {
     display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-
-    .header-icon {
-      font-size: 32px;
-      color: @primary-color;
-      margin-right: 16px;
-    }
-
-    h2 {
-      margin-bottom: 4px;
-    }
-
-    .subtitle {
-      color: @text-color-secondary;
-      margin: 0;
-    }
-  }
-
-  .input-section {
+    align-items: flex-start;
     margin-bottom: 16px;
     
-    .product-info-form-item {
-      margin-bottom: 12px;
+    .header-icon {
+      font-size: 28px;
+      margin-right: 16px;
+      padding: 8px;
+      background-color: var(--primary-color);
+      color: #fff;
+      border-radius: 8px;
+      margin-top: 4px;
+    }
+    
+    h3.ant-typography {
+      margin-bottom: 4px;
+      color: var(--heading-color);
+    }
+    
+    .subtitle {
+      color: var(--text-color-secondary);
+      margin-bottom: 0;
+    }
+  }
+  
+  // 步骤式输入流程样式
+  .input-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    
+    .step-section {
+      background-color: #f8f9fc;
+      border-radius: 8px;
+      padding: 16px;
+      transition: all 0.3s ease;
       
-      .ant-form-item-label {
-        font-weight: 600;
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       }
+    }
+    
+    .step-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .ant-badge {
+        margin-right: 8px;
+      }
+      
+      h5.ant-typography {
+        margin: 0 8px 0 0;
+      }
+      
+      .anticon-question-circle {
+        color: #8c8c8c;
+        cursor: pointer;
+      }
+    }
+    
+    .operation-section {
+      .step-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+        
+        @media (max-width: 768px) {
+          flex-direction: column;
+        }
+        
+        .price-setting {
+          flex: 1;
+          background-color: #f8f9fc;
+          border-radius: 8px;
+          padding: 16px;
+          
+          @media (max-width: 768px) {
+            width: 100%;
+          }
+        }
+        
+        .parse-section {
+          flex: 1;
+          background-color: #f8f9fc;
+          border-radius: 8px;
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          
+          @media (max-width: 768px) {
+            width: 100%;
+          }
+          
+          .parse-button {
+            margin-top: auto;
+            height: 50px;
+            font-size: 16px;
+          }
+        }
+      }
+    }
+    
+    .price-hint {
+      margin-top: 8px;
+      color: #8c8c8c;
+      font-size: 12px;
     }
     
     .product-input {
+      border-radius: 8px;
+      resize: vertical;
       font-family: monospace;
-      font-size: 14px;
-      line-height: 1.6;
-      background-color: #fafafa;
-      border: 1px solid #e8e8f0;
-      border-radius: 6px;
-      
-      &:focus {
-        background-color: #fff;
-        box-shadow: 0 0 0 2px rgba(26, 54, 93, 0.1);
-      }
-    }
-    
-    .action-section {
-      background-color: #f8fafd;
-      border-radius: 8px;
-      padding: 16px;
-      border: 1px solid #edf2f7;
-      
-      .action-row {
-        align-items: flex-start;
-      }
-      
-      .price-addition-col {
-        .price-addition-form-item {
-          margin-bottom: 0;
-          
-          .ant-form-item-label {
-            margin-bottom: 8px;
-          }
-        }
-        
-        .price-input-wrapper {
-          display: flex;
-          align-items: center;
-          background-color: white;
-          border: 1px solid #d9d9d9;
-          border-radius: 6px;
-          overflow: hidden;
-          width: 100%;
-          max-width: 300px;
-          
-          &:hover {
-            border-color: #a0aec0;
-          }
-          
-          &:focus-within {
-            border-color: @primary-color;
-            box-shadow: 0 0 0 2px rgba(26, 54, 93, 0.1);
-          }
-          
-          .price-addition-input {
-            border: none;
-            border-radius: 0;
-            flex: 1;
-            font-size: 16px;
-            font-weight: 500;
-            
-            &:focus {
-              box-shadow: none;
-            }
-            
-            .ant-input-number-input {
-              height: 38px;
-              font-size: 16px;
-            }
-          }
-          
-          .price-addition-unit {
-            padding: 0 12px;
-            height: 38px;
-            line-height: 38px;
-            background-color: #f5f5f5;
-            border-left: 1px solid #d9d9d9;
-            color: @text-color-secondary;
-            user-select: none;
-          }
-        }
-        
-        .price-addition-hint {
-          margin-top: 6px;
-          color: @text-color-secondary;
-          font-size: 13px;
-        }
-      }
-      
-      .action-button-col {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-      }
+      background-color: #fff;
     }
   }
   
-  // 解析按钮增强
-  .parse-button {
-    height: 40px;
-    font-size: 16px;
-    font-weight: 500;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(to right, @primary-color, lighten(@primary-color, 5%));
-    border: none;
-    transition: all 0.3s;
+  // 结果区域样式
+  .results-section {
+    margin-top: 32px;
     
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      background: linear-gradient(to right, lighten(@primary-color, 3%), lighten(@primary-color, 8%));
-    }
-    
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .anticon {
-      font-size: 16px;
-      margin-right: 8px;
-    }
-  }
-  
-  // 结果表格样式增强
-  .results-table {
-    margin-top: 24px;
-    
-    .analysis-table {
-      border: 1px solid @border-color-base;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    .ant-divider {
+      margin: 24px 0;
       
+      .anticon {
+        color: var(--primary-color);
+        margin-right: 8px;
+      }
+    }
+    
+    .result-table {
       .ant-table-thead > tr > th {
+        background-color: #f0f5ff;
+        color: var(--primary-color);
         font-weight: 600;
-        background-color: fade(@primary-color, 8%);
-        color: @heading-color;
       }
       
-      .ant-table-cell {
-        text-align: center;
-        
-        &:first-child {
-          text-align: left;
-        }
-      }
-      
-      // 高亮拼单价列
-      th:nth-child(5) {
-        background-color: fade(@error-color, 12%);
-        color: @error-color;
-        font-weight: 700;
-      }
-      
-      td:nth-child(5) {
-        background-color: fade(@error-color, 4%);
-      }
-      
-      // 高亮99折价列
-      th:nth-child(6) {
-        background-color: fade(@primary-color, 12%);
-        color: @primary-color;
-        font-weight: 700;
-      }
-      
-      td:nth-child(6) {
-        background-color: fade(@primary-color, 4%);
-      }
-      
-      // 高亮利润列背景
-      th:nth-child(7), th:nth-child(8) {
-        background-color: fade(@success-color, 12%);
-        color: darken(@success-color, 10%);
-        font-weight: 700;
-      }
-      
-      td:nth-child(7), td:nth-child(8) {
-        background-color: fade(@success-color, 4%);
-      }
-      
-      // 输入框样式优化
-      .ant-input-number {
-        width: 100%;
-        border-radius: 4px;
-        
-        .ant-input-number-input {
-          text-align: center;
-          font-weight: 500;
-        }
-      }
-      
-      // 表格行交替背景色
-      .ant-table-tbody > tr:nth-child(even) > td {
-        background-color: #f9fafc;
-      }
-      
-      // 表格行悬停效果
       .ant-table-tbody > tr:hover > td {
-        background-color: #f0f5ff !important;
+        background-color: #f0f7ff;
+      }
+      
+      .ant-table-tbody > tr > td {
+        transition: all 0.3s;
       }
     }
   }
   
-  // 空状态美化
+  // 空状态样式
   .empty-state {
-    margin: 32px 0;
-    
-    .ant-empty-image {
-      height: 60px;
-    }
+    margin: 40px 0;
     
     .ant-empty-description {
-      color: @text-color-secondary;
+      color: var(--text-color-secondary);
     }
   }
   
-  // 使用说明卡片美化
+  // 使用说明样式
   .usage-note {
-    margin-top: 24px;
+    margin-top: 32px;
     
     .ant-alert {
-      border: none;
-      background-color: @primary-color-light;
       border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-      
-      .ant-alert-message {
-        color: @text-color;
-      }
       
       .note-title {
+        font-size: 16px;
         font-weight: 600;
         margin-bottom: 12px;
         display: flex;
         align-items: center;
-        color: @primary-color;
         
         .anticon {
           margin-right: 8px;
-          font-size: 16px;
+          color: var(--primary-color);
         }
       }
       
@@ -288,8 +210,7 @@
         
         li {
           margin-bottom: 8px;
-          position: relative;
-          line-height: 1.5;
+          color: var(--text-color);
           
           &:last-child {
             margin-bottom: 0;
@@ -300,102 +221,17 @@
   }
 }
 
-// 响应式设计
-@media (max-width: 992px) {
+// 响应式调整
+@media (max-width: 768px) {
   .batch-analysis-page {
-    .input-section {
-      .action-section {
-        padding: 12px;
-        
-        .action-button-col {
-          margin-top: 16px;
-          justify-content: flex-start;
-        }
-      }
-    }
+    padding: 16px;
     
-    .results-table {
-      margin-top: 20px;
+    .page-header {
+      flex-direction: column;
       
-      .ant-table {
-        font-size: 13px;
+      .header-icon {
+        margin-bottom: 16px;
       }
-    }
-    
-    .usage-note {
-      margin-top: 20px;
-      
-      .note-list {
-        padding-left: 20px;
-        
-        li {
-          margin-bottom: 6px;
-          font-size: 13px;
-        }
-      }
-    }
-    
-    .parse-button {
-      height: 40px;
-      font-size: 15px;
-    }
-  }
-}
-
-@media (max-width: 576px) {
-  .batch-analysis-page {
-    .input-section {
-      margin-bottom: 16px;
-      
-      .action-section {
-        padding: 10px;
-      }
-    }
-    
-    .results-table {
-      margin-top: 16px;
-      overflow-x: auto;
-      
-      .ant-table {
-        font-size: 12px;
-        
-        .ant-table-thead > tr > th {
-          padding: 8px 4px;
-          white-space: nowrap;
-        }
-        
-        .ant-table-tbody > tr > td {
-          padding: 8px 4px;
-          white-space: nowrap;
-        }
-      }
-    }
-    
-    .usage-note {
-      margin-top: 16px;
-      
-      .ant-alert {
-        padding: 12px;
-      }
-      
-      .note-title {
-        margin-bottom: 8px;
-        font-size: 14px;
-      }
-      
-      .note-list {
-        padding-left: 16px;
-        
-        li {
-          margin-bottom: 4px;
-          font-size: 12px;
-        }
-      }
-    }
-    
-    .parse-button {
-      height: 38px;
-      font-size: 14px;
     }
   }
 } 
