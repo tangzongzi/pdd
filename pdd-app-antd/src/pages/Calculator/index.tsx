@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Card, Typography, Form, InputNumber, Row, Col, Divider, Alert, Tooltip, Button } from 'antd';
+import { Card, Typography, Form, InputNumber, Row, Col, Divider, Alert, Tooltip, Button, Select } from 'antd';
 import { 
   CalculatorOutlined, 
   InfoCircleOutlined, 
@@ -315,11 +315,13 @@ const PriceInputForm: React.FC = () => {
     groupPrice, 
     priceAddition, 
     marketMaxPrice, 
+    priceMultiplier,
     isPriceExceedLimit, 
     setSupplyPrice, 
     setGroupPrice, 
     setPriceAddition, 
-    setMarketMaxPrice 
+    setMarketMaxPrice,
+    setPriceMultiplier
   } = useCalculatorStore();
   
   return (
@@ -344,6 +346,32 @@ const PriceInputForm: React.FC = () => {
               prefix={<DollarOutlined />}
               size="large"
               addonAfter="元"
+            />
+          </Form.Item>
+        </Col>
+        
+        <Col xs={24} md={6}>
+          <Form.Item 
+            label="倍速选择"
+            tooltip={{
+              title: "设置供货价的倍数，用于计算实际成本",
+              placement: "topLeft"
+            }}
+          >
+            <Select
+              style={{ width: '100%' }}
+              value={priceMultiplier}
+              onChange={setPriceMultiplier}
+              size="large"
+              options={[
+                { value: 1, label: '1倍' },
+                { value: 1.5, label: '1.5倍' },
+                { value: 2, label: '2倍' },
+                { value: 2.5, label: '2.5倍' },
+                { value: 3, label: '3倍' },
+                { value: 3.5, label: '3.5倍' },
+                { value: 4, label: '4倍' }
+              ]}
             />
           </Form.Item>
         </Col>

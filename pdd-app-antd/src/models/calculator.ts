@@ -12,6 +12,9 @@ interface CalculatorState {
   // 价格变更来源标记
   isRateSelectionUpdate: boolean;
   
+  // 倍速选择
+  priceMultiplier: number;
+  
   // 计算结果
   backendGroupPrice: number;
   singlePrice: number;
@@ -33,6 +36,9 @@ interface CalculatorState {
   
   // 设置市场控价 - 新增
   setMarketMaxPrice: (price: number) => void;
+  
+  // 设置倍速
+  setPriceMultiplier: (multiplier: number) => void;
   
   recalculate: () => void;
   saveToHistory: () => void;
@@ -56,6 +62,9 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
   
   // 价格变更来源标记
   isRateSelectionUpdate: false,
+  
+  // 倍速选择初始值
+  priceMultiplier: 1,
   
   backendGroupPrice: 0,
   singlePrice: 0,
@@ -83,7 +92,7 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     
     // 无论是否来自档位选择，都进行完整重新计算
     // 这确保了利润率和所有计算值始终保持同步
-    const { supplyPrice, groupPrice, priceAddition, marketMaxPrice } = get();
+    const { supplyPrice, groupPrice, priceAddition, marketMaxPrice, priceMultiplier } = get();
     
     // 计算后台价格和单买价
     const backendGroupPrice = groupPrice + priceAddition;
@@ -95,19 +104,19 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     const singlePlatformFee = singlePrice * feeRate;
     
     // 计算利润
-    const groupProfit = groupPrice - supplyPrice - groupPlatformFee;
-    const singleProfit = singlePrice - supplyPrice - singlePlatformFee;
+    const groupProfit = groupPrice - (supplyPrice * priceMultiplier) - groupPlatformFee;
+    const singleProfit = singlePrice - (supplyPrice * priceMultiplier) - singlePlatformFee;
     
     // 计算99折价格及其利润
     const discountPrice = (backendGroupPrice * 0.99) - priceAddition;
     const discountPlatformFee = discountPrice * feeRate;
-    const discountProfit = discountPrice - supplyPrice - discountPlatformFee;
+    const discountProfit = discountPrice - (supplyPrice * priceMultiplier) - discountPlatformFee;
     
     // 计算当前利润率（在供货价基础上的百分比）
     let currentProfitRate = 0;
     if (supplyPrice > 0) {
       // 即使亏损也计算利润率，以便UI能显示正确的负值
-      currentProfitRate = groupProfit / supplyPrice;
+      currentProfitRate = groupProfit / (supplyPrice * priceMultiplier);
     }
     
     // 检查是否超出市场控价
@@ -152,9 +161,15 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     get().recalculate();
   },
 
+  // 设置倍速
+  setPriceMultiplier: (multiplier: number) => {
+    set({ priceMultiplier: multiplier });
+    get().recalculate();
+  },
+
   // 重新计算所有值
   recalculate: () => {
-    const { supplyPrice, groupPrice, priceAddition, marketMaxPrice } = get();
+    const { supplyPrice, groupPrice, priceAddition, marketMaxPrice, priceMultiplier } = get();
     
     // 如果没有有效输入，则不计算
     if (supplyPrice <= 0 || groupPrice <= 0) {
@@ -171,19 +186,19 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     const singlePlatformFee = singlePrice * feeRate;
     
     // 计算利润
-    const groupProfit = groupPrice - supplyPrice - groupPlatformFee;
-    const singleProfit = singlePrice - supplyPrice - singlePlatformFee;
+    const groupProfit = groupPrice - (supplyPrice * priceMultiplier) - groupPlatformFee;
+    const singleProfit = singlePrice - (supplyPrice * priceMultiplier) - singlePlatformFee;
     
     // 计算99折价格及其利润
     const discountPrice = (backendGroupPrice * 0.99) - priceAddition;
     const discountPlatformFee = discountPrice * feeRate;
-    const discountProfit = discountPrice - supplyPrice - discountPlatformFee;
+    const discountProfit = discountPrice - (supplyPrice * priceMultiplier) - discountPlatformFee;
     
     // 计算当前利润率（在供货价基础上的百分比）
     let currentProfitRate = 0;
     if (supplyPrice > 0) {
       // 即使亏损也计算利润率，以便UI能显示正确的负值
-      currentProfitRate = groupProfit / supplyPrice;
+      currentProfitRate = groupProfit / (supplyPrice * priceMultiplier);
     }
     
     // 检查是否超出市场控价 - 新增
@@ -201,14 +216,6 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
       discountProfit,
       currentProfitRate,
       isPriceExceedLimit
-    });
-    
-    // 在控制台输出当前利润率，用于调试
-    console.log('当前利润率已更新:', {
-      supplyPrice,
-      groupPrice,
-      groupProfit,
-      currentProfitRate: (currentProfitRate * 100).toFixed(1) + '%'
     });
   },
   
