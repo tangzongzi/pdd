@@ -164,6 +164,7 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
   // 设置倍速
   setPriceMultiplier: (multiplier: number) => {
     set({ priceMultiplier: multiplier });
+    // 修改倍数后不会触发供货价更新，仅重新计算结果
     get().recalculate();
   },
 

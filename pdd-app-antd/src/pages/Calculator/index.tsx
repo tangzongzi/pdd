@@ -335,44 +335,46 @@ const PriceInputForm: React.FC = () => {
               placement: "topLeft"
             }}
           >
-            <InputNumber
-              style={{ width: '100%' }}
-              min={0}
-              step={0.01}
-              precision={2}
-              value={supplyPrice}
-              onChange={(value) => setSupplyPrice(Number(value) || 0)}
-              placeholder="请输入供货价"
-              prefix={<DollarOutlined />}
-              size="large"
-              addonAfter="元"
-            />
-          </Form.Item>
-        </Col>
-        
-        <Col xs={24} md={6}>
-          <Form.Item 
-            label="倍速选择"
-            tooltip={{
-              title: "设置供货价的倍数，用于计算实际成本",
-              placement: "topLeft"
-            }}
-          >
-            <Select
-              style={{ width: '100%' }}
-              value={priceMultiplier}
-              onChange={setPriceMultiplier}
-              size="large"
-              options={[
-                { value: 1, label: '1倍' },
-                { value: 1.5, label: '1.5倍' },
-                { value: 2, label: '2倍' },
-                { value: 2.5, label: '2.5倍' },
-                { value: 3, label: '3倍' },
-                { value: 3.5, label: '3.5倍' },
-                { value: 4, label: '4倍' }
-              ]}
-            />
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', top: -30, right: 0, zIndex: 1 }}>
+                <Form.Item 
+                  label="倍速选择"
+                  tooltip={{
+                    title: "设置供货价的倍数，用于计算实际成本",
+                    placement: "topLeft"
+                  }}
+                  style={{ marginBottom: 0 }}
+                >
+                  <Select
+                    style={{ width: '120px' }}
+                    value={priceMultiplier}
+                    onChange={setPriceMultiplier}
+                    size="small"
+                    options={[
+                      { value: 1, label: '1倍' },
+                      { value: 1.5, label: '1.5倍' },
+                      { value: 2, label: '2倍' },
+                      { value: 2.5, label: '2.5倍' },
+                      { value: 3, label: '3倍' },
+                      { value: 3.5, label: '3.5倍' },
+                      { value: 4, label: '4倍' }
+                    ]}
+                  />
+                </Form.Item>
+              </div>
+              <InputNumber
+                style={{ width: '100%' }}
+                min={0}
+                step={0.01}
+                precision={2}
+                value={supplyPrice}
+                onChange={(value) => setSupplyPrice(Number(value) || 0)}
+                placeholder="请输入供货价"
+                prefix={<DollarOutlined />}
+                size="large"
+                addonAfter="元"
+              />
+            </div>
           </Form.Item>
         </Col>
         
