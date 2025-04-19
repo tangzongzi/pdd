@@ -41,19 +41,18 @@ export const DiscountActivity: React.FC = () => {
     // 计算平台手续费（0.6%）
     const platformFee = targetDiscountedPrice * 0.006;
     
-    // 计算利润和利润率
-    const profit = targetDiscountedPrice - supplyPrice - platformFee;
+    // 计算利润和利润率（从利润中扣除优惠券费用）
+    const profit = targetDiscountedPrice - supplyPrice - platformFee - couponFee;
     const profitRate = profit / supplyPrice;
     
-    // 实际显示在平台上的原价（按照平台商家管理后台的规则计算）
-    // 7折前原价 = (目标拼单价 ÷ 0.7) + 优惠券费用
+    // 根据目标价格，计算平台上需要设置的原价（反向计算）
     const platformOriginalPrice = Math.ceil((targetDiscountedPrice / 0.7) * 100) / 100;
     
-    // 系统中设置的商品原价
-    const systemOriginalPrice = Math.ceil((platformOriginalPrice + couponFee) * 100) / 100;
+    // 系统中设置的商品原价（就是平台原价）
+    const systemOriginalPrice = platformOriginalPrice;
     
-    // 参考：平台显示的7折活动价（系统计算，仅供参考）
-    const systemDiscountedPrice = Math.floor(systemOriginalPrice * 0.7 * 100) / 100;
+    // 参考：平台显示的7折活动价（系统计算，就是目标价格）
+    const systemDiscountedPrice = targetDiscountedPrice;
     
     setState({
       ...state,
@@ -88,36 +87,30 @@ export const DiscountActivity: React.FC = () => {
     },
     {
       key: '2',
-      item: '目标拼单价',
+      item: '活动成交价',
       value: `¥${state.targetDiscountedPrice.toFixed(2)}`,
-      description: '您期望的实际成交价格'
+      description: '7折活动的最终销售价格'
     },
     {
       key: '3',
-      item: '平台展示原价',
+      item: '需设置原价',
       value: `¥${state.originalPrice.toFixed(2)}`,
-      description: '系统显示的商品原价（包含优惠券费用）'
+      description: '系统中需要设置的商品原价'
     },
     {
       key: '4',
-      item: '优惠券费用',
+      item: '活动券费用',
       value: `¥${state.couponFee.toFixed(2)}`,
-      description: '添加到平台展示原价中的费用'
+      description: '参加活动需支付的额外费用（商家成本）'
     },
     {
       key: '5',
-      item: '7折活动价参考',
-      value: `¥${state.discountedPrice.toFixed(2)}`,
-      description: '系统计算的7折价（仅供参考）'
-    },
-    {
-      key: '6',
       item: '平台手续费',
       value: `¥${(state.targetDiscountedPrice * 0.006).toFixed(2)}`,
       description: '交易金额的0.6%'
     },
     {
-      key: '7',
+      key: '6',
       item: '最终利润',
       value: <span className={state.profit >= 0 ? 'highlight' : ''}>{`¥${state.profit.toFixed(2)}`}</span>,
       description: `利润率: ${(state.profitRate * 100).toFixed(2)}%`
@@ -242,21 +235,20 @@ export const DiscountActivity: React.FC = () => {
             
             <div className="formula-explanation">
               <div className="formula-title">计算公式与逻辑说明：</div>
-              <div>1. <strong>平台展示原价</strong> = 目标拼单价 ÷ 0.7 + 优惠券费用</div>
-              <div>2. <strong>7折活动价参考</strong> = 平台展示原价 × 0.7</div>
-              <div>3. <strong>实际成交价格</strong> = 您设置的目标拼单价（可能与系统计算的7折价有差异）</div>
-              <div>4. <strong>利润</strong> = 目标拼单价 - 供货价 - 平台手续费</div>
-              <div>5. <strong>平台手续费</strong> = 成交价 × 0.6%</div>
+              <div>1. <strong>需设置原价</strong> = 活动成交价 ÷ 0.7（在平台后台设置的原价）</div>
+              <div>2. <strong>活动成交价</strong> = 您期望的最终销售价格</div>
+              <div>3. <strong>利润</strong> = 活动成交价 - 供货价 - 平台手续费 - 活动券费用</div>
+              <div>4. <strong>平台手续费</strong> = 成交价 × 0.6%</div>
               
               <Alert
-                message="重要说明：在平台活动中，系统计算的7折价可能与您期望的拼单价有差异。建议根据本计算器结果调整设置的原价，以确保7折后价格符合您的预期。"
+                message="重要提醒：参加7折活动时，需要考虑6元活动券费用对利润的影响。低价商品可能导致亏损！"
                 type="warning"
                 showIcon
                 style={{ marginTop: 12 }}
               />
               
               <Alert
-                message="在实际操作中，优惠券费用是添加到展示原价中，7折优惠仅针对原价部分，不包括优惠券费用。"
+                message="计算示例：活动价21.9元，供货价17.51元，则利润 = 21.9 - 17.51 - 0.13(手续费) - 6(活动费) = -1.74元"
                 type="info"
                 showIcon
                 style={{ marginTop: 12 }}
