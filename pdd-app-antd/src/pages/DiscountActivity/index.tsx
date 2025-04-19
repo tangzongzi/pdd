@@ -87,21 +87,21 @@ export const DiscountActivity: React.FC = () => {
     },
     {
       key: '2',
-      item: '活动成交价',
+      item: '目标拼单价',
       value: `¥${state.targetDiscountedPrice.toFixed(2)}`,
-      description: '7折活动的最终销售价格'
+      description: '客户实际支付的价格'
     },
     {
       key: '3',
       item: '需设置原价',
       value: `¥${state.originalPrice.toFixed(2)}`,
-      description: '系统中需要设置的商品原价'
+      description: '后台需要设置的商品原价（目标价÷0.7）'
     },
     {
       key: '4',
       item: '活动券费用',
       value: `¥${state.couponFee.toFixed(2)}`,
-      description: '参加活动需支付的额外费用（商家成本）'
+      description: '参加活动的额外费用（需从利润中扣除）'
     },
     {
       key: '5',
@@ -181,7 +181,7 @@ export const DiscountActivity: React.FC = () => {
               <Col xs={24} md={8}>
                 <Form.Item 
                   label="目标拼单价（元）" 
-                  tooltip="您希望活动中实际成交的价格"
+                  tooltip="客户实际支付的价格"
                 >
                   <InputNumber
                     style={{ width: '100%' }}
@@ -235,20 +235,20 @@ export const DiscountActivity: React.FC = () => {
             
             <div className="formula-explanation">
               <div className="formula-title">计算公式与逻辑说明：</div>
-              <div>1. <strong>需设置原价</strong> = 活动成交价 ÷ 0.7（在平台后台设置的原价）</div>
-              <div>2. <strong>活动成交价</strong> = 您期望的最终销售价格</div>
-              <div>3. <strong>利润</strong> = 活动成交价 - 供货价 - 平台手续费 - 活动券费用</div>
-              <div>4. <strong>平台手续费</strong> = 成交价 × 0.6%</div>
+              <div>1. <strong>需设置原价</strong> = 目标拼单价 ÷ 0.7（在后台设置的价格）</div>
+              <div>2. <strong>目标拼单价</strong> = 客户实际支付的价格</div>
+              <div>3. <strong>基础利润</strong> = 目标拼单价 - 供货价 - 平台手续费</div>
+              <div>4. <strong>最终利润</strong> = 基础利润 - 活动券费用</div>
               
               <Alert
-                message="重要提醒：参加7折活动时，需要考虑6元活动券费用对利润的影响。低价商品可能导致亏损！"
+                message="注意：参加7折活动时，需要从利润中扣除6元活动券费用。对于低价商品，这可能导致亏损。"
                 type="warning"
                 showIcon
                 style={{ marginTop: 12 }}
               />
               
               <Alert
-                message="计算示例：活动价21.9元，供货价17.51元，则利润 = 21.9 - 17.51 - 0.13(手续费) - 6(活动费) = -1.74元"
+                message="理解示例：客户实付21.9元，供货价17.51元，基础利润=21.9-17.51-0.13=4.26元，最终利润=4.26-6=-1.74元"
                 type="info"
                 showIcon
                 style={{ marginTop: 12 }}
