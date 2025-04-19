@@ -41,20 +41,17 @@ export const DiscountActivity: React.FC = () => {
     // 计算平台手续费（0.6%）
     const platformFee = targetDiscountedPrice * 0.006;
     
-    // 计算利润和利润率（与6元活动券费用无关）
+    // 计算利润和利润率
     const profit = targetDiscountedPrice - supplyPrice - platformFee;
     const profitRate = profit / supplyPrice;
     
     // 反向计算应该设置的原价：
-    // 逻辑：(原价-6)*0.7 = 目标拼单价，所以原价 = 目标拼单价/0.7 + 6
-    // 先计算7折前的基础价格（保留一位小数）
-    const basePrice = Math.ceil((targetDiscountedPrice / 0.7) * 10) / 10;
+    // 正确逻辑：原价×0.7-优惠券费用 = 目标拼单价
+    // 所以原价 = (目标拼单价 + 优惠券费用) / 0.7
+    const systemOriginalPrice = Math.ceil(((targetDiscountedPrice + couponFee) / 0.7) * 10) / 10;
     
-    // 然后加上优惠券费用得到最终要设置的原价
-    const systemOriginalPrice = basePrice + couponFee;
-    
-    // 验证计算：如果(原价-券费用)*0.7 四舍五入后等于目标价，则计算正确
-    const verifiedDiscountPrice = Math.round((systemOriginalPrice - couponFee) * 0.7 * 10) / 10;
+    // 验证计算：如果原价×0.7-券费用 四舍五入后等于目标价，则计算正确
+    const verifiedDiscountPrice = Math.round((systemOriginalPrice * 0.7 - couponFee) * 10) / 10;
     
     setState({
       ...state,
@@ -101,7 +98,7 @@ export const DiscountActivity: React.FC = () => {
     {
       key: '4',
       item: '7折计算公式',
-      value: `(${state.originalPrice.toFixed(2)} - ${state.couponFee.toFixed(2)}) × 0.7`,
+      value: `${state.originalPrice.toFixed(2)} × 0.7 - ${state.couponFee.toFixed(2)}`,
       description: '保留一位小数 = ¥' + state.discountedPrice.toFixed(1)
     },
     {
@@ -236,20 +233,20 @@ export const DiscountActivity: React.FC = () => {
             
             <div className="formula-explanation">
               <div className="formula-title">计算公式与逻辑说明：</div>
-              <div>1. <strong>需设置原价</strong> = (目标拼单价 ÷ 0.7)取整到小数点后1位 + 优惠券费用</div>
-              <div>2. <strong>7折后价格</strong> = (原价 - 优惠券费用) × 0.7，保留1位小数</div>
+              <div>1. <strong>需设置原价</strong> = (目标拼单价 + 优惠券费用) ÷ 0.7，取整到小数点后1位</div>
+              <div>2. <strong>7折后价格</strong> = 原价 × 0.7 - 优惠券费用，保留1位小数</div>
               <div>3. <strong>实际利润</strong> = 目标拼单价 - 供货价 - 平台手续费</div>
-              <div>4. <strong>注意</strong>：6元优惠券费用只用于计算原价，不影响利润</div>
+              <div>4. <strong>注意</strong>：优惠券费用是在折扣后扣除的，不是先扣除再打折</div>
               
               <Alert
-                message="反向计算说明：如果您希望最终成交价是17.8元，系统会计算出需要设置的原价，使得优惠后价格等于17.8元"
+                message="反向计算说明：如果您希望最终成交价是17.8元，系统会计算出需要设置的原价，使得7折后再减去优惠券费后等于17.8元"
                 type="info"
                 showIcon
                 style={{ marginTop: 12 }}
               />
               
               <Alert
-                message="实例：目标价17.8元，反向计算得到原价为31.43元(25.43+6)，验证：(31.43-6)×0.7=17.8，利润=17.8-17.51-0.11=0.18元"
+                message="实例：目标价17.8元，反向计算得到原价为34.0元，验证：34.0×0.7-6=17.8元，利润=17.8-17.51-0.11=0.18元"
                 type="success"
                 showIcon
                 style={{ marginTop: 12 }}
