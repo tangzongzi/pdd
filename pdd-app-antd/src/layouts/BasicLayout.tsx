@@ -6,7 +6,8 @@ import {
   CalculatorOutlined, 
   LineChartOutlined,
   ShoppingOutlined,
-  HistoryOutlined
+  HistoryOutlined,
+  PercentageOutlined
 } from '@ant-design/icons';
 import './BasicLayout.less';
 
@@ -44,6 +45,13 @@ export const BasicLayout = () => {
           >
             <HistoryOutlined />
             历史记录
+          </Link>
+          <Link 
+            to="/discount" 
+            className={`nav-item ${currentPath === '/discount' ? 'active' : ''}`}
+          >
+            <PercentageOutlined />
+            7折计算
           </Link>
         </div>
       </div>

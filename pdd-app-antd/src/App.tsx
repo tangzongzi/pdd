@@ -4,6 +4,7 @@ import { BasicLayout } from '@/layouts/BasicLayout';
 import { Calculator } from '@/pages/Calculator';
 import { BatchAnalysis } from '@/pages/BatchAnalysis';
 import { History } from '@/pages/History';
+import { DiscountActivity } from '@/pages/DiscountActivity';
 
 export const App = () => {
   return (
@@ -13,6 +14,7 @@ export const App = () => {
           <Route index element={<Calculator />} />
           <Route path="batch" element={<BatchAnalysis />} />
           <Route path="history" element={<History />} />
+          <Route path="discount" element={<DiscountActivity />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
