@@ -40,18 +40,18 @@ export const BasicLayout = () => {
             批量计算
           </Link>
           <Link 
-            to="/history" 
-            className={`nav-item ${currentPath === '/history' ? 'active' : ''}`}
-          >
-            <HistoryOutlined />
-            历史记录
-          </Link>
-          <Link 
             to="/discount" 
             className={`nav-item ${currentPath === '/discount' ? 'active' : ''}`}
           >
             <PercentageOutlined />
             7折计算
+          </Link>
+          <Link 
+            to="/history" 
+            className={`nav-item ${currentPath === '/history' ? 'active' : ''}`}
+          >
+            <HistoryOutlined />
+            历史记录
           </Link>
         </div>
       </div>
