@@ -36,15 +36,16 @@ export const DiscountActivity: React.FC = () => {
       return;
     }
     
-    // 计算7折前的原价（向上取整到分）
-    const originalPrice = Math.ceil(targetDiscountedPrice / 0.7 * 100) / 100;
+    // 计算7折前的原价（考虑优惠券费用，向上取整到分）
+    // 优惠券费用应该反映在7折前原价中，而不是直接从利润中扣除
+    const originalPrice = Math.ceil((targetDiscountedPrice / 0.7 + couponFee) * 100) / 100;
     
     // 重新计算精确的7折价（避免舍入误差）
-    const discountedPrice = Math.floor(originalPrice * 0.7 * 100) / 100;
+    const discountedPrice = Math.floor((originalPrice - couponFee) * 0.7 * 100) / 100;
     
-    // 计算利润和利润率
+    // 计算利润和利润率（不再从利润中扣除优惠券费用）
     const platformFee = targetDiscountedPrice * 0.006; // 平台费率0.6%
-    const profit = targetDiscountedPrice - supplyPrice - platformFee - couponFee;
+    const profit = targetDiscountedPrice - supplyPrice - platformFee;
     const profitRate = profit / supplyPrice;
     
     setState({
@@ -81,7 +82,7 @@ export const DiscountActivity: React.FC = () => {
       key: '2',
       item: '7折前原价',
       value: `¥${state.originalPrice.toFixed(2)}`,
-      description: '系统显示的商品原价'
+      description: '系统显示的商品原价（已包含优惠券费用）'
     },
     {
       key: '3',
@@ -99,7 +100,7 @@ export const DiscountActivity: React.FC = () => {
       key: '5',
       item: '优惠券费用',
       value: `¥${state.couponFee.toFixed(2)}`,
-      description: '平台活动的额外费用'
+      description: '已计入7折前原价的额外费用'
     },
     {
       key: '6',
@@ -233,13 +234,13 @@ export const DiscountActivity: React.FC = () => {
             
             <div className="formula-explanation">
               <div className="formula-title">计算公式说明：</div>
-              <div>1. 7折前原价 = 目标拼单价 ÷ 0.7（向上取整到分）</div>
-              <div>2. 7折优惠价 = 7折前原价 × 0.7（向下取整到分，仅供参考）</div>
-              <div>3. 利润 = 目标拼单价 - 供货价 - 平台手续费 - 优惠券费用</div>
+              <div>1. 7折前原价 = 目标拼单价 ÷ 0.7 + 优惠券费用（向上取整到分）</div>
+              <div>2. 7折优惠价 = (7折前原价 - 优惠券费用) × 0.7（向下取整到分，仅供参考）</div>
+              <div>3. 利润 = 目标拼单价 - 供货价 - 平台手续费</div>
               <div>4. 平台手续费 = 成交价 × 0.6%</div>
               <Alert
-                message="注意：实际计算中请咨询平台最新规则，费率可能存在变化。"
-                type="warning"
+                message="注意：优惠券费用已计入7折前原价，不会影响您的实际利润。"
+                type="info"
                 showIcon
                 style={{ marginTop: 12 }}
               />
