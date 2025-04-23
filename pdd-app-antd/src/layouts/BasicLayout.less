@@ -66,6 +66,58 @@
           background: rgba(255, 255, 255, 0.2);
           font-weight: 500;
         }
+        
+        // 下拉菜单样式
+        &.dropdown-nav-item {
+          cursor: pointer;
+          
+          .ant-space {
+            display: flex;
+            align-items: center;
+            
+            .anticon-down {
+              font-size: 12px;
+              margin-left: 2px;
+              transition: transform 0.3s;
+            }
+          }
+          
+          &:hover, &.active {
+            .anticon-down {
+              transform: rotate(180deg);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // 下拉菜单样式覆盖
+  .ant-dropdown {
+    .ant-dropdown-menu {
+      padding: 4px;
+      border-radius: 8px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      
+      .ant-dropdown-menu-item {
+        border-radius: 4px;
+        margin: 2px 0;
+        padding: 8px 12px;
+        
+        a {
+          display: flex;
+          align-items: center;
+          color: @text-color;
+          
+          .anticon {
+            margin-right: 8px;
+            color: @primary-color;
+          }
+        }
+        
+        &:hover {
+          background-color: @primary-1;
+        }
       }
     }
   }

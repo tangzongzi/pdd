@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Layout } from 'antd';
+import { Layout, Dropdown, Space, Menu } from 'antd';
 import { Footer } from '@/components/Footer';
 import { 
   CalculatorOutlined, 
   LineChartOutlined,
   ShoppingOutlined,
   HistoryOutlined,
-  PercentageOutlined
+  PercentageOutlined,
+  DownOutlined,
+  AppstoreOutlined
 } from '@ant-design/icons';
 import './BasicLayout.less';
 
@@ -17,6 +19,28 @@ export const BasicLayout = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
+  // 判断当前路径是否是平台工具之一
+  const isPlatformTool = ['/', '/batch', '/discount'].includes(currentPath);
+
+  // 创建下拉菜单
+  const platformItems = [
+    {
+      key: 'calculator',
+      icon: <CalculatorOutlined />,
+      label: <Link to="/">拼单计算</Link>,
+    },
+    {
+      key: 'batch',
+      icon: <LineChartOutlined />,
+      label: <Link to="/batch">批量计算</Link>,
+    },
+    {
+      key: 'discount',
+      icon: <PercentageOutlined />,
+      label: <Link to="/discount">7折计算</Link>,
+    },
+  ];
+
   return (
     <Layout className="basic-layout">
       <div className="top-nav">
@@ -25,27 +49,20 @@ export const BasicLayout = () => {
           拼多多助手
         </div>
         <div className="nav-links">
-          <Link 
-            to="/" 
-            className={`nav-item ${currentPath === '/' ? 'active' : ''}`}
+          <Dropdown 
+            menu={{ items: platformItems }}
+            placement="bottomCenter"
+            trigger={['hover']}
           >
-            <CalculatorOutlined />
-            拼单计算
-          </Link>
-          <Link 
-            to="/batch" 
-            className={`nav-item ${currentPath === '/batch' ? 'active' : ''}`}
-          >
-            <LineChartOutlined />
-            批量计算
-          </Link>
-          <Link 
-            to="/discount" 
-            className={`nav-item ${currentPath === '/discount' ? 'active' : ''}`}
-          >
-            <PercentageOutlined />
-            7折计算
-          </Link>
+            <div className={`nav-item dropdown-nav-item ${isPlatformTool ? 'active' : ''}`}>
+              <Space>
+                <AppstoreOutlined />
+                拼多多平台
+                <DownOutlined />
+              </Space>
+            </div>
+          </Dropdown>
+          
           <Link 
             to="/history" 
             className={`nav-item ${currentPath === '/history' ? 'active' : ''}`}
