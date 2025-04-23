@@ -9,7 +9,8 @@ import {
   HistoryOutlined,
   PercentageOutlined,
   DownOutlined,
-  AppstoreOutlined
+  AppstoreOutlined,
+  PlayCircleOutlined
 } from '@ant-design/icons';
 import './BasicLayout.less';
 
@@ -21,8 +22,11 @@ export const BasicLayout = () => {
 
   // 判断当前路径是否是平台工具之一
   const isPlatformTool = ['/', '/batch', '/discount'].includes(currentPath);
+  
+  // 判断当前路径是否是抖音平台工具之一
+  const isDouyinTool = ['/douyin', '/douyin/batch', '/douyin/discount'].includes(currentPath);
 
-  // 创建下拉菜单
+  // 创建拼多多平台下拉菜单
   const platformItems = [
     {
       key: 'calculator',
@@ -38,6 +42,25 @@ export const BasicLayout = () => {
       key: 'discount',
       icon: <PercentageOutlined />,
       label: <Link to="/discount">7折计算</Link>,
+    },
+  ];
+  
+  // 创建抖音平台下拉菜单
+  const douyinItems = [
+    {
+      key: 'douyin-calc',
+      icon: <CalculatorOutlined />,
+      label: <Link to="/douyin">抖音计算</Link>,
+    },
+    {
+      key: 'douyin-batch',
+      icon: <LineChartOutlined />,
+      label: <Link to="/douyin/batch">抖音批量</Link>,
+    },
+    {
+      key: 'douyin-discount',
+      icon: <PercentageOutlined />,
+      label: <Link to="/douyin/discount">抖音7折</Link>,
     },
   ];
 
@@ -58,6 +81,20 @@ export const BasicLayout = () => {
               <Space>
                 <AppstoreOutlined />
                 拼多多平台
+                <DownOutlined />
+              </Space>
+            </div>
+          </Dropdown>
+          
+          <Dropdown 
+            menu={{ items: douyinItems }}
+            placement="bottomCenter"
+            trigger={['hover']}
+          >
+            <div className={`nav-item dropdown-nav-item ${isDouyinTool ? 'active' : ''}`}>
+              <Space>
+                <PlayCircleOutlined />
+                抖音平台
                 <DownOutlined />
               </Space>
             </div>
