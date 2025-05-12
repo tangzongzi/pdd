@@ -90,7 +90,7 @@ const ProfitRateSelector: React.FC = () => {
     return (
       <div className="profit-rate-selector-placeholder">
         <Alert
-          message="输入供货价和拼单价后，将显示不同利润档位选项"
+          message="输入供货价和抖音价后，将显示不同利润档位选项"
           type="info"
           showIcon
         />
@@ -139,7 +139,7 @@ const ProfitRateSelector: React.FC = () => {
     );
   };
   
-  // 根据利润率计算拼单价 - 强制每次都重新计算
+  // 根据利润率计算抖音价 - 强制每次都重新计算
   const calculatePriceByRate = (rate: number) => {
     // 确保使用最新状态的supplyPrice
     const latestSupplyPrice = useCalculatorStore.getState().supplyPrice;
@@ -249,59 +249,34 @@ const ProfitRateSelector: React.FC = () => {
         <div className="selector-label">选择利润档位：</div>
         {/* 使用立即执行函数确保每次渲染时都使用最新状态 */}
         {(() => {
-          // 强制每次渲染时重新获取最新状态
-          const latestState = useCalculatorStore.getState();
-          
-          return (
-            <div className="profit-rate-buttons">
-              {profitRates.map((rate) => {
-                // 强制每次渲染都重新计算档位价格
-                const { price: ratePrice, isExceeded } = calculatePriceByRate(rate.value);
-                
-                // 检查是否接近当前利润率
-                const isActive = selectedRateId === rate.id || isNearCurrentRate(rate.value);
-                
-                return (
-                  <Button
-                    key={`${rate.id}-${forceUpdate}`}
-                    className={`profit-rate-btn ${isActive ? 'active' : ''}`}
-                    onClick={() => handleSelectRate(rate)}
-                    style={{ position: 'relative', overflow: 'visible' }}
-                  >
-                    <div className="rate-label">{rate.label}</div>
-                    <div className="rate-value">{(rate.value * 100).toFixed(1)}%</div>
-                    <div className="profit-value">¥{calculateProfit(rate.value)} 利润</div>
-                    <div className="rate-description">{rate.description}</div>
-                    {ratePrice && (
-                      <div 
-                        className="price-preview" 
-                        style={{ 
-                          marginTop: '8px', 
-                          padding: '4px 8px', 
-                          background: isExceeded ? '#fff1f0' : '#f0f8ff', 
-                          borderRadius: '4px',
-                          border: `1px solid ${isExceeded ? '#ff4d4f' : '#1890ff'}`,
-                          fontWeight: 'bold'
-                        }}
-                      >
-                        <strong>价格: ¥{ratePrice.toFixed(2)}</strong>
-                        {isExceeded && (
-                          <div style={{ fontSize: '11px', color: '#ff4d4f', marginTop: '2px' }}>
-                            已限制为市场控价
-                          </div>
-                        )}
-                        {!isExceeded && (
-                          <div style={{ fontSize: '11px', color: '#1890ff', marginTop: '2px' }}>
-                            点击应用此价格
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </Button>
-                );
-              })}
-            </div>
-          );
+          const rates = getProfitRates();
+          return rates.map((rate) => {
+            const priceInfo = calculatePriceByRate(rate.value);
+            const isSelected = selectedRateId === rate.id;
+            const isNearCurrent = isNearCurrentRate(rate.value);
+            const profitAmount = calculateProfit(rate.value);
+            
+            return (
+              <div
+                key={rate.id}
+                className={`profit-rate-option ${isSelected ? 'selected' : ''} ${isNearCurrent ? 'near-current' : ''}`}
+                onClick={() => handleSelectRate(rate)}
+              >
+                <div className="rate-label">
+                  <span className="rate-name">{rate.label}</span>
+                  <span className="rate-value">{(rate.value * 100).toFixed(1)}%</span>
+                </div>
+                <div className="rate-description">{rate.description}</div>
+                <div className="rate-details">
+                  <span className="price">¥{priceInfo.price.toFixed(2)}</span>
+                  <span className="profit">利润：¥{profitAmount}</span>
+                </div>
+                {priceInfo.isExceeded && (
+                  <div className="exceeded-warning">超出市场控价</div>
+                )}
+              </div>
+            );
+          });
         })()}
       </div>
     </div>
@@ -314,109 +289,93 @@ const PriceInputForm: React.FC = () => {
     supplyPrice, 
     groupPrice, 
     priceAddition, 
-    marketMaxPrice, 
-    isPriceExceedLimit, 
     setSupplyPrice, 
     setGroupPrice, 
-    setPriceAddition, 
-    setMarketMaxPrice 
+    setPriceAddition,
+    calculateResults
   } = useCalculatorStore();
   
+  // 处理供货价变化
+  const handleSupplyPriceChange = (value: number | null) => {
+    setSupplyPrice(value || 0);
+  };
+  
+  // 处理抖音价变化
+  const handleGroupPriceChange = (value: number | null) => {
+    setGroupPrice(value || 0);
+  };
+  
+  // 处理加价变化
+  const handlePriceAdditionChange = (value: number | null) => {
+    setPriceAddition(value || 0);
+  };
+  
   return (
-    <Form layout="vertical" size="middle" className="calculator-form">
-      <Row gutter={[16, 0]}>
-        <Col xs={24} md={6}>
-          <Form.Item 
-            label="供货价（元）"
-            tooltip={{
-              title: "输入产品的供货价格，用于计算利润",
-              placement: "topLeft"
-            }}
+    <Form layout="vertical" className="price-input-form">
+      <Row gutter={16}>
+        <Col span={8}>
+          <Form.Item
+            label={
+              <span>
+                供货价
+                <Tooltip title="商品的进货成本价格">
+                  <InfoCircleOutlined style={{ marginLeft: 8 }} />
+                </Tooltip>
+              </span>
+            }
           >
             <InputNumber
-              style={{ width: '100%' }}
-              min={0}
-              step={0.01}
-              precision={2}
-              value={supplyPrice}
-              onChange={(value) => setSupplyPrice(Number(value) || 0)}
+              prefix="¥"
               placeholder="请输入供货价"
-              prefix={<DollarOutlined />}
-              size="large"
-              addonAfter="元"
+              value={supplyPrice}
+              onChange={handleSupplyPriceChange}
+              precision={2}
+              min={0}
+              style={{ width: '100%' }}
             />
           </Form.Item>
         </Col>
-        
-        <Col xs={24} md={6}>
-          <Form.Item 
-            label="拼单价（元）"
-            tooltip={{
-              title: "输入产品的拼单价格，是买家实际支付的价格",
-              placement: "topLeft"
-            }}
-            help={isPriceExceedLimit ? <span style={{ color: '#ff4d4f' }}>已超出市场控价！</span> : null}
-            validateStatus={isPriceExceedLimit ? 'error' : undefined}
+        <Col span={8}>
+          <Form.Item
+            label={
+              <span>
+                抖音价
+                <Tooltip title="在抖音平台上的销售价格">
+                  <InfoCircleOutlined style={{ marginLeft: 8 }} />
+                </Tooltip>
+              </span>
+            }
           >
             <InputNumber
-              style={{ width: '100%' }}
-              min={0}
-              step={0.01}
-              precision={2}
+              prefix="¥"
+              placeholder="请输入抖音价"
               value={groupPrice}
-              onChange={(value) => setGroupPrice(Number(value) || 0)}
-              placeholder="请输入拼单价"
-              prefix={<DollarOutlined />}
-              size="large"
-              addonAfter="元"
-              status={isPriceExceedLimit ? 'error' : undefined}
-            />
-          </Form.Item>
-        </Col>
-        
-        <Col xs={24} md={6}>
-          <Form.Item 
-            label="市场控价（元）" 
-            tooltip={{ 
-              title: "设置市场最高价格，如果拼单价超过此价格将显示警告", 
-              placement: "topLeft" 
-            }}
-            extra={<span className="help-text">市场可接受的最高价格</span>}
-          >
-            <InputNumber
-              style={{ width: '100%' }}
-              min={0}
-              step={0.01}
+              onChange={handleGroupPriceChange}
               precision={2}
-              value={marketMaxPrice}
-              onChange={(value) => setMarketMaxPrice(Number(value) || 0)}
-              placeholder="请输入市场控价"
-              prefix={<DollarOutlined />}
-              size="large"
-              addonAfter="元"
+              min={0}
+              style={{ width: '100%' }}
             />
           </Form.Item>
         </Col>
-        
-        <Col xs={24} md={6}>
-          <Form.Item 
-            label="后台加价金额（元）" 
-            tooltip={{ 
-              title: "设置后台加价金额，用于计算后台价格和单买价", 
-              placement: "topLeft" 
-            }}
-            extra={<span className="help-text">默认为6元，可自行调整</span>}
+        <Col span={8}>
+          <Form.Item
+            label={
+              <span>
+                后台加价
+                <Tooltip title="额外的运营成本或利润加成">
+                  <InfoCircleOutlined style={{ marginLeft: 8 }} />
+                </Tooltip>
+              </span>
+            }
           >
             <InputNumber
-              style={{ width: '100%' }}
-              min={0}
-              step={1}
-              precision={0}
+              prefix="¥"
+              placeholder="请输入后台加价"
               value={priceAddition}
-              onChange={(value) => setPriceAddition(Number(value) || 0)}
-              prefix={<PlusCircleOutlined />}
-              size="large"
-              addonAfter="元"
+              onChange={handlePriceAdditionChange}
+              precision={2}
+              min={0}
+              style={{ width: '100%' }}
             />
           </Form.Item>
         </Col>
@@ -425,226 +384,131 @@ const PriceInputForm: React.FC = () => {
   );
 };
 
-export const Calculator: React.FC = () => {
-  // 从全局状态获取数据和方法
-  const {
-    supplyPrice, groupPrice, priceAddition, marketMaxPrice,
-    backendGroupPrice, singlePrice,
-    groupPlatformFee, singlePlatformFee,
-    groupProfit, singleProfit,
-    discountPrice, discountProfit,
-    isPriceExceedLimit,
-    recalculate, saveToHistory
+// 主组件
+export const DyCalculator: React.FC = () => {
+  const { 
+    supplyPrice, 
+    groupPrice, 
+    priceAddition, 
+    backendGroupPrice, 
+    singlePrice, 
+    groupProfit, 
+    singleProfit,
+    discountedPrice,
+    calculateResults,
+    saveToHistory
   } = useCalculatorStore();
-
-  // 组件挂载时执行一次计算
+  
+  // 当价格变化时重新计算结果
   useEffect(() => {
-    recalculate();
-  }, [recalculate]);
-
-  // 保存历史记录的引用，用于防抖处理
-  const saveTimerRef = useRef<number | null>(null);
-
-  // 当价格相关参数变化时保存到历史记录
-  useEffect(() => {
-    // 清除之前的计时器
-    if (saveTimerRef.current !== null) {
-      window.clearTimeout(saveTimerRef.current);
-      saveTimerRef.current = null;
+    if (supplyPrice > 0 || groupPrice > 0) {
+      calculateResults();
     }
-    
-    // 检查是否有实际的计算结果（供货价和拼单价都已输入）
+  }, [supplyPrice, groupPrice, priceAddition]);
+  
+  // 当有有效计算结果时保存到历史记录
+  useEffect(() => {
     if (supplyPrice > 0 && groupPrice > 0) {
-      // 使用防抖，延迟1.5秒保存，避免频繁保存
-      saveTimerRef.current = window.setTimeout(() => {
+      const timer = setTimeout(() => {
         saveToHistory();
-        console.log('历史记录已保存:', { supplyPrice, groupPrice, priceAddition });
-      }, 1500);
+      }, 2000); // 延迟2秒保存，避免频繁保存
+      return () => clearTimeout(timer);
     }
-    
-    return () => {
-      if (saveTimerRef.current !== null) {
-        window.clearTimeout(saveTimerRef.current);
-      }
-    };
-  }, [supplyPrice, groupPrice, priceAddition, marketMaxPrice, saveToHistory]);
-
+  }, [supplyPrice, groupPrice, priceAddition]);
+  
   return (
     <div className="calculator-page">
-      <Card bordered={false} className="main-card" size="small">
-        {/* 标题区域 */}
+      <Card className="calculator-card">
         <div className="page-header">
-          <CalculatorOutlined className="header-icon" />
-          <div>
-            <Title level={3}>PDD拼单计算</Title>
-            <Paragraph className="subtitle">快速计算拼单价和单买价，含平台手续费(0.6%)</Paragraph>
-          </div>
+          <Title level={2}>
+            <CalculatorOutlined /> 抖音价格计算器
+          </Title>
+          <Paragraph>
+            输入供货价和抖音价，自动计算利润率和推荐价格
+          </Paragraph>
         </div>
-
-        <Divider />
         
-        {/* 输入区域 - 单独在上方 */}
-        <div className="input-section">
-          <Title level={5} className="section-title">价格信息输入</Title>
-          <PriceInputForm />
-        </div>
+        <PriceInputForm />
         
         <Divider />
         
-        {/* 结果区域 - 左右两列 */}
-        <Row gutter={[24, 24]}>
-          {/* 左侧：竞争对手利润分析 */}
-          <Col xs={24} lg={12}>
-            <ProfitRateSelector />
-          </Col>
+        <div className="results-section">
+          <Row gutter={16}>
+            <Col span={8}>
+              <Card className="result-card">
+                <div className="result-title">
+                  <DollarOutlined /> 后台抖音价
+                </div>
+                <div className="result-value">
+                  ¥{backendGroupPrice.toFixed(2)}
+                </div>
+                <div className="result-description">
+                  含后台加价后的实际抖音价
+                </div>
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card className="result-card">
+                <div className="result-title">
+                  <DollarOutlined /> 单买价
+                </div>
+                <div className="result-value">
+                  ¥{singlePrice.toFixed(2)}
+                </div>
+                <div className="result-description">
+                  单件购买的价格
+                </div>
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card className="result-card">
+                <div className="result-title">
+                  <PercentageOutlined /> 抖音利润
+                </div>
+                <div className="result-value" style={{ color: groupProfit >= 0 ? '#52c41a' : '#f5222d' }}>
+                  {groupProfit >= 0 ? '+' : ''}¥{groupProfit.toFixed(2)}
+                </div>
+                <div className="result-description">
+                  抖音价减去供货价的利润
+                </div>
+              </Card>
+            </Col>
+          </Row>
           
-          {/* 右侧：价格计算结果 */}
-          <Col xs={24} lg={12}>
-            <div className="results-section">
-              <Title level={5} className="section-title">
-                <PieChartOutlined /> 价格计算结果
-                {marketMaxPrice > 0 && (
-                  <span style={{ fontSize: '14px', marginLeft: '12px', color: '#888' }}>
-                    市场控价: <span style={{ color: '#1890ff', fontWeight: 'bold' }}>¥{marketMaxPrice.toFixed(2)}</span>
-                  </span>
-                )}
-              </Title>
-
-              {/* 市场控价警告 */}
-              {isPriceExceedLimit && (
-                <Alert
-                  message="价格超出市场控价"
-                  description={`当前拼单价¥${groupPrice.toFixed(2)}已超出市场控价¥${marketMaxPrice.toFixed(2)}，建议适当降低价格以保持竞争力。`}
-                  type="warning"
-                  showIcon
-                  style={{ marginBottom: '16px' }}
-                />
-              )}
-
-              <div className="result-group">
-                <div className="result-card">
-                  <div className="result-label">
-                    后台拼单价 
-                    <Tooltip title={`计算公式: ${groupPrice} + ${priceAddition} = ${backendGroupPrice}`}>
-                      <ArrowRightOutlined style={{fontSize: '10px', opacity: 0.7, margin: '0 4px'}} />
-                    </Tooltip>
-                    拼单价+{priceAddition}元
-                  </div>
-                  <div className="result-value primary">¥{backendGroupPrice.toFixed(2)}</div>
+          <Row gutter={16} style={{ marginTop: 16 }}>
+            <Col span={8}>
+              <Card className="result-card">
+                <div className="result-title">
+                  <PercentageOutlined /> 单买利润
                 </div>
-
-                <div className="result-card">
-                  <div className="result-label">
-                    单买价 
-                    <Tooltip title={`计算公式: ${backendGroupPrice} + ${priceAddition} = ${singlePrice}`}>
-                      <ArrowRightOutlined style={{fontSize: '10px', opacity: 0.7, margin: '0 4px'}} />
-                    </Tooltip>
-                    后台拼单价+{priceAddition}元
-                  </div>
-                  <div className="result-value primary">¥{singlePrice.toFixed(2)}</div>
+                <div className="result-value" style={{ color: singleProfit >= 0 ? '#52c41a' : '#f5222d' }}>
+                  {singleProfit >= 0 ? '+' : ''}¥{singleProfit.toFixed(2)}
                 </div>
-              </div>
-
-              <div className="result-group">
-                <div className="result-card">
-                  <div className="result-label">
-                    拼单利润
-                    <Tooltip title={`计算公式: ${groupPrice} - ${supplyPrice} - ${groupPlatformFee.toFixed(2)} = ${groupProfit.toFixed(2)}`}>
-                      <InfoCircleOutlined style={{fontSize: '12px', opacity: 0.7, marginLeft: '4px'}} />
-                    </Tooltip>
-                  </div>
-                  <div className={`result-value ${groupProfit >= 0 ? 'profit' : 'loss'}`}>
-                    {groupProfit >= 0 ? '+' : ''}¥{groupProfit.toFixed(2)}
-                  </div>
+                <div className="result-description">
+                  单买价减去供货价的利润
                 </div>
-
-                <div className="result-card">
-                  <div className="result-label">
-                    单买利润
-                    <Tooltip title={`计算公式: ${singlePrice} - ${supplyPrice} - ${singlePlatformFee.toFixed(2)} = ${singleProfit.toFixed(2)}`}>
-                      <InfoCircleOutlined style={{fontSize: '12px', opacity: 0.7, marginLeft: '4px'}} />
-                    </Tooltip>
-                  </div>
-                  <div className={`result-value ${singleProfit >= 0 ? 'profit' : 'loss'}`}>
-                    {singleProfit >= 0 ? '+' : ''}¥{singleProfit.toFixed(2)}
-                  </div>
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card className="result-card">
+                <div className="result-title">
+                  <DollarOutlined /> 折扣价
                 </div>
-              </div>
-
-              <div className="result-group">
-                <div className="result-card">
-                  <div className="result-label">
-                    99折价格
-                    <Tooltip title={`计算公式: 后台拼单价 ${backendGroupPrice} × 0.99 - ${priceAddition} = ${discountPrice.toFixed(2)}`}>
-                      <PercentageOutlined style={{fontSize: '12px', opacity: 0.7, marginLeft: '4px'}} />
-                    </Tooltip>
-                  </div>
-                  <div className="result-value primary">¥{discountPrice.toFixed(2)}</div>
+                <div className="result-value">
+                  ¥{discountedPrice.toFixed(2)}
                 </div>
-
-                <div className="result-card">
-                  <div className="result-label">
-                    99折后利润
-                    <Tooltip title={`计算公式: ${discountPrice} - ${supplyPrice} - (${discountPrice} × 0.6%) = ${discountProfit.toFixed(2)}`}>
-                      <InfoCircleOutlined style={{fontSize: '12px', opacity: 0.7, marginLeft: '4px'}} />
-                    </Tooltip>
-                  </div>
-                  <div className={`result-value ${discountProfit >= 0 ? 'profit' : 'loss'}`}>
-                    {discountProfit >= 0 ? '+' : ''}¥{discountProfit.toFixed(2)}
-                  </div>
+                <div className="result-description">
+                  7折活动价格
                 </div>
-              </div>
-
-              <div className="result-group">
-                <div className="result-card">
-                  <div className="result-label">
-                    拼单手续费
-                    <Tooltip title={`计算公式: ${groupPrice} × 0.6% = ${groupPlatformFee.toFixed(2)}`}>
-                      <PercentageOutlined style={{fontSize: '12px', opacity: 0.7, marginLeft: '4px'}} />
-                    </Tooltip>
-                  </div>
-                  <div className="result-value loss">-¥{groupPlatformFee.toFixed(2)}</div>
-                </div>
-
-                <div className="result-card">
-                  <div className="result-label">
-                    单买手续费
-                    <Tooltip title={`计算公式: ${singlePrice} × 0.6% = ${singlePlatformFee.toFixed(2)}`}>
-                      <PercentageOutlined style={{fontSize: '12px', opacity: 0.7, marginLeft: '4px'}} />
-                    </Tooltip>
-                  </div>
-                  <div className="result-value loss">-¥{singlePlatformFee.toFixed(2)}</div>
-                </div>
-              </div>
-            </div>
-          </Col>
-        </Row>
-
+              </Card>
+            </Col>
+          </Row>
+        </div>
+        
         <Divider />
         
-        {/* 计算说明 */}
-        <div className="calculation-note">
-          <Alert
-            message={
-              <div>
-                <div className="note-title">
-                  <InfoCircleOutlined /> 计算说明
-                </div>
-                <ul className="note-list">
-                  <li>后台拼单价 = 拼单价 + {priceAddition}元</li>
-                  <li>单买价 = 后台拼单价 + {priceAddition}元</li>
-                  <li>手续费 = 价格 × 0.6%</li>
-                  <li>99折价格 = 后台拼单价 × 0.99 - {priceAddition}元</li>
-                </ul>
-              </div>
-            }
-            type="info"
-            showIcon={false}
-          />
-        </div>
+        <ProfitRateSelector />
       </Card>
     </div>
   );
-};
-
-export default Calculator; 
+}; 

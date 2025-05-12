@@ -257,7 +257,4 @@ export const DiscountActivity: React.FC = () => {
       </Card>
     </div>
   );
-};
-
-export { DiscountActivity };
-export default DiscountActivity; 
+}; 

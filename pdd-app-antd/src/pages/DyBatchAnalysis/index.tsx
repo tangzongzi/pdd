@@ -15,7 +15,7 @@ import './index.less';
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
-export const BatchAnalysis: React.FC = () => {
+export const DyBatchAnalysis: React.FC = () => {
   // 从全局状态获取数据和方法
   const {
     inputText,
@@ -61,7 +61,7 @@ export const BatchAnalysis: React.FC = () => {
       render: (price: number) => price.toFixed(2)
     },
     {
-      title: 'PDD最终售卖价',
+      title: '抖音最终售卖价',
       dataIndex: 'sellPrice',
       key: 'sellPrice',
       width: '12%',
@@ -84,7 +84,7 @@ export const BatchAnalysis: React.FC = () => {
       render: (price: number) => (price ? price.toFixed(2) : '0.00')
     },
     {
-      title: (<div style={{ color: '#c53030', fontWeight: 'bold' }}>拼单价<br/>(售卖价+加价)</div>),
+      title: (<div style={{ color: '#c53030', fontWeight: 'bold' }}>抖音价<br/>(售卖价+加价)</div>),
       dataIndex: 'groupPrice',
       key: 'groupPrice',
       width: '10%',
@@ -93,7 +93,7 @@ export const BatchAnalysis: React.FC = () => {
       )
     },
     {
-      title: '99折价(拼单价×0.99)',
+      title: '99折价(抖音价×0.99)',
       dataIndex: 'discountedGroupPrice',
       key: 'discountedGroupPrice',
       width: '12%',
@@ -130,8 +130,8 @@ export const BatchAnalysis: React.FC = () => {
         <div className="page-header">
           <LineChartOutlined className="header-icon" />
           <div>
-            <Title level={3}>PDD批量价格计算器</Title>
-            <Paragraph className="subtitle">快速计算多规格商品的拼单价、99折价与利润</Paragraph>
+            <Title level={3}>抖音批量价格计算器</Title>
+            <Paragraph className="subtitle">快速计算多规格商品的抖音价、99折价与利润</Paragraph>
           </div>
         </div>
 
@@ -144,7 +144,7 @@ export const BatchAnalysis: React.FC = () => {
             <div className="step-header">
               <Badge count={1} color="#1a365d" />
               <Typography.Title level={5}>粘贴产品信息</Typography.Title>
-              <Tooltip title="从拼多多后台复制产品信息，包含规格和价格数据">
+              <Tooltip title="从抖音后台复制产品信息，包含规格和价格数据">
                 <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
               </Tooltip>
             </div>
@@ -173,7 +173,7 @@ export const BatchAnalysis: React.FC = () => {
                 <div className="step-header">
                   <Badge count={2} color="#1a365d" />
                   <Typography.Title level={5}>设置加价金额</Typography.Title>
-                  <Tooltip title="设置后台加价金额，影响最终拼单价计算">
+                  <Tooltip title="设置后台加价金额，影响最终抖音价计算">
                     <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
                   </Tooltip>
                 </div>
@@ -190,7 +190,7 @@ export const BatchAnalysis: React.FC = () => {
                     style={{ width: '100%' }}
                   />
                 </div>
-                <div className="price-hint">默认为6元，用于计算拼单价 = 售卖价 + 加价金额</div>
+                <div className="price-hint">默认为6元，用于计算抖音价 = 售卖价 + 加价金额</div>
               </div>
               
               <div className="parse-section">
@@ -252,13 +252,13 @@ export const BatchAnalysis: React.FC = () => {
                 <div className="note-title">
                   <InfoCircleOutlined /> 使用说明
                 </div>
-                <ol className="note-list">
-                  <li>从拼多多商家后台复制产品规格和价格信息</li>
-                  <li>粘贴到输入框中，设置加价金额（默认6元）</li>
-                  <li>点击"解析产品信息"按钮，系统自动解析</li>
-                  <li>在表格中输入每个规格的最终售卖价</li>
-                  <li>系统自动计算拼单价、99折价和利润</li>
-                </ol>
+                <ul className="note-list">
+                  <li>从抖音后台复制产品信息，包含规格和价格数据</li>
+                  <li>设置加价金额，默认为6元</li>
+                  <li>点击"解析产品信息"按钮，系统会自动解析并计算</li>
+                  <li>在表格中可以直接修改售卖价，系统会自动重新计算</li>
+                  <li>所有价格计算已包含0.6%的平台手续费</li>
+                </ul>
               </div>
             }
             type="info"
@@ -268,7 +268,4 @@ export const BatchAnalysis: React.FC = () => {
       </Card>
     </div>
   );
-};
-
-export { BatchAnalysis };
-export default BatchAnalysis; 
+}; 

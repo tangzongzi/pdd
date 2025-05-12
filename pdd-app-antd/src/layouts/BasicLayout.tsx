@@ -24,7 +24,7 @@ export const BasicLayout = () => {
   const isPlatformTool = ['/', '/batch', '/discount'].includes(currentPath);
   
   // 判断当前路径是否是抖音平台工具之一
-  const isDouyinTool = ['/douyin', '/douyin/batch', '/douyin/discount'].includes(currentPath);
+  const isDouyinTool = ['/douyin'].includes(currentPath);
 
   // 创建拼多多平台下拉菜单
   const platformItems = [
@@ -48,20 +48,11 @@ export const BasicLayout = () => {
   // 创建抖音平台下拉菜单
   const douyinItems = [
     {
-      key: 'douyin-calc',
-      icon: <CalculatorOutlined />,
-      label: <Link to="/douyin">抖音计算</Link>,
+      key: 'douyin',
+      icon: <PlayCircleOutlined />,
+      label: <Link to="/douyin">抖音分析</Link>,
     },
-    {
-      key: 'douyin-batch',
-      icon: <LineChartOutlined />,
-      label: <Link to="/douyin/batch">抖音批量</Link>,
-    },
-    {
-      key: 'douyin-discount',
-      icon: <PercentageOutlined />,
-      label: <Link to="/douyin/discount">抖音7折</Link>,
-    },
+    // 可以在此添加更多抖音相关功能子菜单
   ];
 
   return (
