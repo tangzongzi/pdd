@@ -1,0 +1,838 @@
+@import '../../theme.less';
+
+// 全局变量定义
+@primary-color: #1890ff;
+@success-color: #52c41a;
+@warning-color: #faad14;
+@error-color: #f5222d;
+@text-color: rgba(0, 0, 0, 0.85);
+@text-color-secondary: rgba(0, 0, 0, 0.45);
+@border-radius-base: 4px;
+@border-color-base: #d9d9d9;
+@box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+.calculator-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 12px;
+  min-height: calc(100vh - 64px);
+  
+  .main-card {
+    width: 100%;
+    max-width: 1200px;
+    position: relative;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-color-light) 100%);
+    }
+  }
+  
+  .page-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .header-icon {
+      font-size: 28px;
+      color: @primary-color;
+      margin-right: 16px;
+      padding: 12px;
+      background-color: rgba(24, 144, 255, 0.1);
+      border-radius: 50%;
+    }
+    
+    .header-content {
+      flex: 1;
+    }
+    
+    .header-title {
+      margin-bottom: 4px !important;
+      font-weight: 600;
+    }
+    
+    .header-subtitle {
+      margin-bottom: 0 !important;
+      color: @text-color-secondary;
+    }
+  }
+  
+  .header-divider {
+    margin: 16px 0 !important;
+  }
+  
+  // 输入区域和结果区域通用样式
+  .input-section,
+  .results-section,
+  .profit-rate-section {
+    padding: 16px;
+    background-color: #f7fafc;
+    border-radius: 8px;
+    height: 100%;
+    border: 1px solid #e8eef7;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    
+    .section-title,
+    .profit-analysis-header {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 16px;
+      position: relative;
+      padding-left: 12px;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 16px;
+        background-color: @primary-color;
+        border-radius: 2px;
+      }
+      
+      .anticon {
+        margin-right: 6px;
+        color: @primary-color;
+      }
+    }
+  }
+  
+  // 输入表单样式
+  .calculator-form {
+    padding: 0;
+    
+    .ant-form-item {
+      margin-bottom: 12px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .ant-form-item-label {
+        label {
+          color: @heading-color;
+          font-weight: 500;
+        }
+      }
+    }
+    
+    .ant-input-number {
+      width: 100%;
+      background-color: white;
+      border: 1px solid @border-color-base;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s;
+      
+      &:hover {
+        border-color: @primary-color;
+      }
+      
+      &-focused {
+        box-shadow: 0 0 0 2px rgba(26, 54, 93, 0.1);
+      }
+      
+      &-input {
+        font-weight: 600;
+        font-size: 16px;
+        text-align: left;
+        padding-left: 40px;
+      }
+      
+      &-handler-wrap {
+        opacity: 1;
+        border-left: 1px solid @border-color-base;
+      }
+    }
+    
+    .ant-input-prefix {
+      color: @primary-color;
+      font-size: 16px;
+      margin-right: 8px;
+    }
+    
+    .help-text {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+    }
+    
+    @media (max-width: 992px) {
+      padding: 0;
+    }
+  }
+  
+  // 通用卡片样式 - 同时应用于结果卡片和利润档位按钮
+  .result-card,
+  .profit-rate-btn {
+    background-color: white;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s @animation-easing-base;
+    height: calc(100% - 2px);
+    border: 1px solid #e8eef7;
+    display: flex;
+    flex-direction: column;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-color: #40a9ff;
+    }
+  }
+  
+  // 结果区域样式
+  .results-section {
+    .result-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+    
+    .result-card {
+      .result-label {
+        color: @text-color-secondary;
+        font-size: 13px;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        
+        .anticon {
+          margin-left: 4px;
+          color: @accent-color;
+          font-size: 10px;
+        }
+      }
+      
+      .result-value {
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: auto;
+        
+        &.primary {
+          color: @primary-color;
+        }
+        
+        &.profit {
+          color: @success-color;
+        }
+        
+        &.loss {
+          color: @error-color;
+        }
+      }
+    }
+  }
+  
+  // 利润率选择器样式
+  .profit-rate-section {
+    .profit-analysis-header {
+      display: flex;
+      align-items: flex-start;
+      flex-direction: column;
+      
+      .current-profit-rate {
+        margin-top: 4px;
+        font-size: 13px;
+        margin-left: 12px;
+        
+        .profit-amount {
+          margin-left: 4px;
+          font-size: 12px;
+        }
+      }
+    }
+    
+    .profit-rate-selector {
+      margin-top: 16px;
+      
+      .selector-label {
+        margin-bottom: 12px;
+        font-size: 13px;
+        color: @text-color-secondary;
+      }
+      
+      .profit-rate-btn {
+        cursor: pointer;
+        padding: 12px;
+        border: 1px solid #e8eef7;
+        
+        &.selected {
+          border-color: @primary-color;
+          background-color: rgba(20, 61, 105, 0.05);
+        }
+        
+        &.near-current {
+          background-color: rgba(82, 196, 26, 0.05);
+        }
+        
+        .rate-header {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 6px;
+          
+          .rate-label {
+            font-weight: 500;
+            color: @heading-color;
+          }
+          
+          .rate-value {
+            color: @primary-color;
+            font-weight: 600;
+          }
+        }
+        
+        .rate-price,
+        .rate-profit {
+          display: flex;
+          align-items: center;
+          margin-bottom: 4px;
+          font-size: 12px;
+          
+          .price-label,
+          .profit-label {
+            color: @text-color-secondary;
+            width: 60px;
+          }
+          
+          .price-value,
+          .profit-value {
+            font-weight: 500;
+          }
+          
+          .price-exceeded {
+            margin-left: 4px;
+            color: @error-color;
+          }
+        }
+        
+        .rate-desc {
+          margin-top: 6px;
+          font-size: 11px;
+          color: @text-color-secondary;
+        }
+      }
+    }
+  }
+  
+  .profit-rate-selector-placeholder {
+    padding: 20px 0;
+  }
+  
+  .calculation-note {
+    padding: 8px 0;
+    margin-top: 24px;
+    
+    .ant-alert {
+      border-radius: 8px;
+      background-color: rgba(var(--primary-rgb), 0.04);
+      border: 1px solid rgba(var(--primary-rgb), 0.15);
+      
+      .note-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        
+        .anticon {
+          margin-right: 6px;
+          color: @accent-color;
+        }
+      }
+      
+      .note-list {
+        padding-left: 24px;
+        margin-bottom: 0;
+        
+        li {
+          margin-bottom: 4px;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+  
+  // 抖音价格计算器样式
+  .dy-price-calculator {
+    padding: 8px;
+    background-color: #f7fafc;
+    border-radius: 8px;
+    height: 100%;
+    border: 1px solid #e8eef7;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    
+    .section-title {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 16px;
+      position: relative;
+      padding-left: 12px;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 16px;
+        background-color: @primary-color;
+        border-radius: 2px;
+      }
+      
+      .anticon {
+        margin-right: 6px;
+        color: @primary-color;
+      }
+    }
+    
+    .help-text {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+    }
+    
+    .formula-text {
+      color: @primary-color;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    
+    .price-result {
+      font-weight: 600;
+      color: @heading-color;
+      
+      &:hover {
+        border-color: @primary-color;
+      }
+    }
+    
+    .ant-slider {
+      margin-top: 8px;
+      margin-bottom: 4px;
+      
+      &-track {
+        background-color: @primary-color;
+      }
+      
+      &-handle {
+        border-color: @primary-color;
+        
+        &:focus {
+          box-shadow: 0 0 0 5px rgba(20, 61, 105, 0.12);
+        }
+      }
+    }
+    
+    .final-price-display {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      
+      .price-card,
+      .price-vs-card,
+      .profit-card {
+        flex: 1;
+        min-width: 200px;
+        background-color: white;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e8eef7;
+        text-align: center;
+        
+        &:hover {
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+      }
+      
+      .price-title,
+      .profit-title {
+        font-size: 14px;
+        color: @text-color-secondary;
+        margin-bottom: 8px;
+      }
+      
+      .price-value,
+      .profit-value {
+        font-size: 24px;
+        font-weight: 600;
+        color: @primary-color;
+        margin-bottom: 8px;
+        
+        &.profit {
+          color: @success-color;
+        }
+        
+        &.loss {
+          color: @error-color;
+        }
+      }
+      
+      .price-formula {
+        font-size: 12px;
+        color: @text-color-secondary;
+        line-height: 1.5;
+      }
+      
+      .price-diff {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        
+        &.match {
+          color: @success-color;
+        }
+        
+        &.mismatch {
+          color: @warning-color;
+        }
+      }
+      
+      .price-comparison {
+        font-size: 12px;
+        color: @text-color-secondary;
+        text-align: left;
+        padding: 0 8px;
+        
+        div {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 4px;
+          
+          span {
+            font-weight: 500;
+            color: @heading-color;
+          }
+        }
+      }
+      
+      .profit-percent {
+        font-size: 12px;
+        color: @text-color-secondary;
+        
+        span.profit {
+          color: @success-color;
+          font-weight: 500;
+        }
+        
+        span.loss {
+          color: @error-color;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+.calculator-container {
+  margin: 0 auto;
+  padding: 12px;
+  max-width: 1000px;
+}
+
+.calculator-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  
+  &.compact-card {
+    padding: 16px;
+  }
+}
+
+.calculator-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+
+  .calculator-icon {
+    color: @primary-color;
+    font-size: 16px;
+    margin-right: 8px;
+  }
+
+  .calculator-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: @text-color;
+  }
+}
+
+.page-header.compact-header {
+  padding: 0;
+  margin-bottom: 12px;
+  
+  .header-icon {
+    font-size: 22px;
+  }
+  
+  .header-title {
+    margin-bottom: 2px !important;
+  }
+  
+  .header-subtitle {
+    font-size: 13px;
+  }
+}
+
+.calculator-form {
+  margin-bottom: 20px;
+
+  .input-label {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: 14px;
+
+    .info-icon {
+      margin-left: 6px;
+      color: @text-color-secondary;
+      cursor: pointer;
+    }
+  }
+
+  .price-input, .price-result, .coupon-input {
+    font-size: 14px;
+    height: 36px;
+    
+    &:hover {
+      border-color: @primary-color;
+    }
+  }
+
+  .price-result {
+    background-color: #f9f9f9;
+  }
+
+  .input-example, .formula-text {
+    margin-top: 2px;
+    font-size: 12px;
+    color: @text-color-secondary;
+  }
+
+  .section-divider {
+    margin: 12px 0 !important;
+  }
+
+  .coupon-slider {
+    margin: 12px 0 4px;
+
+    .ant-slider-track {
+      background-color: @primary-color;
+    }
+
+    .ant-slider-handle {
+      border-color: @primary-color;
+    }
+  }
+  
+  .ant-form-item {
+    margin-bottom: 10px;
+  }
+}
+
+.results-section {
+  margin-bottom: 20px;
+}
+
+.result-card {
+  height: 100%;
+  padding: 12px;
+  border-radius: @border-radius-base;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .result-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: @text-color;
+  }
+}
+
+.price-card {
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+  
+  .result-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: @primary-color;
+    margin-bottom: 8px;
+  }
+  
+  .result-formula {
+    font-size: 12px;
+    color: @text-color-secondary;
+    line-height: 1.5;
+  }
+}
+
+.comparison-card {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  
+  .price-diff {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    border-radius: @border-radius-base;
+    display: inline-block;
+    
+    &.match {
+      background-color: #f6ffed;
+      color: @success-color;
+      border: 1px solid #b7eb8f;
+    }
+    
+    &.mismatch {
+      background-color: #fff2e8;
+      color: @warning-color;
+      border: 1px solid #ffcf96;
+    }
+  }
+  
+  .price-details {
+    div {
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      
+      span {
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.profit-card {
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+  
+  .profit-amount {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    
+    &.profit {
+      color: @success-color;
+    }
+    
+    &.loss {
+      color: @error-color;
+    }
+  }
+  
+  .profit-rate {
+    font-size: 14px;
+    
+    span {
+      font-weight: 600;
+      
+      &.profit {
+        color: @success-color;
+      }
+      
+      &.loss {
+        color: @error-color;
+      }
+    }
+  }
+}
+
+.pricing-alert {
+  margin-top: 16px;
+  
+  .pricing-guide {
+    .guide-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    
+    .guide-list {
+      margin: 0;
+      padding-left: 20px;
+      
+      li {
+        margin-bottom: 3px;
+        line-height: 1.5;
+        font-size: 13px;
+      }
+    }
+  }
+}
+
+.final-price-display {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  
+  .price-card,
+  .price-vs-card,
+  .profit-card {
+    flex: 1;
+    min-width: 160px;
+    background-color: white;
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e8eef7;
+    text-align: center;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .result-card {
+    margin-bottom: 12px;
+  }
+  
+  .price-card .result-value,
+  .profit-card .profit-amount {
+    font-size: 20px;
+  }
+} 

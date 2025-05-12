@@ -1,0 +1,936 @@
+import React, { useEffect, useState, useRef } from 'react';
+import { Card, Typography, Form, InputNumber, Row, Col, Divider, Alert, Tooltip, Button, Slider } from 'antd';
+import { 
+  CalculatorOutlined, 
+  InfoCircleOutlined, 
+  ArrowRightOutlined, 
+  PlusCircleOutlined,
+  DollarOutlined,
+  PercentageOutlined,
+  LineChartOutlined,
+  PieChartOutlined,
+  HistoryOutlined,
+  TagOutlined
+} from '@ant-design/icons';
+import { useCalculatorStore } from '@/models/calculator';
+import './index.less';
+
+const { Title, Paragraph } = Typography;
+
+// 利润档位选择器组件
+const ProfitRateSelector: React.FC = () => {
+  const { 
+    supplyPrice, 
+    groupPrice, 
+    currentProfitRate, 
+    marketMaxPrice, 
+    isPriceExceedLimit, 
+    groupProfit 
+  } = useCalculatorStore();
+  
+  // 从store中获取需要的函数
+  const setGroupPrice = useCalculatorStore(state => state.setGroupPrice);
+  const setIsRateSelectionUpdate = useCalculatorStore(state => state.setIsRateSelectionUpdate);
+  const setPriceByProfitRate = useCalculatorStore(state => state.setPriceByProfitRate);
+  
+  // 选中的档位ID
+  const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
+  
+  // 强制刷新用的状态
+  const [forceUpdate, setForceUpdate] = useState<number>(0);
+  
+  // 当价格或利润率变化时强制重新渲染
+  useEffect(() => {
+    // 只有当有效价格输入后才更新
+    if (supplyPrice > 0 && groupPrice > 0) {
+      // 增加计数器，强制组件重新渲染
+      setForceUpdate(prev => prev + 1);
+      
+      // 找到最接近当前利润率的档位
+      const rates = getProfitRates();
+      const closestRate = getClosestRate(currentProfitRate, rates);
+      if (closestRate && Math.abs(closestRate.value - currentProfitRate) < 0.02) {
+        setSelectedRateId(closestRate.id);
+      } else {
+        setSelectedRateId(null);
+      }
+    }
+  }, [supplyPrice, groupPrice, currentProfitRate]);
+  
+  // 如果没有供货价或抖音价，返回空
+  if (supplyPrice <= 0 || groupPrice <= 0) {
+    return (
+      <div className="profit-rate-selector-placeholder">
+        <Alert
+          message="输入供货价和抖音价后，将显示不同利润档位选项"
+          type="info"
+          showIcon
+        />
+      </div>
+    );
+  }
+  
+  // 生成档位 - 固定的档位定义
+  const getProfitRates = () => {
+    // 获取最新的市场控价，用于计算最后一个档位
+    const latestMarketMaxPrice = useCalculatorStore.getState().marketMaxPrice;
+    const latestSupplyPrice = useCalculatorStore.getState().supplyPrice;
+    
+    // 计算接近市场控价的利润率（比市场控价低5%）
+    let nearMarketRate = 0.20;
+    if (latestMarketMaxPrice > 0 && latestSupplyPrice > 0) {
+      const feeRate = 0.006; // 0.6%
+      // 计算接近市场控价的价格（比市场控价低5%）
+      const nearMarketPrice = latestMarketMaxPrice * 0.95;
+      // 根据价格反推利润率
+      nearMarketRate = ((nearMarketPrice * (1 - feeRate)) / latestSupplyPrice) - 1;
+      // 确保利润率至少为0.18
+      nearMarketRate = Math.max(nearMarketRate, 0.18);
+    }
+    
+    return [
+      { id: 'ultra_low', label: '超低价位', value: 0.03, description: '薄利多销策略' },
+      { id: 'very_low', label: '极低价位', value: 0.05, description: '高流量引流' },
+      { id: 'lower', label: '较低价位', value: 0.07, description: '快速开拓市场' },
+      { id: 'low', label: '低价位', value: 0.09, description: '价格敏感市场' },
+      { id: 'medium', label: '中价位', value: 0.12, description: '与竞争对手持平' },
+      { id: 'high', label: '高价位', value: 0.14, description: '高客单价市场' },
+      { id: 'premium', label: '优质价', value: 0.17, description: '优质客户群体' },
+      { id: 'premium_plus', label: '高端价位', value: 0.20, description: '高端客户市场' },
+      { id: 'market_max', label: '市场控价下', value: nearMarketRate, description: '接近市场上限价格' }
+    ];
+  };
+  
+  // 获取档位列表
+  const profitRates = getProfitRates();
+  
+  // 获取最接近当前利润率的档位
+  const getClosestRate = (rate: number, rates: any[]) => {
+    return rates.reduce((prev, curr) => 
+      Math.abs(curr.value - rate) < Math.abs(prev.value - rate) ? curr : prev
+    );
+  };
+  
+  // 根据利润率计算抖音价 - 强制每次都重新计算
+  const calculatePriceByRate = (rate: number) => {
+    // 确保使用最新状态的supplyPrice
+    const latestSupplyPrice = useCalculatorStore.getState().supplyPrice;
+    const latestMarketMaxPrice = useCalculatorStore.getState().marketMaxPrice;
+    
+    const feeRate = 0.006; // 0.6%
+    let calculatedPrice = Math.ceil((latestSupplyPrice * (1 + rate)) / (1 - feeRate) * 100) / 100;
+    
+    // 检查是否超出市场控价
+    if (latestMarketMaxPrice > 0 && calculatedPrice > latestMarketMaxPrice) {
+      return {
+        price: latestMarketMaxPrice,
+        isExceeded: true
+      };
+    }
+    
+    return {
+      price: calculatedPrice,
+      isExceeded: false
+    };
+  };
+  
+  // 处理选择利润档位
+  const handleSelectRate = (rate: { id: string, value: number }) => {
+    // 如果已选择相同档位，则取消选择
+    if (selectedRateId === rate.id) {
+      setSelectedRateId(null);
+      return;
+    }
+    
+    // 设置选中状态
+    setSelectedRateId(rate.id);
+    
+    // 设置价格更新标识
+    setIsRateSelectionUpdate(true);
+    
+    // 使用模型方法根据利润率设置价格
+    setPriceByProfitRate(rate.value);
+    
+    // 短暂延时后重置标记
+    window.setTimeout(() => {
+      setIsRateSelectionUpdate(false);
+    }, 100);
+  };
+  
+  // 计算每个档位的具体利润金额 - 强制每次都重新计算
+  const calculateProfit = (rate: number) => {
+    // 确保使用最新状态的supplyPrice
+    const latestSupplyPrice = useCalculatorStore.getState().supplyPrice;
+    const estimatedProfit = latestSupplyPrice * rate;
+    return estimatedProfit.toFixed(2);
+  };
+  
+  // 检查是否接近当前利润率
+  const isNearCurrentRate = (rateValue: number) => {
+    // 确保使用最新的利润率
+    const latestRate = useCalculatorStore.getState().currentProfitRate;
+    return Math.abs(rateValue - latestRate) < 0.01;
+  };
+  
+  // 渲染当前利润率 - 确保使用最新值
+  const renderCurrentRate = () => {
+    // 直接从store获取最新值以确保准确性
+    const latestRate = useCalculatorStore.getState().currentProfitRate;
+    const latestProfit = useCalculatorStore.getState().groupProfit;
+    
+    const ratePercentage = (latestRate * 100).toFixed(1);
+    const profitAmount = latestProfit.toFixed(2);
+    const isPositive = latestProfit >= 0;
+    
+    return (
+      <span className="current-profit-rate">
+        当前利润率：
+        <span style={{ color: isPositive ? '#52c41a' : '#f5222d' }}>
+          {ratePercentage}%
+        </span>
+        <span className="profit-amount">
+          （利润：
+          <span style={{ color: isPositive ? '#52c41a' : '#f5222d' }}>
+            {isPositive ? '+' : ''}¥{profitAmount}
+          </span>
+          ）
+        </span>
+      </span>
+    );
+  };
+  
+  // 使用key={forceUpdate}强制每次price变化时整个组件重新渲染
+  return (
+    <div className="profit-rate-section" key={forceUpdate}>
+      <div className="profit-analysis-header">
+        <LineChartOutlined /> 竞争对手利润分析
+        {renderCurrentRate()}
+        {isPriceExceedLimit && (
+          <span className="market-price-warning" style={{ 
+            display: 'block', 
+            fontSize: '12px', 
+            color: '#ff4d4f', 
+            marginTop: '4px' 
+          }}>
+            注意：当前价格已超出市场控价！
+          </span>
+        )}
+      </div>
+      
+      <div className="profit-rate-selector">
+        <div className="selector-label">选择利润档位：</div>
+        <Row gutter={[12, 12]}>
+          {profitRates.map(rate => {
+            const { price, isExceeded } = calculatePriceByRate(rate.value);
+            const estimatedProfit = calculateProfit(rate.value);
+            const isNear = isNearCurrentRate(rate.value);
+            const isSelected = selectedRateId === rate.id;
+            
+            return (
+              <Col span={8} key={rate.id}>
+                <div 
+                  className={`profit-rate-btn ${isSelected ? 'selected' : ''} ${isNear ? 'near-current' : ''}`}
+                  onClick={() => handleSelectRate(rate)}
+                >
+                  <div className="rate-header">
+                    <span className="rate-label">{rate.label}</span>
+                    <span className="rate-value">{(rate.value * 100).toFixed(1)}%</span>
+                  </div>
+                  <div className="rate-price">
+                    <span className="price-label">抖音价：</span>
+                    <span className="price-value">¥{price.toFixed(2)}</span>
+                    {isExceeded && (
+                      <span className="price-exceeded">
+                        <Tooltip title="超出市场控价">
+                          <InfoCircleOutlined />
+                        </Tooltip>
+                      </span>
+                    )}
+                  </div>
+                  <div className="rate-profit">
+                    <span className="profit-label">利润：</span>
+                    <span className="profit-value">¥{estimatedProfit}</span>
+                  </div>
+                  <div className="rate-desc">{rate.description}</div>
+                </div>
+              </Col>
+            );
+          })}
+        </Row>
+      </div>
+    </div>
+  );
+};
+
+// 价格输入表单
+const PriceInputForm: React.FC = () => {
+  const { 
+    supplyPrice, 
+    groupPrice, 
+    priceAddition, 
+    marketMaxPrice 
+  } = useCalculatorStore();
+  
+  const setSupplyPrice = useCalculatorStore(state => state.setSupplyPrice);
+  const setGroupPrice = useCalculatorStore(state => state.setGroupPrice);
+  const setPriceAddition = useCalculatorStore(state => state.setPriceAddition);
+  const setMarketMaxPrice = useCalculatorStore(state => state.setMarketMaxPrice);
+  
+  // 处理供货价变化
+  const handleSupplyPriceChange = (value: number | null) => {
+    setSupplyPrice(value || 0);
+  };
+  
+  // 处理抖音价变化
+  const handleGroupPriceChange = (value: number | null) => {
+    setGroupPrice(value || 0);
+  };
+  
+  // 处理加价金额变化
+  const handlePriceAdditionChange = (value: number | null) => {
+    setPriceAddition(value || 0);
+  };
+  
+  // 处理市场控价变化
+  const handleMarketMaxPriceChange = (value: number | null) => {
+    setMarketMaxPrice(value || 0);
+  };
+  
+  return (
+    <div className="price-input-section">
+      <div className="section-title">
+        <InfoCircleOutlined /> 价格信息输入
+      </div>
+      <Form layout="vertical" className="calculator-form">
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <span>
+                  供货价（元）
+                  <Tooltip title="您从供应商处获得商品的成本价">
+                    <InfoCircleOutlined style={{ marginLeft: 4 }} />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <InputNumber
+                min={0}
+                step={0.01}
+                placeholder="输入供货价"
+                value={supplyPrice}
+                onChange={handleSupplyPriceChange}
+                prefix={<DollarOutlined />}
+                precision={2}
+                className="custom-input-number"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <span>
+                  抖音价（元）
+                  <Tooltip title="在抖音平台上的售价">
+                    <InfoCircleOutlined style={{ marginLeft: 4 }} />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <InputNumber
+                min={0}
+                step={0.01}
+                placeholder="输入抖音价"
+                value={groupPrice}
+                onChange={handleGroupPriceChange}
+                prefix={<DollarOutlined />}
+                precision={2}
+                className="custom-input-number"
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <span>
+                  市场控价（元）
+                  <Tooltip title="市场上同类产品的最高售价，用于控制定价上限">
+                    <InfoCircleOutlined style={{ marginLeft: 4 }} />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <InputNumber
+                min={0}
+                step={0.01}
+                placeholder="输入市场控价"
+                value={marketMaxPrice}
+                onChange={handleMarketMaxPriceChange}
+                prefix={<DollarOutlined />}
+                precision={2}
+                className="custom-input-number"
+              />
+              <div className="help-text">可接受的最高价格</div>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <span>
+                  后台加价金额（元）
+                  <Tooltip title="抖音平台在显示价格上额外加价的金额">
+                    <InfoCircleOutlined style={{ marginLeft: 4 }} />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <InputNumber
+                min={0}
+                step={1}
+                placeholder="输入加价金额"
+                value={priceAddition}
+                onChange={handlePriceAdditionChange}
+                prefix={<PlusCircleOutlined />}
+                precision={0}
+                className="custom-input-number"
+              />
+              <div className="help-text">默认为6元</div>
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+    </div>
+  );
+};
+
+// 计算结果组件
+const CalculationResults: React.FC = () => {
+  const { 
+    supplyPrice, 
+    groupPrice, 
+    priceAddition, 
+    backendGroupPrice, 
+    singlePrice,
+    groupPlatformFee,
+    singlePlatformFee,
+    groupProfit,
+    singleProfit,
+    discountPrice,
+    discountProfit,
+    isPriceExceedLimit
+  } = useCalculatorStore();
+  
+  // 如果没有有效的供货价或抖音价，则不显示结果
+  if (supplyPrice <= 0 || groupPrice <= 0) {
+    return (
+      <div className="results-section">
+        <div className="section-title">
+          <CalculatorOutlined /> 计算结果
+        </div>
+        <Alert
+          message="请输入供货价和抖音价以查看计算结果"
+          type="info"
+          showIcon
+        />
+      </div>
+    );
+  }
+  
+  return (
+    <div className="results-section">
+      <div className="section-title">
+        <CalculatorOutlined /> 计算结果
+        {isPriceExceedLimit && (
+          <span style={{ 
+            marginLeft: '12px', 
+            fontSize: '12px', 
+            color: '#ff4d4f' 
+          }}>
+            注意：当前价格已超出市场控价！
+          </span>
+        )}
+      </div>
+      
+      <div className="result-group">
+        <div className="result-card">
+          <div className="result-label">
+            抖音价格
+            <Tooltip title="用户在抖音上看到的价格">
+              <InfoCircleOutlined />
+            </Tooltip>
+          </div>
+          <div className="result-value primary">¥{groupPrice.toFixed(2)}</div>
+        </div>
+        <div className="result-card">
+          <div className="result-label">
+            后台价格
+            <Tooltip title="抖音后台显示的价格">
+              <InfoCircleOutlined />
+            </Tooltip>
+          </div>
+          <div className="result-value">¥{backendGroupPrice.toFixed(2)}</div>
+        </div>
+      </div>
+      
+      <div className="result-group">
+        <div className="result-card">
+          <div className="result-label">
+            推广专享价格
+            <Tooltip title="抖音推广专享价格">
+              <InfoCircleOutlined />
+            </Tooltip>
+          </div>
+          <div className="result-value">¥{discountPrice.toFixed(2)}</div>
+        </div>
+        <div className="result-card">
+          <div className="result-label">
+            平台手续费
+            <Tooltip title="销售价格的0.6%">
+              <InfoCircleOutlined />
+            </Tooltip>
+          </div>
+          <div className="result-value">¥{groupPlatformFee.toFixed(2)}</div>
+        </div>
+      </div>
+      
+      <div className="result-group">
+        <div className="result-card">
+          <div className="result-label">
+            销售利润
+            <Tooltip title="抖音价格减去供货价和平台手续费">
+              <InfoCircleOutlined />
+            </Tooltip>
+          </div>
+          <div className={`result-value ${groupProfit >= 0 ? 'profit' : 'loss'}`}>
+            {groupProfit >= 0 ? '+' : ''}¥{groupProfit.toFixed(2)}
+          </div>
+        </div>
+        <div className="result-card">
+          <div className="result-label">
+            推广专享利润
+            <Tooltip title="推广专享价格减去供货价和平台手续费">
+              <InfoCircleOutlined />
+            </Tooltip>
+          </div>
+          <div className={`result-value ${discountProfit >= 0 ? 'profit' : 'loss'}`}>
+            {discountProfit >= 0 ? '+' : ''}¥{discountProfit.toFixed(2)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 抖音价格计算器组件
+const DyPriceCalculator: React.FC = () => {
+  // 状态定义
+  const [supplyPrice, setSupplyPrice] = useState<number>(0);
+  const [retailPrice, setRetailPrice] = useState<number>(0);
+  const [originalPrice, setOriginalPrice] = useState<number>(0); // 抖音设置价格
+  const [sellerViewPrice, setSellerViewPrice] = useState<number>(0); // 卖家看到的价格
+  const [couponAmount, setCouponAmount] = useState<number>(0); // 新人礼金
+  const [finalPrice, setFinalPrice] = useState<number>(0); // 最终售价
+  const [adjustment, setAdjustment] = useState<number>(0); // 调整金额
+  
+  // 当供货价或零售价改变时，重新计算价格
+  useEffect(() => {
+    if (supplyPrice > 0) {
+      // 根据公式计算抖音设置价格: 供货价 * 3
+      const calculatedOriginalPrice = Math.round(supplyPrice * 3 * 100) / 100;
+      setOriginalPrice(calculatedOriginalPrice);
+      
+      // 计算卖家看到的价格: 抖音设置价格 * 0.5
+      const calculatedSellerViewPrice = Math.round((calculatedOriginalPrice * 0.5) * 100) / 100;
+      setSellerViewPrice(calculatedSellerViewPrice);
+      
+      if (retailPrice > 0) {
+        // 计算所需新人礼金：使最终售价等于目标零售价
+        // 新人礼金 = 卖家看到的价格 - 目标零售价
+        const recommendedCoupon = Math.round((calculatedSellerViewPrice - retailPrice) * 100) / 100;
+        setCouponAmount(recommendedCoupon > 0 ? recommendedCoupon : 0);
+        
+        // 设置最终售价（等于目标零售价）
+        setFinalPrice(retailPrice);
+        
+        // 计算价格差额
+        const calculatedAdjustment = Math.round((calculatedSellerViewPrice - recommendedCoupon - retailPrice) * 100) / 100;
+        setAdjustment(calculatedAdjustment);
+      } else {
+        // 如果没有设置零售价，则最终售价为卖家看到的价格
+        setFinalPrice(calculatedSellerViewPrice);
+        setCouponAmount(0);
+        setAdjustment(0);
+      }
+    }
+  }, [supplyPrice, retailPrice]);
+  
+  // 当优惠券金额改变时，更新最终售价
+  useEffect(() => {
+    if (sellerViewPrice > 0) {
+      // 计算最终售价（扣除新人礼金）
+      const calculatedFinalPrice = Math.round((sellerViewPrice - couponAmount) * 100) / 100;
+      setFinalPrice(calculatedFinalPrice > 0 ? calculatedFinalPrice : 0);
+      
+      // 更新价格差额
+      if (retailPrice > 0) {
+        const calculatedAdjustment = Math.round((finalPrice - retailPrice) * 100) / 100;
+        setAdjustment(calculatedAdjustment);
+      }
+    }
+  }, [couponAmount, sellerViewPrice, retailPrice, finalPrice]);
+  
+  // 处理供货价变化
+  const handleSupplyPriceChange = (value: number | null) => {
+    setSupplyPrice(value || 0);
+  };
+  
+  // 处理零售价变化
+  const handleRetailPriceChange = (value: number | null) => {
+    setRetailPrice(value || 0);
+  };
+  
+  // 处理原始价格手动调整
+  const handleOriginalPriceChange = (value: number | null) => {
+    setOriginalPrice(value || 0);
+    
+    // 更新卖家看到的价格
+    const newValue = value || 0;
+    const calculatedSellerViewPrice = Math.round((newValue * 0.5) * 100) / 100;
+    setSellerViewPrice(calculatedSellerViewPrice);
+  };
+  
+  // 处理新人礼金变化
+  const handleCouponAmountChange = (value: number | null) => {
+    const newValue = value || 0;
+    setCouponAmount(newValue);
+  };
+  
+  // 优惠券滑块变化处理函数
+  const handleCouponSliderChange = (value: number) => {
+    setCouponAmount(value);
+  };
+  
+  // 计算滑块的最大值
+  const maxCouponAmount = sellerViewPrice > 0 ? sellerViewPrice : 10;
+  
+  return (
+    <div className="dy-price-calculator">
+      <div className="section-title">
+        <TagOutlined /> 抖音价格计算器
+      </div>
+      
+      <Form layout="vertical">
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <span>
+                  供货价（元）
+                  <Tooltip title="您从供应商处获得商品的成本价">
+                    <InfoCircleOutlined style={{ marginLeft: 4 }} />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <InputNumber
+                min={0}
+                step={0.01}
+                placeholder="输入供货价"
+                value={supplyPrice}
+                onChange={handleSupplyPriceChange}
+                prefix={<DollarOutlined />}
+                precision={2}
+                className="custom-input-number"
+              />
+              <div className="help-text">例如：23元</div>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <span>
+                  目标零售价（元）
+                  <Tooltip title="您希望消费者最终购买的价格">
+                    <InfoCircleOutlined style={{ marginLeft: 4 }} />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <InputNumber
+                min={0}
+                step={0.01}
+                placeholder="输入目标零售价"
+                value={retailPrice}
+                onChange={handleRetailPriceChange}
+                prefix={<DollarOutlined />}
+                precision={2}
+                className="custom-input-number"
+              />
+              <div className="help-text">例如：29.9元</div>
+            </Form.Item>
+          </Col>
+        </Row>
+        
+        <Divider style={{ margin: '12px 0' }} />
+        
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <span>
+                  抖音设置价格（元）
+                  <Tooltip title="在抖音平台上设置的原始价格，计算公式：供货价×3">
+                    <InfoCircleOutlined style={{ marginLeft: 4 }} />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <InputNumber
+                min={0}
+                step={0.01}
+                placeholder="自动计算"
+                value={originalPrice}
+                onChange={handleOriginalPriceChange}
+                prefix={<DollarOutlined />}
+                precision={2}
+                className="custom-input-number price-result"
+              />
+              <div className="formula-text">计算公式：供货价×3</div>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <span>
+                  卖家看到的价格（元）
+                  <Tooltip title="卖家在未扣除新人礼金时看到的价格，计算公式：抖音设置价格×0.5">
+                    <InfoCircleOutlined style={{ marginLeft: 4 }} />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <InputNumber
+                disabled
+                placeholder="自动计算"
+                value={sellerViewPrice}
+                prefix={<DollarOutlined />}
+                precision={2}
+                className="custom-input-number price-result"
+              />
+              <div className="formula-text">计算公式：抖音设置价格×0.5</div>
+            </Form.Item>
+          </Col>
+        </Row>
+        
+        <Divider style={{ margin: '12px 0' }} />
+        
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item
+              label={
+                <span>
+                  新人礼金（元）
+                  <Tooltip title="平台优惠券金额，用于调整最终售价接近目标零售价">
+                    <InfoCircleOutlined style={{ marginLeft: 4 }} />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <InputNumber
+                min={0}
+                max={sellerViewPrice}
+                step={0.1}
+                placeholder="自动计算"
+                value={couponAmount}
+                onChange={handleCouponAmountChange}
+                prefix={<TagOutlined />}
+                precision={2}
+                className="custom-input-number price-result"
+              />
+              <Slider
+                min={0}
+                max={maxCouponAmount > 0 ? maxCouponAmount : 10}
+                step={0.1}
+                value={couponAmount}
+                onChange={handleCouponSliderChange}
+                tooltip={{ formatter: (value) => `${value}元` }}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+      
+      <div className="final-price-display">
+        <div className="price-card">
+          <div className="price-title">最终售价</div>
+          <div className="price-value">¥{finalPrice.toFixed(2)}</div>
+          <div className="price-formula">
+            卖家看到的价格 - 新人礼金 = 最终售价<br />
+            {sellerViewPrice.toFixed(2)} - {couponAmount.toFixed(2)} = {finalPrice.toFixed(2)}
+          </div>
+        </div>
+        
+        <div className="price-vs-card">
+          <div className="price-title">价格比较</div>
+          <div className={`price-diff ${Math.abs(finalPrice - retailPrice) < 0.01 ? 'match' : 'mismatch'}`}>
+            {Math.abs(finalPrice - retailPrice) < 0.01 ? 
+              <span>完全匹配 ✓</span> : 
+              <span>相差: ¥{Math.abs(finalPrice - retailPrice).toFixed(2)}</span>
+            }
+          </div>
+          <div className="price-comparison">
+            <div>目标零售价: <span>¥{retailPrice.toFixed(2)}</span></div>
+            <div>最终售价: <span>¥{finalPrice.toFixed(2)}</span></div>
+            <div>卖家看到的价格: <span>¥{sellerViewPrice.toFixed(2)}</span></div>
+            <div>价格差额: <span className={adjustment > 0 ? 'profit' : (adjustment < 0 ? 'loss' : '')}>
+              {adjustment > 0 ? '+' : ''}{adjustment.toFixed(2)}
+            </span></div>
+          </div>
+        </div>
+        
+        <div className="profit-card">
+          <div className="profit-title">预计利润</div>
+          <div className={`profit-value ${finalPrice - supplyPrice > 0 ? 'profit' : 'loss'}`}>
+            {finalPrice - supplyPrice > 0 ? '+' : ''}
+            ¥{(finalPrice - supplyPrice).toFixed(2)}
+          </div>
+          <div className="profit-percent">
+            利润率：
+            <span className={finalPrice > 0 && supplyPrice > 0 ? ((finalPrice - supplyPrice) / supplyPrice > 0 ? 'profit' : 'loss') : ''}>
+              {finalPrice > 0 && supplyPrice > 0 ? 
+                `${(((finalPrice - supplyPrice) / supplyPrice) * 100).toFixed(1)}%` : 
+                '0.0%'}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <Alert
+        type="info"
+        showIcon
+        message={
+          <div>
+            <div className="note-title">
+              <InfoCircleOutlined /> 抖音定价说明
+            </div>
+            <ul className="note-list">
+              <li>抖音设置价格 = <b>供货价 × 3</b></li>
+              <li>卖家看到的价格 = <b>抖音设置价格 × 0.5</b></li>
+              <li>最终售价 = <b>卖家看到的价格 - 新人礼金</b></li>
+              <li>新人礼金建议值 = <b>卖家看到的价格 - 目标零售价</b></li>
+              <li>调整新人礼金，使最终售价尽可能接近目标零售价</li>
+              <li>利润 = 最终售价 - 供货价</li>
+              <li>利润率 = 利润 ÷ 供货价 × 100%</li>
+            </ul>
+          </div>
+        }
+        style={{ marginTop: '16px' }}
+      />
+    </div>
+  );
+};
+
+// 主组件
+export const DyPricing: React.FC = () => {
+  const saveToHistory = useCalculatorStore(state => state.saveToHistory);
+  
+  // 初始化时重置所有值
+  useEffect(() => {
+    // 获取状态方法
+    const setState = useCalculatorStore.setState;
+    
+    // 重置所有输入值
+    setState({
+      supplyPrice: 0,
+      groupPrice: 0,
+      priceAddition: 6,
+      marketMaxPrice: 0,
+      
+      // 重置计算结果
+      backendGroupPrice: 0,
+      singlePrice: 0,
+      groupPlatformFee: 0,
+      singlePlatformFee: 0,
+      groupProfit: 0,
+      singleProfit: 0,
+      discountPrice: 0,
+      discountProfit: 0,
+      currentProfitRate: 0.1
+    });
+  }, []);
+  
+  return (
+    <div className="calculator-page">
+      <Card className="main-card">
+        <div className="page-header">
+          <CalculatorOutlined className="header-icon" />
+          <div>
+            <Title level={3}>抖音定价</Title>
+            <Paragraph className="subtitle">快速计算抖音价格和优惠券设置，轻松达到目标零售价</Paragraph>
+          </div>
+        </div>
+        
+        <Divider style={{ margin: '12px 0' }} />
+        
+        <Row gutter={[16, 16]}>
+          <Col span={24}>
+            <DyPriceCalculator />
+          </Col>
+        </Row>
+        
+        <Divider style={{ margin: '16px 0' }} />
+        
+        <Row gutter={[16, 16]}>
+          <Col span={24} lg={10}>
+            <PriceInputForm />
+          </Col>
+          <Col span={24} lg={14}>
+            <CalculationResults />
+          </Col>
+        </Row>
+        
+        <Divider style={{ margin: '16px 0' }} />
+        
+        <Row>
+          <Col span={24}>
+            <ProfitRateSelector />
+          </Col>
+        </Row>
+        
+        <Divider style={{ margin: '16px 0' }} />
+        
+        <div className="calculation-note">
+          <Alert
+            type="info"
+            showIcon
+            message={
+              <div>
+                <div className="note-title">
+                  <InfoCircleOutlined /> 计算说明
+                </div>
+                <ul className="note-list">
+                  <li>抖音平台收取商品成交价0.6%的手续费</li>
+                  <li>推广专享价 = 后台价 × 99% - 加价金额</li>
+                  <li>利润 = 销售价 - 供货价 - 平台手续费</li>
+                  <li>利润率 = 利润 ÷ 供货价 × 100%</li>
+                </ul>
+              </div>
+            }
+          />
+        </div>
+        
+        <div style={{ textAlign: 'center', marginTop: '16px' }}>
+          <Button 
+            type="primary" 
+            icon={<HistoryOutlined />} 
+            onClick={saveToHistory}
+          >
+            保存到历史记录
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
+}; 

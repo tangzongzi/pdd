@@ -10,7 +10,8 @@ import {
   PercentageOutlined,
   DownOutlined,
   AppstoreOutlined,
-  PlayCircleOutlined
+  PlayCircleOutlined,
+  DollarOutlined
 } from '@ant-design/icons';
 import './BasicLayout.less';
 
@@ -24,7 +25,7 @@ export const BasicLayout = () => {
   const isPlatformTool = ['/', '/batch', '/discount'].includes(currentPath);
   
   // 判断当前路径是否是抖音平台工具之一
-  const isDouyinTool = ['/douyin'].includes(currentPath);
+  const isDouyinTool = ['/dy-pricing'].includes(currentPath);
 
   // 创建拼多多平台下拉菜单
   const platformItems = [
@@ -48,9 +49,9 @@ export const BasicLayout = () => {
   // 创建抖音平台下拉菜单
   const douyinItems = [
     {
-      key: 'douyin',
-      icon: <PlayCircleOutlined />,
-      label: <Link to="/douyin">抖音分析</Link>,
+      key: 'dy-pricing',
+      icon: <DollarOutlined />,
+      label: <Link to="/dy-pricing">抖音定价</Link>,
     },
     // 可以在此添加更多抖音相关功能子菜单
   ];

@@ -5,6 +5,7 @@ import { Calculator } from '@/pages/Calculator';
 import { BatchAnalysis } from '@/pages/BatchAnalysis';
 import { History } from '@/pages/History';
 import { DiscountActivity } from '@/pages/DiscountActivity';
+import { DyPricing } from '@/pages/DyPricing';
 
 export const App = () => {
   return (
@@ -15,6 +16,7 @@ export const App = () => {
           <Route path="batch" element={<BatchAnalysis />} />
           <Route path="history" element={<History />} />
           <Route path="discount" element={<DiscountActivity />} />
+          <Route path="dy-pricing" element={<DyPricing />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
