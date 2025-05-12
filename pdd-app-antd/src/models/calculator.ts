@@ -23,6 +23,10 @@ interface CalculatorState {
   discountProfit: number;
   currentProfitRate: number; // 当前利润率
   
+  // 新增 DyCalculator 中需要的属性
+  calculateResults: any; // 计算结果集合
+  discountedPrice: number; // 折扣价格
+  
   // 标记价格是否超出市场控价 - 新增
   isPriceExceedLimit: boolean;
 
@@ -66,6 +70,10 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
   discountPrice: 0,
   discountProfit: 0,
   currentProfitRate: 0.1, // 默认10%利润率
+  
+  // 新增 DyCalculator 中需要的属性
+  calculateResults: {}, // 计算结果集合
+  discountedPrice: 0, // 折扣价格
   
   // 标记价格是否超出市场控价 - 新增
   isPriceExceedLimit: false,
