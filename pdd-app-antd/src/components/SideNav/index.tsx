@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu } from 'antd';
-import { CalculatorOutlined, LineChartOutlined, HistoryOutlined } from '@ant-design/icons';
+import { CalculatorOutlined, LineChartOutlined, HistoryOutlined, ShoppingOutlined } from '@ant-design/icons';
 import './index.less';
 
 export const SideNav = () => {
@@ -24,6 +24,11 @@ export const SideNav = () => {
       key: '/history',
       icon: <HistoryOutlined />,
       label: <Link to="/history">历史记录</Link>,
+    },
+    {
+      key: '/douyin-discount',
+      icon: <ShoppingOutlined />,
+      label: <Link to="/douyin-discount">抖音折扣价</Link>,
     },
   ];
 

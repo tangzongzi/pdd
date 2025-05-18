@@ -6,6 +6,7 @@ import { BatchAnalysis } from '@/pages/BatchAnalysis';
 import { History } from '@/pages/History';
 import { DiscountActivity } from '@/pages/DiscountActivity';
 import { DyPricing } from '@/pages/DyPricing';
+import DouyinDiscount from '@/pages/DouyinDiscount';
 
 export const App = () => {
   return (
@@ -17,6 +18,7 @@ export const App = () => {
           <Route path="history" element={<History />} />
           <Route path="discount" element={<DiscountActivity />} />
           <Route path="dy-pricing" element={<DyPricing />} />
+          <Route path="douyin-discount" element={<DouyinDiscount />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
