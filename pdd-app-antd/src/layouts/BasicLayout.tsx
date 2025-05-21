@@ -11,7 +11,8 @@ import {
   DownOutlined,
   AppstoreOutlined,
   PlayCircleOutlined,
-  DollarOutlined
+  DollarOutlined,
+  TagOutlined
 } from '@ant-design/icons';
 import './BasicLayout.less';
 
@@ -25,7 +26,7 @@ export const BasicLayout = () => {
   const isPlatformTool = ['/', '/batch', '/discount'].includes(currentPath);
   
   // 判断当前路径是否是抖音平台工具之一
-  const isDouyinTool = ['/dy-pricing', '/douyin-discount'].includes(currentPath);
+  const isDouyinTool = ['/dy-pricing', '/douyin-discount', '/douyin-coupon'].includes(currentPath);
 
   // 创建拼多多平台下拉菜单
   const platformItems = [
@@ -57,6 +58,11 @@ export const BasicLayout = () => {
       key: 'douyin-discount',
       icon: <PercentageOutlined />,
       label: <Link to="/douyin-discount">抖音折扣价</Link>,
+    },
+    {
+      key: 'douyin-coupon',
+      icon: <TagOutlined />,
+      label: <Link to="/douyin-coupon">外漏优惠券</Link>,
     },
     // 可以在此添加更多抖音相关功能子菜单
   ];

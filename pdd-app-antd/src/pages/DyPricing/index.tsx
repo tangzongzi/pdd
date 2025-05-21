@@ -11,6 +11,9 @@ import './index.less';
 
 const { Title, Paragraph } = Typography;
 
+// 平台扣点比例
+const PLATFORM_FEE_RATE = 0.02; // 2%
+
 // 抖音价格计算器组件
 const DyPriceCalculator: React.FC = () => {
   // 状态定义
@@ -21,6 +24,7 @@ const DyPriceCalculator: React.FC = () => {
   const [couponAmount, setCouponAmount] = useState<number>(0); // 新人礼金
   const [finalPrice, setFinalPrice] = useState<number>(0); // 最终售价
   const [adjustment, setAdjustment] = useState<number>(0); // 调整金额
+  const [platformFee, setPlatformFee] = useState<number>(0); // 平台扣点费用
   
   // 当供货价或零售价改变时，重新计算价格
   useEffect(() => {
@@ -42,12 +46,21 @@ const DyPriceCalculator: React.FC = () => {
         // 设置最终售价（等于目标零售价）
         setFinalPrice(retailPrice);
         
+        // 计算平台扣点费用 = 最终售价 * 平台扣点比例
+        const calculatedPlatformFee = Math.round((retailPrice * PLATFORM_FEE_RATE) * 100) / 100;
+        setPlatformFee(calculatedPlatformFee);
+        
         // 计算价格差额
         const calculatedAdjustment = Math.round((calculatedSellerViewPrice - recommendedCoupon - retailPrice) * 100) / 100;
         setAdjustment(calculatedAdjustment);
       } else {
         // 如果没有设置零售价，则最终售价为卖家看到的价格
         setFinalPrice(calculatedSellerViewPrice);
+        
+        // 计算平台扣点费用 = 最终售价 * 平台扣点比例
+        const calculatedPlatformFee = Math.round((calculatedSellerViewPrice * PLATFORM_FEE_RATE) * 100) / 100;
+        setPlatformFee(calculatedPlatformFee);
+        
         setCouponAmount(0);
         setAdjustment(0);
       }
@@ -60,6 +73,11 @@ const DyPriceCalculator: React.FC = () => {
       // 计算最终售价（扣除新人礼金）
       const calculatedFinalPrice = Math.round((sellerViewPrice - couponAmount) * 100) / 100;
       setFinalPrice(calculatedFinalPrice > 0 ? calculatedFinalPrice : 0);
+      
+      // 计算平台扣点费用 = 最终售价 * 平台扣点比例
+      const calculatedFinalPriceValue = calculatedFinalPrice > 0 ? calculatedFinalPrice : 0;
+      const calculatedPlatformFee = Math.round((calculatedFinalPriceValue * PLATFORM_FEE_RATE) * 100) / 100;
+      setPlatformFee(calculatedPlatformFee);
       
       // 更新价格差额
       if (retailPrice > 0) {
@@ -296,17 +314,20 @@ const DyPriceCalculator: React.FC = () => {
           <Col xs={24} md={8}>
             <div className="result-card profit-card">
               <div className="result-title">预计利润</div>
-              <div className={`profit-amount ${finalPrice - supplyPrice > 0 ? 'profit' : 'loss'}`}>
-                {finalPrice - supplyPrice > 0 ? '+' : ''}
-                ¥{(finalPrice - supplyPrice).toFixed(2)}
+              <div className={`profit-amount ${finalPrice - supplyPrice - platformFee > 0 ? 'profit' : 'loss'}`}>
+                {finalPrice - supplyPrice - platformFee > 0 ? '+' : ''}
+                ¥{(finalPrice - supplyPrice - platformFee).toFixed(2)}
               </div>
               <div className="profit-rate">
                 利润率：
-                <span className={finalPrice > 0 && supplyPrice > 0 ? ((finalPrice - supplyPrice) / supplyPrice > 0 ? 'profit' : 'loss') : ''}>
+                <span className={finalPrice > 0 && supplyPrice > 0 ? ((finalPrice - supplyPrice - platformFee) / supplyPrice > 0 ? 'profit' : 'loss') : ''}>
                   {finalPrice > 0 && supplyPrice > 0 ? 
-                    `${(((finalPrice - supplyPrice) / supplyPrice) * 100).toFixed(1)}%` : 
+                    `${(((finalPrice - supplyPrice - platformFee) / supplyPrice) * 100).toFixed(1)}%` : 
                     '0.0%'}
                 </span>
+              </div>
+              <div className="platform-fee">
+                平台扣点({PLATFORM_FEE_RATE * 100}%)：¥{platformFee.toFixed(2)}
               </div>
             </div>
           </Col>
@@ -327,8 +348,9 @@ const DyPriceCalculator: React.FC = () => {
               <li>最终售价 = <b>卖家看到的价格 - 新人礼金</b></li>
               <li>新人礼金建议值 = <b>卖家看到的价格 - 目标零售价</b></li>
               <li>调整新人礼金，使最终售价尽可能接近目标零售价</li>
-              <li>利润 = 最终售价 - 供货价</li>
-              <li>利润率 = 利润 ÷ 供货价 × 100%</li>
+              <li>平台扣点 = 最终售价 × {PLATFORM_FEE_RATE * 100}%</li>
+              <li>实际利润 = 最终售价 - 供货价 - 平台扣点</li>
+              <li>利润率 = 实际利润 ÷ 供货价 × 100%</li>
             </ul>
           </div>
         }

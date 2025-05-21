@@ -7,6 +7,7 @@ import { History } from '@/pages/History';
 import { DiscountActivity } from '@/pages/DiscountActivity';
 import { DyPricing } from '@/pages/DyPricing';
 import DouyinDiscount from '@/pages/DouyinDiscount';
+import DouyinCouponCalculator from '@/pages/DouyinCoupon';
 
 export const App = () => {
   return (
@@ -19,6 +20,7 @@ export const App = () => {
           <Route path="discount" element={<DiscountActivity />} />
           <Route path="dy-pricing" element={<DyPricing />} />
           <Route path="douyin-discount" element={<DouyinDiscount />} />
+          <Route path="douyin-coupon" element={<DouyinCouponCalculator />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
