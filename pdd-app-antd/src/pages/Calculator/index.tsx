@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import { useCalculatorStore } from '@/models/calculator';
 import { useHistoryStore } from '@/stores/historyStore';
-import { CalculationType, Platform } from '@/types/history';
+import { CalculationType, Platform, PddSingleRecord, PddGroupRecord } from '@/types/history';
 import './index.less';
 
 const { Title, Paragraph } = Typography;
@@ -483,8 +483,8 @@ export const Calculator: React.FC = () => {
       supplyPrice,
       singlePrice,
       singleProfit,
-      platformFee,
-    });
+      platformFee: singlePlatformFee,
+    } as Omit<PddSingleRecord, 'id' | 'timestamp'>);
 
     // 如果有团购价，添加团购计算记录
     if (groupPrice) {
@@ -494,8 +494,8 @@ export const Calculator: React.FC = () => {
         supplyPrice,
         groupPrice,
         groupProfit,
-        platformFee,
-      });
+        platformFee: groupPlatformFee,
+      } as Omit<PddGroupRecord, 'id' | 'timestamp'>);
     }
   };
 

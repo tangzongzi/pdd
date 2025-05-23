@@ -23,7 +23,7 @@ export const useHistoryStore = create<HistoryState>()(
               ...record,
               id: nanoid(),
               timestamp: Date.now(),
-            },
+            } as HistoryRecord,
             ...state.records,
           ],
         }));

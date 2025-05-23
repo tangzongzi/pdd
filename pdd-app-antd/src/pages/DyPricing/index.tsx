@@ -11,7 +11,7 @@ import { useHistoryStore } from '@/stores/historyStore';
 import { CalculationType, Platform } from '@/types/history';
 import './index.less';
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 
 // 抖音价格计算器组件
 const DyPriceCalculator: React.FC = () => {
