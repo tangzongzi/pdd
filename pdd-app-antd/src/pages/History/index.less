@@ -7,6 +7,8 @@
   align-items: flex-start;
   padding: 24px;
   min-height: calc(100vh - 64px);
+  max-width: 1200px;
+  margin: 0 auto;
   
   .main-card {
     width: 100%;
@@ -170,6 +172,79 @@
           }
         }
       }
+    }
+  }
+
+  .ant-card {
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .ant-card-head {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 16px 24px;
+
+    .anticon {
+      margin-right: 8px;
+    }
+  }
+
+  .history-list {
+    .ant-list-item {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      background: #fff;
+      transition: all 0.3s ease;
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .ant-list-item-meta-title {
+      margin-bottom: 12px;
+
+      .record-time {
+        margin-left: 16px;
+        font-size: 14px;
+      }
+    }
+
+    .ant-space-vertical {
+      width: 100%;
+    }
+  }
+
+  // 利润显示样式
+  .profit {
+    color: #52c41a;
+    font-weight: bold;
+  }
+
+  .loss {
+    color: #f5222d;
+    font-weight: bold;
+  }
+
+  // 平台标签样式
+  .ant-tag {
+    border: none;
+    font-weight: 500;
+    padding: 2px 8px;
+  }
+
+  // 空状态样式
+  .ant-empty {
+    padding: 32px 0;
+  }
+
+  // 操作按钮样式
+  .ant-btn-text {
+    padding: 4px 8px;
+
+    &:hover {
+      background: rgba(245, 34, 45, 0.1);
     }
   }
 }

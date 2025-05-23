@@ -14,6 +14,8 @@ import {
 } from 'antd';
 import { DollarOutlined, PercentageOutlined, LineChartOutlined, RiseOutlined } from '@ant-design/icons';
 import './index.less';
+import { useHistoryStore } from '@/stores/historyStore';
+import { CalculationType, Platform } from '@/types/history';
 
 const { Title, Text } = Typography;
 
@@ -24,8 +26,6 @@ interface FormData {
 
 // 固定的抖音折扣率
 const DEFAULT_DISCOUNT_RATE = 46;
-// 平台扣点比例
-const PLATFORM_FEE_RATE = 0.02; // 2%
 
 const DouyinDiscount: React.FC = () => {
   const [form] = Form.useForm();
@@ -33,10 +33,10 @@ const DouyinDiscount: React.FC = () => {
   const [douyinSettingPrice, setDouyinSettingPrice] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(DEFAULT_DISCOUNT_RATE);
   const [discountDisplay, setDiscountDisplay] = useState<string>(`${DEFAULT_DISCOUNT_RATE}% (${DEFAULT_DISCOUNT_RATE/10}折)`);
-  const [platformFee, setPlatformFee] = useState<number>(0);
   const [profit, setProfit] = useState<number>(0);
   const [profitRate, setProfitRate] = useState<number>(0);
   const [showResults, setShowResults] = useState<boolean>(false);
+  const { addRecord } = useHistoryStore();
 
   // 当表单值变化时自动计算
   const valuesChange = (changedValues: any, allValues: FormData) => {
@@ -55,11 +55,8 @@ const DouyinDiscount: React.FC = () => {
     // 计算抖音设置价格 = 目标零售价 / (折扣率/100)
     const calculatedSettingPrice = targetPrice / (DEFAULT_DISCOUNT_RATE / 100);
     
-    // 计算平台扣点费用 = 目标零售价 * 平台扣点比例
-    const calculatedPlatformFee = targetPrice * PLATFORM_FEE_RATE;
-    
-    // 计算利润 = 目标零售价 - 供货价 - 平台扣点费用
-    const calculatedProfit = targetPrice - supplierPrice - calculatedPlatformFee;
+    // 计算利润 = 目标零售价 - 供货价
+    const calculatedProfit = targetPrice - supplierPrice;
     
     // 利润率 = 利润 / 供货价 * 100%
     const calculatedProfitRate = supplierPrice > 0 
@@ -70,9 +67,20 @@ const DouyinDiscount: React.FC = () => {
     setDouyinSettingPrice(calculatedSettingPrice);
     setDiscountRate(DEFAULT_DISCOUNT_RATE);
     setDiscountDisplay(`${DEFAULT_DISCOUNT_RATE}% (${DEFAULT_DISCOUNT_RATE/10}折)`);
-    setPlatformFee(calculatedPlatformFee);
     setProfit(calculatedProfit);
     setProfitRate(calculatedProfitRate);
+
+    // 添加到历史记录
+    addRecord({
+      type: CalculationType.DOUYIN_DISCOUNT,
+      platform: Platform.DOUYIN,
+      supplyPrice: supplierPrice,
+      originalPrice: targetPrice,
+      discountRate: DEFAULT_DISCOUNT_RATE,
+      discountPrice: calculatedSettingPrice,
+      profit: calculatedProfit,
+      platformFee: 0, // 平台扣点为0
+    } as any);
   };
 
   return (
@@ -188,7 +196,7 @@ const DouyinDiscount: React.FC = () => {
                         valueStyle={{ color: '#52c41a', fontSize: '28px', fontWeight: 'bold' }}
                       />
                       <div className="profit-description">
-                        目标零售价 - 供货价 - 平台扣点({PLATFORM_FEE_RATE * 100}%)
+                        目标零售价 - 供货价
                       </div>
                     </Card>
                   </Col>
@@ -226,19 +234,13 @@ const DouyinDiscount: React.FC = () => {
                 description={
                   <Space direction="vertical">
                     <Text>1. 在抖音后台将价格设置为¥{douyinSettingPrice.toFixed(2)}，消费者将看到的最终价格为¥{formData?.targetPrice.toFixed(2) || '0.00'}</Text>
-                    <Text>2. 平台扣点({PLATFORM_FEE_RATE * 100}%)：¥{platformFee.toFixed(2)}（按成交价计算）</Text>
-                    <Text>3. 最终利润 = 成交价 - 供货价 - 平台扣点 = ¥{profit.toFixed(2)}</Text>
+                    <Text>2. 最终利润 = 成交价 - 供货价 = ¥{profit.toFixed(2)}</Text>
                   </Space>
                 }
-                showIcon
               />
             </div>
           </>
-        ) : (
-          <div style={{ padding: '40px 0' }}>
-            <Empty description="请输入供货价和目标零售价获取计算结果" />
-          </div>
-        )}
+        ) : null}
       </Card>
     </div>
   );

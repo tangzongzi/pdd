@@ -7,12 +7,11 @@ import {
   DollarOutlined
 } from '@ant-design/icons';
 import { useCalculatorStore } from '@/models/calculator';
+import { useHistoryStore } from '@/stores/historyStore';
+import { CalculationType, Platform } from '@/types/history';
 import './index.less';
 
 const { Title, Paragraph } = Typography;
-
-// 平台扣点比例
-const PLATFORM_FEE_RATE = 0.02; // 2%
 
 // 抖音价格计算器组件
 const DyPriceCalculator: React.FC = () => {
@@ -24,7 +23,7 @@ const DyPriceCalculator: React.FC = () => {
   const [couponAmount, setCouponAmount] = useState<number>(0); // 新人礼金
   const [finalPrice, setFinalPrice] = useState<number>(0); // 最终售价
   const [adjustment, setAdjustment] = useState<number>(0); // 调整金额
-  const [platformFee, setPlatformFee] = useState<number>(0); // 平台扣点费用
+  const { addRecord } = useHistoryStore();
   
   // 当供货价或零售价改变时，重新计算价格
   useEffect(() => {
@@ -46,20 +45,25 @@ const DyPriceCalculator: React.FC = () => {
         // 设置最终售价（等于目标零售价）
         setFinalPrice(retailPrice);
         
-        // 计算平台扣点费用 = 最终售价 * 平台扣点比例
-        const calculatedPlatformFee = Math.round((retailPrice * PLATFORM_FEE_RATE) * 100) / 100;
-        setPlatformFee(calculatedPlatformFee);
-        
         // 计算价格差额
         const calculatedAdjustment = Math.round((calculatedSellerViewPrice - recommendedCoupon - retailPrice) * 100) / 100;
         setAdjustment(calculatedAdjustment);
+
+        // 添加到历史记录
+        addRecord({
+          type: CalculationType.DOUYIN_PRICE,
+          platform: Platform.DOUYIN,
+          supplyPrice,
+          originalPrice: calculatedOriginalPrice,
+          sellerViewPrice: calculatedSellerViewPrice,
+          couponAmount: recommendedCoupon > 0 ? recommendedCoupon : 0,
+          finalPrice: retailPrice,
+          profit: retailPrice - supplyPrice,
+          platformFee: 0, // 为满足类型要求
+        } as any);
       } else {
         // 如果没有设置零售价，则最终售价为卖家看到的价格
         setFinalPrice(calculatedSellerViewPrice);
-        
-        // 计算平台扣点费用 = 最终售价 * 平台扣点比例
-        const calculatedPlatformFee = Math.round((calculatedSellerViewPrice * PLATFORM_FEE_RATE) * 100) / 100;
-        setPlatformFee(calculatedPlatformFee);
         
         setCouponAmount(0);
         setAdjustment(0);
@@ -73,11 +77,6 @@ const DyPriceCalculator: React.FC = () => {
       // 计算最终售价（扣除新人礼金）
       const calculatedFinalPrice = Math.round((sellerViewPrice - couponAmount) * 100) / 100;
       setFinalPrice(calculatedFinalPrice > 0 ? calculatedFinalPrice : 0);
-      
-      // 计算平台扣点费用 = 最终售价 * 平台扣点比例
-      const calculatedFinalPriceValue = calculatedFinalPrice > 0 ? calculatedFinalPrice : 0;
-      const calculatedPlatformFee = Math.round((calculatedFinalPriceValue * PLATFORM_FEE_RATE) * 100) / 100;
-      setPlatformFee(calculatedPlatformFee);
       
       // 更新价格差额
       if (retailPrice > 0) {
@@ -239,169 +238,127 @@ const DyPriceCalculator: React.FC = () => {
           </Col>
         </Row>
         
-        <Divider className="section-divider" />
-        
-        <Form.Item
-          label={
-            <span className="input-label">
-              新人礼金（元）
-              <Tooltip title="平台优惠券金额，用于调整最终售价接近目标零售价">
-                <InfoCircleOutlined className="info-icon" />
-              </Tooltip>
-            </span>
-          }
-        >
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <InputNumber
-              min={0}
-              max={sellerViewPrice}
-              step={0.1}
-              placeholder="自动计算"
-              value={couponAmount}
-              onChange={handleCouponAmountChange}
-              prefix={<TagOutlined />}
-              precision={2}
-              className="coupon-input"
-              size="middle"
-              style={{ width: '100%' }}
-            />
-            <Slider
-              min={0}
-              max={maxCouponAmount > 0 ? maxCouponAmount : 10}
-              step={0.1}
-              value={couponAmount}
-              onChange={handleCouponSliderChange}
-              tooltip={{ formatter: (value) => `${value}元` }}
-              className="coupon-slider"
-            />
-          </Space>
-        </Form.Item>
-      </Form>
-      
-      <div className="results-section">
-        <Row gutter={[12, 12]}>
-          <Col xs={24} md={8}>
-            <div className="result-card price-card">
-              <div className="result-title">最终售价</div>
-              <div className="result-value">¥{finalPrice.toFixed(2)}</div>
-              <div className="result-formula">
-                卖家看到的价格 - 新人礼金 = 最终售价<br />
-                {sellerViewPrice.toFixed(2)} - {couponAmount.toFixed(2)} = {finalPrice.toFixed(2)}
-              </div>
-            </div>
-          </Col>
-          
-          <Col xs={24} md={8}>
-            <div className="result-card comparison-card">
-              <div className="result-title">价格比较</div>
-              <div className={`price-diff ${Math.abs(finalPrice - retailPrice) < 0.01 ? 'match' : 'mismatch'}`}>
-                {Math.abs(finalPrice - retailPrice) < 0.01 ? 
-                  <span>完全匹配 ✓</span> : 
-                  <span>相差: ¥{Math.abs(finalPrice - retailPrice).toFixed(2)}</span>
-                }
-              </div>
-              <div className="price-details">
-                <div>目标零售价: <span>¥{retailPrice.toFixed(2)}</span></div>
-                <div>最终售价: <span>¥{finalPrice.toFixed(2)}</span></div>
-                <div>卖家看到的价格: <span>¥{sellerViewPrice.toFixed(2)}</span></div>
-                <div>价格差额: <span className={adjustment > 0 ? 'profit' : (adjustment < 0 ? 'loss' : '')}>
-                  {adjustment > 0 ? '+' : ''}{adjustment.toFixed(2)}
-                </span></div>
-              </div>
-            </div>
-          </Col>
-          
-          <Col xs={24} md={8}>
-            <div className="result-card profit-card">
-              <div className="result-title">预计利润</div>
-              <div className={`profit-amount ${finalPrice - supplyPrice - platformFee > 0 ? 'profit' : 'loss'}`}>
-                {finalPrice - supplyPrice - platformFee > 0 ? '+' : ''}
-                ¥{(finalPrice - supplyPrice - platformFee).toFixed(2)}
-              </div>
-              <div className="profit-rate">
-                利润率：
-                <span className={finalPrice > 0 && supplyPrice > 0 ? ((finalPrice - supplyPrice - platformFee) / supplyPrice > 0 ? 'profit' : 'loss') : ''}>
-                  {finalPrice > 0 && supplyPrice > 0 ? 
-                    `${(((finalPrice - supplyPrice - platformFee) / supplyPrice) * 100).toFixed(1)}%` : 
-                    '0.0%'}
+        <Row gutter={[16, 0]}>
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label={
+                <span className="input-label">
+                  新人礼金/优惠券（元）
+                  <Tooltip title="设置的优惠券金额，新人在领取后可抵扣此金额">
+                    <InfoCircleOutlined className="info-icon" />
+                  </Tooltip>
                 </span>
-              </div>
-              <div className="platform-fee">
-                平台扣点({PLATFORM_FEE_RATE * 100}%)：¥{platformFee.toFixed(2)}
-              </div>
-            </div>
+              }
+            >
+              <InputNumber
+                min={0}
+                max={sellerViewPrice}
+                step={0.01}
+                placeholder="自动计算/手动调整"
+                value={couponAmount}
+                onChange={handleCouponAmountChange}
+                prefix={<DollarOutlined />}
+                precision={2}
+                className="price-input"
+                size="middle"
+                style={{ width: '100%' }}
+              />
+              <Slider
+                min={0}
+                max={maxCouponAmount}
+                step={0.01}
+                value={couponAmount}
+                onChange={handleCouponSliderChange}
+                tooltipVisible={false}
+                disabled={sellerViewPrice <= 0}
+              />
+              <div className="formula-text">推荐值：卖家价格 - 目标零售价</div>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label={
+                <span className="input-label">
+                  最终售价（元）
+                  <Tooltip title="消费者实际支付的价格 = 卖家价格 - 新人礼金">
+                    <InfoCircleOutlined className="info-icon" />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <InputNumber
+                disabled
+                placeholder="自动计算"
+                value={finalPrice}
+                prefix={<DollarOutlined />}
+                precision={2}
+                className="price-result final-price"
+                size="middle"
+                style={{ width: '100%' }}
+              />
+              <div className="formula-text">计算公式：卖家价格 - 新人礼金</div>
+              {retailPrice > 0 && (
+                <div className={`price-adjustment ${adjustment > 0 ? 'price-high' : adjustment < 0 ? 'price-low' : ''}`}>
+                  {adjustment > 0 ? `高于目标价：+${adjustment.toFixed(2)}元` : 
+                   adjustment < 0 ? `低于目标价：${adjustment.toFixed(2)}元` : 
+                   '价格符合目标'}
+                </div>
+              )}
+            </Form.Item>
           </Col>
         </Row>
-      </div>
-      
-      <Alert
-        type="info"
-        showIcon
-        message={
-          <div className="pricing-guide">
-            <div className="guide-title">
-              <InfoCircleOutlined /> 抖音定价说明
-            </div>
-            <ul className="guide-list">
-              <li>抖音设置价格 = <b>供货价 × 3</b></li>
-              <li>卖家看到的价格 = <b>抖音设置价格 × 0.5</b></li>
-              <li>最终售价 = <b>卖家看到的价格 - 新人礼金</b></li>
-              <li>新人礼金建议值 = <b>卖家看到的价格 - 目标零售价</b></li>
-              <li>调整新人礼金，使最终售价尽可能接近目标零售价</li>
-              <li>平台扣点 = 最终售价 × {PLATFORM_FEE_RATE * 100}%</li>
-              <li>实际利润 = 最终售价 - 供货价 - 平台扣点</li>
-              <li>利润率 = 实际利润 ÷ 供货价 × 100%</li>
-            </ul>
-          </div>
-        }
-        className="pricing-alert"
-      />
+        
+        <Divider className="section-divider" />
+        
+        <div className="profit-section">
+          <Card title="利润分析" bordered={false} className="profit-card">
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12}>
+                <div className="profit-item">
+                  <span className="profit-label">利润金额：</span>
+                  <span className={`profit-value ${finalPrice - supplyPrice >= 0 ? 'profit-positive' : 'profit-negative'}`}>
+                    ¥{(finalPrice - supplyPrice).toFixed(2)}
+                  </span>
+                </div>
+                <div className="profit-formula">计算公式：最终售价 - 供货价</div>
+              </Col>
+              <Col xs={24} md={12}>
+                <div className="profit-item">
+                  <span className="profit-label">利润率：</span>
+                  <span className={`profit-value ${supplyPrice > 0 && (finalPrice - supplyPrice) / supplyPrice * 100 >= 0 ? 'profit-positive' : 'profit-negative'}`}>
+                    {supplyPrice > 0 ? ((finalPrice - supplyPrice) / supplyPrice * 100).toFixed(2) : '0.00'}%
+                  </span>
+                </div>
+                <div className="profit-formula">计算公式：利润 ÷ 供货价 × 100%</div>
+              </Col>
+            </Row>
+          </Card>
+        </div>
+        
+        <Alert
+          message="计算器说明"
+          description={
+            <Space direction="vertical">
+              <Text>1. 抖音设置价格 = 供货价 × 3，这是您在抖音后台设置的价格</Text>
+              <Text>2. 卖家看到的价格 = 抖音设置价格 × 0.5，这是卖家实际看到的价格</Text>
+              <Text>3. 通过设置合适的新人礼金/优惠券，可以将最终售价控制在目标零售价附近</Text>
+              <Text>4. 利润 = 最终售价 - 供货价</Text>
+            </Space>
+          }
+          type="info"
+          style={{ marginTop: '20px' }}
+        />
+      </Form>
     </div>
   );
 };
 
-// 主组件
 export const DyPricing: React.FC = () => {
-  // 初始化时重置所有值
-  useEffect(() => {
-    // 获取状态方法
-    const setState = useCalculatorStore.setState;
-    
-    // 重置所有输入值
-    setState({
-      supplyPrice: 0,
-      groupPrice: 0,
-      priceAddition: 6,
-      marketMaxPrice: 0,
-      
-      // 重置计算结果
-      backendGroupPrice: 0,
-      singlePrice: 0,
-      groupPlatformFee: 0,
-      singlePlatformFee: 0,
-      groupProfit: 0,
-      singleProfit: 0,
-      discountPrice: 0,
-      discountProfit: 0,
-      currentProfitRate: 0.1
-    });
-  }, []);
-  
   return (
-    <div className="calculator-container">
-      <Card className="calculator-card compact-card" bordered={false}>
-        <div className="page-header compact-header">
-          <CalculatorOutlined className="header-icon" />
-          <div className="header-content">
-            <Title level={4} className="header-title">抖音定价</Title>
-            <Paragraph className="header-subtitle">快速计算抖音价格和优惠券设置，轻松达到目标零售价</Paragraph>
-          </div>
-        </div>
-        
-        <Divider className="header-divider" />
-        
-        <DyPriceCalculator />
-      </Card>
+    <div className="dy-pricing-page">
+      <DyPriceCalculator />
     </div>
   );
-}; 
+};
+
+export default DyPricing; 

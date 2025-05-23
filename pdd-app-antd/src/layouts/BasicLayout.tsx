@@ -26,7 +26,7 @@ export const BasicLayout = () => {
   const isPlatformTool = ['/', '/batch', '/discount'].includes(currentPath);
   
   // 判断当前路径是否是抖音平台工具之一
-  const isDouyinTool = ['/dy-pricing', '/douyin-discount', '/douyin-coupon'].includes(currentPath);
+  const isDouyinTool = ['/dy-pricing', '/douyin-discount', '/douyin-coupon', '/douyin-low-price'].includes(currentPath);
 
   // 创建拼多多平台下拉菜单
   const platformItems = [
@@ -63,6 +63,11 @@ export const BasicLayout = () => {
       key: 'douyin-coupon',
       icon: <TagOutlined />,
       label: <Link to="/douyin-coupon">外漏优惠券</Link>,
+    },
+    {
+      key: 'douyin-low-price',
+      icon: <ShoppingOutlined />,
+      label: <Link to="/douyin-low-price">低价起价</Link>,
     },
     // 可以在此添加更多抖音相关功能子菜单
   ];

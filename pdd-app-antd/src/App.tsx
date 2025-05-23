@@ -1,29 +1,31 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { BasicLayout } from '@/layouts/BasicLayout';
 import { Calculator } from '@/pages/Calculator';
 import { BatchAnalysis } from '@/pages/BatchAnalysis';
 import { History } from '@/pages/History';
-import { DiscountActivity } from '@/pages/DiscountActivity';
 import { DyPricing } from '@/pages/DyPricing';
 import DouyinDiscount from '@/pages/DouyinDiscount';
 import DouyinCouponCalculator from '@/pages/DouyinCoupon';
+import DouyinLowPrice from '@/pages/DouyinLowPrice';
+import { BasicLayout } from '@/layouts/BasicLayout';
 
-export const App = () => {
+const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<BasicLayout />}>
-          <Route index element={<Calculator />} />
-          <Route path="batch" element={<BatchAnalysis />} />
-          <Route path="history" element={<History />} />
-          <Route path="discount" element={<DiscountActivity />} />
-          <Route path="dy-pricing" element={<DyPricing />} />
-          <Route path="douyin-discount" element={<DouyinDiscount />} />
-          <Route path="douyin-coupon" element={<DouyinCouponCalculator />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+        <Route element={<BasicLayout />}>
+          <Route path="/" element={<Navigate to="/calculator" replace />} />
+          <Route path="/calculator" element={<Calculator />} />
+          <Route path="/batch" element={<BatchAnalysis />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/dy-pricing" element={<DyPricing />} />
+          <Route path="/douyin-discount" element={<DouyinDiscount />} />
+          <Route path="/douyin-coupon" element={<DouyinCouponCalculator />} />
+          <Route path="/douyin-low-price" element={<DouyinLowPrice />} />
         </Route>
       </Routes>
     </Router>
   );
 }; 
+
+export default App; 

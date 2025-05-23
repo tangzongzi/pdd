@@ -12,7 +12,8 @@ import {
   Col,
   Statistic,
   Button,
-  Tooltip
+  Tooltip,
+  Switch
 } from 'antd';
 import {
   DollarOutlined,
@@ -21,9 +22,12 @@ import {
   UserOutlined,
   InfoCircleOutlined,
   CalculatorOutlined,
-  SettingOutlined
+  SettingOutlined,
+  PercentageOutlined
 } from '@ant-design/icons';
 import './index.less';
+import { useHistoryStore } from '@/stores/historyStore';
+import { CalculationType, Platform } from '@/types/history';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -36,21 +40,21 @@ interface FormData {
 const PRICE_MULTIPLIER = 2; // 200%倍率
 const PRICE_ADDITION = 1; // 加1元
 const NEW_USER_DISCOUNT = 8; // 新人优惠8元
-
-// 平台扣点比例
-const PLATFORM_FEE_RATE = 0.02; // 2%
+const LIMITED_DISCOUNT_RATE = 0.7; // 限时7折
 
 const DouyinCouponCalculator: React.FC = () => {
   const [form] = Form.useForm();
   const [formData, setFormData] = useState<FormData | null>(null);
   const [listingPrice, setListingPrice] = useState<number>(0); // 上架价格
+  const [limitedTimePrice, setLimitedTimePrice] = useState<number>(0); // 限时7折价格
   const [couponAmount, setCouponAmount] = useState<number>(0); // 优惠券金额
   const [newUserPrice, setNewUserPrice] = useState<number>(0); // 新人价格
   const [showResults, setShowResults] = useState<boolean>(false);
   const [sellerPrice, setSellerPrice] = useState<number>(0);
   const [profit, setProfit] = useState<number>(0);
   const [profitRate, setProfitRate] = useState<number>(0);
-  const [platformFee, setPlatformFee] = useState<number>(0);
+  const [enableLimitedDiscount, setEnableLimitedDiscount] = useState<boolean>(true); // 是否启用限时折扣
+  const { addRecord } = useHistoryStore();
 
   // 当表单值变化时自动计算
   const valuesChange = (changedValues: any, allValues: FormData) => {
@@ -69,8 +73,12 @@ const DouyinCouponCalculator: React.FC = () => {
     // 计算上架价格 = 期望售价 × 200% + 1元
     const calculatedListingPrice = Math.ceil(expectedPrice * PRICE_MULTIPLIER + PRICE_ADDITION);
     
-    // 计算商家价格 = 上架价格 × 0.5
-    const calculatedSellerPrice = Math.round(calculatedListingPrice * 0.5 * 100) / 100;
+    // 计算限时7折价格
+    const calculatedLimitedTimePrice = Math.round(calculatedListingPrice * LIMITED_DISCOUNT_RATE * 100) / 100;
+    
+    // 计算商家价格 = 上架价格 × 0.5 或 限时折扣价格 × 0.5
+    const basePrice = enableLimitedDiscount ? calculatedLimitedTimePrice : calculatedListingPrice;
+    const calculatedSellerPrice = Math.round(basePrice * 0.5 * 100) / 100;
     
     // 计算优惠券金额 = 商家价格 - 期望售价 + 额外金额(确保优惠券金额>期望售价)
     // 这里取1元作为额外金额，可以根据需要调整
@@ -79,23 +87,41 @@ const DouyinCouponCalculator: React.FC = () => {
     // 计算新人价格 = 商家价格 - 优惠券金额 - 新人优惠
     const calculatedNewUserPrice = Math.max(0.01, calculatedSellerPrice - calculatedCouponAmount - NEW_USER_DISCOUNT);
 
-    // 计算平台扣点费用
-    const calculatedPlatformFee = Math.round((calculatedNewUserPrice * PLATFORM_FEE_RATE) * 100) / 100;
+    // 计算利润：新用户价格 - 供应商价格
+    const calculatedProfit = Math.round((calculatedNewUserPrice - supplierPrice) * 100) / 100;
 
-    // 计算利润：新用户价格 - 供应商价格 - 平台扣点
-    const calculatedProfit = Math.round((calculatedNewUserPrice - supplierPrice - calculatedPlatformFee) * 100) / 100;
+    // 添加到历史记录
+    addRecord({
+      type: CalculationType.DOUYIN_COUPON,
+      platform: Platform.DOUYIN,
+      supplyPrice: supplierPrice,
+      listingPrice: calculatedListingPrice,
+      limitedTimePrice: enableLimitedDiscount ? calculatedLimitedTimePrice : undefined,
+      couponAmount: calculatedCouponAmount,
+      newUserPrice: calculatedNewUserPrice,
+      profit: calculatedProfit,
+      platformFee: 0, // 为满足类型要求
+    } as any);
 
     setFormData(values);
     setListingPrice(calculatedListingPrice);
+    setLimitedTimePrice(calculatedLimitedTimePrice);
     setCouponAmount(calculatedCouponAmount);
     setNewUserPrice(calculatedNewUserPrice);
     setSellerPrice(calculatedSellerPrice);
     setProfit(calculatedProfit);
-    setPlatformFee(calculatedPlatformFee);
 
     // 计算利润率：利润 / 供应商价格
     const calculatedProfitRate = supplierPrice > 0 ? (calculatedProfit / supplierPrice) * 100 : 0;
     setProfitRate(Math.round(calculatedProfitRate * 10) / 10);
+  };
+
+  // 切换限时折扣状态
+  const handleToggleLimitedDiscount = (checked: boolean) => {
+    setEnableLimitedDiscount(checked);
+    if (formData) {
+      calculateResults(formData);
+    }
   };
 
   return (
@@ -148,6 +174,24 @@ const DouyinCouponCalculator: React.FC = () => {
                 addonBefore="¥"
               />
             </Form.Item>
+            
+            <Form.Item
+              label={
+                <span className="input-label">
+                  启用限时7折
+                  <Tooltip title="前5-10天使用限时7折价格进行快速拉新">
+                    <InfoCircleOutlined className="info-icon" />
+                  </Tooltip>
+                </span>
+              }
+            >
+              <Switch 
+                checked={enableLimitedDiscount} 
+                onChange={handleToggleLimitedDiscount}
+                checkedChildren="已启用"
+                unCheckedChildren="已关闭"
+              />
+            </Form.Item>
           </Space>
         </Form>
 
@@ -183,30 +227,32 @@ const DouyinCouponCalculator: React.FC = () => {
                     </Card>
                   </Col>
                   
-                  {/* 商家价格 */}
-                  <Col xs={24} sm={12}>
-                    <Card 
-                      className="price-card" 
-                      bordered={false}
-                    >
-                      <Statistic
-                        title={
-                          <div className="price-title">
-                            <DollarOutlined className="price-icon" />
-                            <span>商家价格</span>
-                          </div>
-                        }
-                        value={sellerPrice}
-                        precision={2}
-                        prefix="¥"
-                        valueStyle={{ color: '#ff4d4f', fontSize: '28px', fontWeight: 'bold' }}
-                      />
-                      <div className="price-description">
-                        商家看到的价格
-                      </div>
-                    </Card>
-                  </Col>
-                  
+                  {/* 限时折扣价格 */}
+                  {enableLimitedDiscount && (
+                    <Col xs={24} sm={12}>
+                      <Card 
+                        className="discount-card" 
+                        bordered={false}
+                      >
+                        <Statistic
+                          title={
+                            <div className="discount-title">
+                              <PercentageOutlined className="discount-icon" />
+                              <span>限时7折价格</span>
+                            </div>
+                          }
+                          value={limitedTimePrice}
+                          precision={2}
+                          prefix="¥"
+                          valueStyle={{ color: '#faad14', fontSize: '28px', fontWeight: 'bold' }}
+                        />
+                        <div className="discount-description">
+                          开启限时折扣活动时的价格
+                        </div>
+                      </Card>
+                    </Col>
+                  )}
+
                   {/* 优惠券金额 */}
                   <Col xs={24} sm={12}>
                     <Card 
@@ -226,36 +272,12 @@ const DouyinCouponCalculator: React.FC = () => {
                         valueStyle={{ color: '#1890ff', fontSize: '28px', fontWeight: 'bold' }}
                       />
                       <div className="coupon-description">
-                        设置此金额的满减优惠券
+                        设置此金额的全店通用券
                       </div>
                     </Card>
                   </Col>
                   
-                  {/* 老客最终价 */}
-                  <Col xs={24} sm={12}>
-                    <Card 
-                      className="final-price-card" 
-                      bordered={false}
-                    >
-                      <Statistic
-                        title={
-                          <div className="final-price-title">
-                            <ShoppingOutlined className="final-price-icon" />
-                            <span>普通客户最终价</span>
-                          </div>
-                        }
-                        value={formData?.expectedPrice || 0}
-                        precision={2}
-                        prefix="¥"
-                        valueStyle={{ color: '#52c41a', fontSize: '28px', fontWeight: 'bold' }}
-                      />
-                      <div className="final-price-description">
-                        优惠后普通客户看到的价格
-                      </div>
-                    </Card>
-                  </Col>
-                  
-                  {/* 新人最终价 */}
+                  {/* 新人价格 */}
                   <Col xs={24} sm={12}>
                     <Card 
                       className="new-user-card" 
@@ -265,45 +287,21 @@ const DouyinCouponCalculator: React.FC = () => {
                         title={
                           <div className="new-user-title">
                             <UserOutlined className="new-user-icon" />
-                            <span>新人最终价</span>
+                            <span>新人到手价</span>
                           </div>
                         }
                         value={newUserPrice}
                         precision={2}
                         prefix="¥"
-                        valueStyle={{ color: '#722ed1', fontSize: '28px', fontWeight: 'bold' }}
+                        valueStyle={{ color: '#52c41a', fontSize: '28px', fontWeight: 'bold' }}
                       />
                       <div className="new-user-description">
-                        叠加新人优惠后的价格
+                        新用户领券后的到手价
                       </div>
                     </Card>
                   </Col>
                   
-                  {/* 平台扣点 */}
-                  <Col xs={24} sm={12}>
-                    <Card 
-                      className="platform-fee-card" 
-                      bordered={false}
-                    >
-                      <Statistic
-                        title={
-                          <div className="platform-fee-title">
-                            <DollarOutlined className="platform-fee-icon" />
-                            <span>平台扣点({PLATFORM_FEE_RATE * 100}%)</span>
-                          </div>
-                        }
-                        value={platformFee}
-                        precision={2}
-                        prefix="¥"
-                        valueStyle={{ color: '#fa8c16', fontSize: '28px', fontWeight: 'bold' }}
-                      />
-                      <div className="platform-fee-description">
-                        平台收取的交易手续费
-                      </div>
-                    </Card>
-                  </Col>
-                  
-                  {/* 实际利润 */}
+                  {/* 利润 */}
                   <Col xs={24} sm={12}>
                     <Card 
                       className="profit-card" 
@@ -312,51 +310,90 @@ const DouyinCouponCalculator: React.FC = () => {
                       <Statistic
                         title={
                           <div className="profit-title">
-                            <TagOutlined className="profit-icon" />
-                            <span>实际利润</span>
+                            <ShoppingOutlined className="profit-icon" />
+                            <span>利润</span>
                           </div>
                         }
                         value={profit}
                         precision={2}
                         prefix="¥"
                         valueStyle={{ 
-                          color: profit >= 0 ? '#52c41a' : '#f5222d', 
+                          color: profit >= 0 ? '#52c41a' : '#ff4d4f', 
                           fontSize: '28px', 
                           fontWeight: 'bold' 
                         }}
                       />
                       <div className="profit-description">
-                        <div>利润 = 新人价 - 供货价 - 平台扣点</div>
-                        <div>利润率：<span className={profitRate >= 0 ? 'profit-positive' : 'profit-negative'}>
-                          {profitRate.toFixed(1)}%
-                        </span></div>
+                        新人到手价 - 供货价
+                      </div>
+                    </Card>
+                  </Col>
+                  
+                  {/* 利润率 */}
+                  <Col xs={24} sm={12}>
+                    <Card 
+                      className="profit-rate-card" 
+                      bordered={false}
+                    >
+                      <Statistic
+                        title={
+                          <div className="profit-rate-title">
+                            <CalculatorOutlined className="profit-rate-icon" />
+                            <span>利润率</span>
+                          </div>
+                        }
+                        value={profitRate}
+                        precision={1}
+                        suffix="%"
+                        valueStyle={{ 
+                          color: profitRate >= 0 ? '#722ed1' : '#ff4d4f', 
+                          fontSize: '28px', 
+                          fontWeight: 'bold' 
+                        }}
+                      />
+                      <div className="profit-rate-description">
+                        利润 ÷ 供货价 × 100%
                       </div>
                     </Card>
                   </Col>
                 </Row>
               </div>
               
+              <Divider style={{ margin: '24px 0 16px' }} />
+              
               <Alert
                 className="info-alert"
                 type="info"
-                message="外漏价格策略说明"
+                message="抖音外漏优惠券说明"
                 description={
                   <Space direction="vertical">
-                    <Text>1. 上架价格已设置为期望售价的{PRICE_MULTIPLIER}倍+{PRICE_ADDITION}元</Text>
-                    <Text>2. 优惠券金额高于商品实际期望售价，触发外漏低价机制</Text>
-                    <Text>3. 新人价格计算已考虑平台新人券{NEW_USER_DISCOUNT}元</Text>
-                    <Text>4. 平台扣点按照最终成交价的{PLATFORM_FEE_RATE * 100}%计算</Text>
-                    <Text>5. 实际利润 = 最终成交价 - 供货价 - 平台扣点</Text>
-                    <Text>6. 此计算结果仅供参考，实际效果取决于平台当前政策</Text>
+                    <Text>1. 在抖音后台将商品价格设置为 ¥{listingPrice.toFixed(2)}</Text>
+                    {enableLimitedDiscount && (
+                      <Text>2. 开启限时折扣活动，价格设为 ¥{limitedTimePrice.toFixed(2)}（原价的7折）</Text>
+                    )}
+                    <Text>{enableLimitedDiscount ? '3' : '2'}. 设置全店通用券，金额为 ¥{couponAmount.toFixed(2)}</Text>
+                    <Text>{enableLimitedDiscount ? '4' : '3'}. 利用抖音平台自带的新人礼金机制（¥{NEW_USER_DISCOUNT}），最终新人到手价为 ¥{newUserPrice.toFixed(2)}</Text>
+                    <Text>{enableLimitedDiscount ? '5' : '4'}. 最终利润 = 新人到手价 - 供货价 = ¥{profit.toFixed(2)}</Text>
                   </Space>
                 }
-                showIcon
               />
+              
+              <div className="strategy-explanation">
+                <Title level={5} className="strategy-title">
+                  <SettingOutlined /> 策略说明
+                </Title>
+                <Paragraph className="strategy-content">
+                  此计算器帮助您设置抖音外漏低价策略。通过设置高于实际期望售价的优惠券，触发抖音外漏低价机制，吸引新客户。同时，利用抖音平台的新人礼金机制，进一步降低新用户的购买门槛。
+                </Paragraph>
+              </div>
             </div>
           </>
         ) : (
-          <div style={{ padding: '40px 0' }}>
-            <Empty description="请输入供货价和期望售价获取计算结果" />
+          <div className="empty-container">
+            <Empty 
+              description="请输入供货价和期望售价获取计算结果" 
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            />
           </div>
         )}
       </Card>

@@ -1,0 +1,115 @@
+.douyin-low-price-page {
+  max-width: 800px;
+  margin: 0 auto;
+
+  .key-results-container {
+    margin-bottom: 20px;
+  }
+
+  .price-card, .coupon-card, .final-price-card, .profit-card {
+    height: 100%;
+    background-color: #f9f9f9;
+    transition: all 0.3s;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-3px);
+    }
+  }
+
+  .price-card {
+    border-left: 4px solid #ff4d4f;
+  }
+
+  .coupon-card {
+    border-left: 4px solid #1890ff;
+  }
+
+  .final-price-card {
+    border-left: 4px solid #722ed1;
+  }
+
+  .profit-card {
+    border-left: 4px solid #52c41a;
+  }
+
+  .input-label {
+    display: flex;
+    align-items: center;
+  }
+
+  .info-icon {
+    margin-left: 5px;
+    color: #1890ff;
+  }
+
+  .price-title, .coupon-title, .profit-title, .final-price-title {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+  }
+
+  .price-icon, .coupon-icon, .profit-icon, .final-price-icon {
+    margin-right: 8px;
+    font-size: 20px;
+  }
+
+  .price-icon {
+    color: #ff4d4f;
+  }
+
+  .coupon-icon {
+    color: #1890ff;
+  }
+
+  .profit-icon {
+    color: #52c41a;
+  }
+
+  .final-price-icon {
+    color: #722ed1;
+  }
+
+  .price-description, .coupon-description, .profit-description, .final-price-description {
+    margin-top: 8px;
+    color: #666;
+    font-size: 12px;
+  }
+
+  .slider-container {
+    padding: 10px 20px;
+  }
+
+  .adjust-card {
+    margin-bottom: 16px;
+  }
+
+  .info-alert {
+    margin-top: 16px;
+  }
+
+  .profit-rate {
+    margin-top: 8px;
+    font-size: 14px;
+
+    .positive {
+      color: #52c41a;
+      font-weight: bold;
+    }
+
+    .negative {
+      color: #ff4d4f;
+      font-weight: bold;
+    }
+  }
+
+  .platform-fee-info {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #fa8c16;
+    
+    span {
+      font-weight: 500;
+    }
+  }
+} 

@@ -11,6 +11,8 @@ import {
   PieChartOutlined
 } from '@ant-design/icons';
 import { useCalculatorStore } from '@/models/calculator';
+import { useHistoryStore } from '@/stores/historyStore';
+import { CalculationType, Platform } from '@/types/history';
 import './index.less';
 
 const { Title, Paragraph } = Typography;
@@ -437,6 +439,8 @@ export const Calculator: React.FC = () => {
     recalculate, saveToHistory
   } = useCalculatorStore();
 
+  const { addRecord } = useHistoryStore();
+
   // 组件挂载时执行一次计算
   useEffect(() => {
     recalculate();
@@ -468,6 +472,32 @@ export const Calculator: React.FC = () => {
       }
     };
   }, [supplyPrice, groupPrice, priceAddition, marketMaxPrice, saveToHistory]);
+
+  const handleCalculate = () => {
+    // ... existing calculation code ...
+
+    // 添加单品计算记录
+    addRecord({
+      type: CalculationType.PDD_SINGLE,
+      platform: Platform.PDD,
+      supplyPrice,
+      singlePrice,
+      singleProfit,
+      platformFee,
+    });
+
+    // 如果有团购价，添加团购计算记录
+    if (groupPrice) {
+      addRecord({
+        type: CalculationType.PDD_GROUP,
+        platform: Platform.PDD,
+        supplyPrice,
+        groupPrice,
+        groupProfit,
+        platformFee,
+      });
+    }
+  };
 
   return (
     <div className="calculator-page">
