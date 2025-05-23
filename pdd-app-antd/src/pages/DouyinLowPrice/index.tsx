@@ -32,7 +32,6 @@ const { Text } = Typography;
 
 interface FormData {
   supplierPrice: number; // 供货价/成本
-  targetFinalPrice?: number; // 目标最终价格
 }
 
 // 定价参数
@@ -43,12 +42,6 @@ const LIMITED_DISCOUNT_RATE = 0.7; // 限时7折
 
 // 平台扣点比例
 const PLATFORM_FEE_RATE = 0.02; // 2%
-
-// 计算模式
-enum CalculationMode {
-  NORMAL = 'normal', // 正常模式：从供货价计算最终价格
-  CUSTOM = 'custom'  // 自定义模式：从最终价格反推其他价格
-}
 
 const DouyinLowPrice: React.FC = () => {
   const [form] = Form.useForm();
@@ -62,40 +55,15 @@ const DouyinLowPrice: React.FC = () => {
   const [profit, setProfit] = useState<number>(0); // 利润
   const [profitRate, setProfitRate] = useState<number>(0); // 利润率
   const [enableLimitedDiscount, setEnableLimitedDiscount] = useState<boolean>(true); // 是否启用限时折扣
-  const [calculationMode, setCalculationMode] = useState<CalculationMode>(CalculationMode.NORMAL); // 计算模式
   const { addRecord } = useHistoryStore();
 
   // 当表单值变化时自动计算
   const valuesChange = (changedValues: any, allValues: FormData) => {
     if (allValues.supplierPrice && allValues.supplierPrice > 0) {
-      // 如果改变的是目标最终价格且当前是自定义模式
-      if (changedValues.targetFinalPrice !== undefined && calculationMode === CalculationMode.CUSTOM) {
-        if (allValues.targetFinalPrice && allValues.targetFinalPrice > 0) {
-          calculateFromFinalPrice(allValues);
-          setShowResults(true);
-        }
-      } else {
-        calculateResults(allValues);
-        setShowResults(true);
-      }
+      calculateResults(allValues);
+      setShowResults(true);
     } else {
       setShowResults(false);
-    }
-  };
-
-  // 切换计算模式
-  const handleModeChange = (e: any) => {
-    const newMode = e.target.value;
-    setCalculationMode(newMode);
-    
-    // 如果切换到自定义模式，初始化目标最终价格为当前最终价格
-    if (newMode === CalculationMode.CUSTOM && finalPrice > 0) {
-      form.setFieldsValue({ targetFinalPrice: finalPrice });
-    }
-    
-    // 如果切换到普通模式，重新计算结果
-    if (newMode === CalculationMode.NORMAL && formData) {
-      calculateResults(formData);
     }
   };
 
@@ -108,11 +76,6 @@ const DouyinLowPrice: React.FC = () => {
       const basePrice = enableLimitedDiscount ? limitedTimePrice : listingPrice;
       const newFinalPrice = Math.max(0.01, basePrice - value);
       setFinalPrice(newFinalPrice);
-      
-      // 如果是自定义模式，更新表单中的目标最终价格
-      if (calculationMode === CalculationMode.CUSTOM) {
-        form.setFieldsValue({ targetFinalPrice: newFinalPrice });
-      }
       
       // 重新计算平台扣点
       const newPlatformFee = newFinalPrice * PLATFORM_FEE_RATE;
@@ -144,96 +107,8 @@ const DouyinLowPrice: React.FC = () => {
   const handleToggleLimitedDiscount = (checked: boolean) => {
     setEnableLimitedDiscount(checked);
     if (formData) {
-      if (calculationMode === CalculationMode.NORMAL) {
-        calculateResults(formData);
-      } else {
-        calculateFromFinalPrice({
-          ...formData,
-          targetFinalPrice: form.getFieldValue('targetFinalPrice')
-        });
-      }
+      calculateResults(formData);
     }
-  };
-
-  // 最终价格直接修改
-  const handleFinalPriceChange = (value: number | null) => {
-    if (value !== null && value > 0 && formData?.supplierPrice) {
-      // 更新表单中的目标最终价格
-      form.setFieldsValue({ targetFinalPrice: value });
-      
-      // 计算从最终价格
-      calculateFromFinalPrice({
-        ...formData,
-        targetFinalPrice: value
-      });
-    }
-  };
-
-  // 从最终价格反向计算其他价格
-  const calculateFromFinalPrice = (values: FormData) => {
-    const { supplierPrice, targetFinalPrice } = values;
-    
-    if (!targetFinalPrice || targetFinalPrice <= 0) return;
-    
-    // 设置最终价格
-    setFinalPrice(targetFinalPrice);
-    
-    // 计算平台扣点
-    const calculatedPlatformFee = targetFinalPrice * PLATFORM_FEE_RATE;
-    setPlatformFee(calculatedPlatformFee);
-    
-    // 计算利润和利润率
-    const calculatedProfit = targetFinalPrice - supplierPrice - calculatedPlatformFee;
-    setProfit(calculatedProfit);
-    const calculatedProfitRate = (calculatedProfit / supplierPrice) * 100;
-    setProfitRate(calculatedProfitRate);
-    
-    // 反向计算上架价格
-    // 目标最终价格 = 基础价格 - 新人券
-    // 如果启用限时折扣，基础价格 = 上架价格 * 0.7
-    // 如果不启用限时折扣，基础价格 = 上架价格
-    
-    if (enableLimitedDiscount) {
-      // 最终价格 = 上架价格 * 0.7 - 新人券
-      // 假设新人券为0，则上架价格 = 最终价格 / 0.7
-      const estimatedListingPrice = Math.ceil(targetFinalPrice / LIMITED_DISCOUNT_RATE);
-      setListingPrice(estimatedListingPrice);
-      
-      // 计算限时7折价格
-      const calculatedLimitedTimePrice = Math.round(estimatedListingPrice * LIMITED_DISCOUNT_RATE * 100) / 100;
-      setLimitedTimePrice(calculatedLimitedTimePrice);
-      
-      // 计算新人券金额 = 限时7折价格 - 最终价格
-      const calculatedNewUserCoupon = Math.max(0, calculatedLimitedTimePrice - targetFinalPrice);
-      setNewUserCoupon(calculatedNewUserCoupon);
-    } else {
-      // 最终价格 = 上架价格 - 新人券
-      // 假设新人券为0，则上架价格 = 最终价格
-      const estimatedListingPrice = Math.ceil(targetFinalPrice);
-      setListingPrice(estimatedListingPrice);
-      
-      // 计算新人券金额 = 上架价格 - 最终价格
-      const calculatedNewUserCoupon = Math.max(0, estimatedListingPrice - targetFinalPrice);
-      setNewUserCoupon(calculatedNewUserCoupon);
-      
-      // 限时7折价格设为0（未启用）
-      setLimitedTimePrice(0);
-    }
-    
-    // 更新表单数据
-    setFormData(values);
-    
-    // 添加到历史记录
-    addRecord({
-      type: CalculationType.DOUYIN_LOW_PRICE,
-      platform: Platform.DOUYIN,
-      supplyPrice: supplierPrice,
-      listingPrice: listingPrice,
-      couponAmount: newUserCoupon,
-      newUserPrice: targetFinalPrice,
-      profit: calculatedProfit,
-      platformFee: calculatedPlatformFee,
-    } as Omit<DouyinLowPriceRecord, 'id' | 'timestamp'>);
   };
 
   const calculateResults = (values: FormData) => {
@@ -275,11 +150,6 @@ const DouyinLowPrice: React.FC = () => {
     setPlatformFee(calculatedPlatformFee);
     setProfit(calculatedProfit);
     setProfitRate(calculatedProfitRate);
-    
-    // 如果是自定义模式，更新表单中的目标最终价格
-    if (calculationMode === CalculationMode.CUSTOM) {
-      form.setFieldsValue({ targetFinalPrice: calculatedFinalPrice });
-    }
 
     // 添加到历史记录
     addRecord({
@@ -352,49 +222,6 @@ const DouyinLowPrice: React.FC = () => {
                 unCheckedChildren="已关闭"
               />
             </Form.Item>
-            
-            <Form.Item
-              label={
-                <span className="input-label">
-                  计算模式
-                  <Tooltip title="选择从供货价计算或从最终价格反推">
-                    <InfoCircleOutlined className="info-icon" />
-                  </Tooltip>
-                </span>
-              }
-            >
-              <Radio.Group 
-                value={calculationMode} 
-                onChange={handleModeChange}
-                buttonStyle="solid"
-              >
-                <Radio.Button value={CalculationMode.NORMAL}>从供货价计算</Radio.Button>
-                <Radio.Button value={CalculationMode.CUSTOM}>从最终价格反推</Radio.Button>
-              </Radio.Group>
-            </Form.Item>
-            
-            {calculationMode === CalculationMode.CUSTOM && (
-              <Form.Item
-                label={
-                  <span className="input-label">
-                    目标最终价格(¥)
-                    <Tooltip title="设置您期望的最终售价，系统将自动计算所需的上架价格和新人券金额">
-                      <InfoCircleOutlined className="info-icon" />
-                    </Tooltip>
-                  </span>
-                }
-                name="targetFinalPrice"
-                rules={[{ required: calculationMode === CalculationMode.CUSTOM, message: '请输入目标最终价格' }]}
-              >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  min={0.01}
-                  precision={2}
-                  placeholder="请输入目标最终价格"
-                  addonBefore="¥"
-                />
-              </Form.Item>
-            )}
           </Space>
         </Form>
 
@@ -425,9 +252,7 @@ const DouyinLowPrice: React.FC = () => {
                         valueStyle={{ color: '#ff4d4f', fontSize: '28px', fontWeight: 'bold' }}
                       />
                       <div className="price-description">
-                        {calculationMode === CalculationMode.NORMAL 
-                          ? "在抖音后台设置此上架价格 (供货价×2+10元)" 
-                          : "在抖音后台设置此上架价格（根据最终价格反推）"}
+                        在抖音后台设置此上架价格 (供货价×2+10元)
                       </div>
                     </Card>
                   </Col>
@@ -477,9 +302,7 @@ const DouyinLowPrice: React.FC = () => {
                         valueStyle={{ color: '#1890ff', fontSize: '28px', fontWeight: 'bold' }}
                       />
                       <div className="coupon-description">
-                        {calculationMode === CalculationMode.NORMAL 
-                          ? "默认设置保本+1元利润" 
-                          : "根据目标最终价格计算"}
+                        默认设置保本+1元利润
                       </div>
                     </Card>
                   </Col>
@@ -515,15 +338,6 @@ const DouyinLowPrice: React.FC = () => {
                           <div className="final-price-title">
                             <ShoppingCartOutlined className="final-price-icon" />
                             <span>最终价格</span>
-                            {calculationMode === CalculationMode.NORMAL && (
-                              <Tooltip title="点击可直接修改最终价格">
-                                <EditOutlined 
-                                  className="edit-icon" 
-                                  onClick={() => setCalculationMode(CalculationMode.CUSTOM)} 
-                                  style={{ marginLeft: 8, fontSize: 16 }}
-                                />
-                              </Tooltip>
-                            )}
                           </div>
                         }
                         value={finalPrice}
@@ -534,18 +348,6 @@ const DouyinLowPrice: React.FC = () => {
                       <div className="final-price-description">
                         用户实际支付价格({enableLimitedDiscount ? '7折价' : '上架价'}-新人券)
                       </div>
-                      {calculationMode === CalculationMode.CUSTOM && (
-                        <div style={{ marginTop: 8 }}>
-                          <InputNumber
-                            style={{ width: '100%' }}
-                            min={0.01}
-                            precision={2}
-                            value={finalPrice}
-                            onChange={handleFinalPriceChange}
-                            addonBefore="¥"
-                          />
-                        </div>
-                      )}
                     </Card>
                   </Col>
                   
@@ -585,10 +387,10 @@ const DouyinLowPrice: React.FC = () => {
               <Alert
                 className="info-alert"
                 type="info"
-                message={`抖音低价起价策略说明 (${calculationMode === CalculationMode.NORMAL ? '正常计算模式' : '自定义价格模式'})`}
+                message={`抖音低价起价策略说明`}
                 description={
                   <Space direction="vertical">
-                    <Text>1. 上架价格: ¥{listingPrice.toFixed(2)} {calculationMode === CalculationMode.NORMAL ? "(供货价×2+10元)" : "(根据最终价格反推)"}</Text>
+                    <Text>1. 上架价格: ¥{listingPrice.toFixed(2)} (供货价×2+10元)</Text>
                     {enableLimitedDiscount && <Text>2. 前5-10天：上架价格{listingPrice.toFixed(2)}元 → 限时7折至{limitedTimePrice.toFixed(2)}元</Text>}
                     <Text>{enableLimitedDiscount ? '3' : '2'}. 新人券金额: ¥{newUserCoupon.toFixed(2)}</Text>
                     <Text>{enableLimitedDiscount ? '4' : '3'}. 最终价格: ¥{finalPrice.toFixed(2)}</Text>
