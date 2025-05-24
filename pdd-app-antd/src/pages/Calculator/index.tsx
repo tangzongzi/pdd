@@ -8,7 +8,8 @@ import {
   DollarOutlined,
   PercentageOutlined,
   LineChartOutlined,
-  PieChartOutlined
+  PieChartOutlined,
+  MoneyCollectOutlined
 } from '@ant-design/icons';
 import { useCalculatorStore } from '@/models/calculator';
 import { useHistoryStore } from '@/stores/historyStore';

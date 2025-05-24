@@ -7,6 +7,7 @@ import { DyPricing } from '@/pages/DyPricing';
 import DouyinDiscount from '@/pages/DouyinDiscount';
 import DouyinCouponCalculator from '@/pages/DouyinCoupon';
 import DouyinLowPrice from '@/pages/DouyinLowPrice';
+import ProfitCalculator from '@/pages/ProfitCalculator';
 import { BasicLayout } from '@/layouts/BasicLayout';
 
 const App: React.FC = () => {
@@ -22,6 +23,7 @@ const App: React.FC = () => {
           <Route path="/douyin-discount" element={<DouyinDiscount />} />
           <Route path="/douyin-coupon" element={<DouyinCouponCalculator />} />
           <Route path="/douyin-low-price" element={<DouyinLowPrice />} />
+          <Route path="/profit-calculator" element={<ProfitCalculator />} />
         </Route>
       </Routes>
     </Router>

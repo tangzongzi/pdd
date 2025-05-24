@@ -12,7 +12,8 @@ import {
   AppstoreOutlined,
   PlayCircleOutlined,
   DollarOutlined,
-  TagOutlined
+  TagOutlined,
+  MoneyCollectOutlined
 } from '@ant-design/icons';
 import './BasicLayout.less';
 
@@ -23,7 +24,7 @@ export const BasicLayout = () => {
   const currentPath = location.pathname;
 
   // 判断当前路径是否是平台工具之一
-  const isPlatformTool = ['/', '/batch', '/discount'].includes(currentPath);
+  const isPlatformTool = ['/', '/batch', '/discount', '/profit-calculator'].includes(currentPath);
   
   // 判断当前路径是否是抖音平台工具之一
   const isDouyinTool = ['/dy-pricing', '/douyin-discount', '/douyin-coupon', '/douyin-low-price'].includes(currentPath);
@@ -69,7 +70,11 @@ export const BasicLayout = () => {
       icon: <ShoppingOutlined />,
       label: <Link to="/douyin-low-price">低价起价</Link>,
     },
-    // 可以在此添加更多抖音相关功能子菜单
+    {
+      key: 'profit-calculator',
+      icon: <MoneyCollectOutlined />,
+      label: <Link to="/profit-calculator">利润计算</Link>,
+    },
   ];
 
   return (
