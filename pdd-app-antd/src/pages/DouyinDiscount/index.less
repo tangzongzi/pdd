@@ -1,152 +1,124 @@
+@import '../../styles/calculators.less';
+
 .douyin-discount-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-
-  .ant-card {
-    border-radius: 8px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  .calculator-container();
+  
+  .page-header {
+    .calculator-header();
   }
-
-  .ant-card-head {
-    border-bottom: 1px solid #f0f0f0;
-    padding: 16px 24px;
+  
+  .content-row {
+    .calculator-content-row();
   }
-
-  .ant-card-head-title {
-    font-size: 18px;
-    font-weight: 500;
-  }
-
-  .ant-form {
-    margin-top: 20px;
-  }
-
-  .result-section {
-    margin-top: 24px;
-  }
-
-  .key-results-container {
-    margin-bottom: 24px;
-  }
-
-  .key-results {
-    .ant-col {
-      margin-bottom: 16px;
-    }
-  }
-
-  .price-card, 
-  .discount-card, 
-  .profit-card, 
-  .profit-rate-card {
-    border-radius: 12px;
-    padding: 16px;
-    height: 100%;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  
+  .form-card {
+    .calculator-form-card();
     
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    .calc-form {
+      .calculator-form();
     }
   }
-
-  .price-card {
-    background: #fff9f9;
-    border-left: 4px solid #ff4d4f;
+  
+  .result-card {
+    .calculator-result-card();
   }
-
-  .discount-card {
-    background: #f0f7ff;
-    border-left: 4px solid #1890ff;
-  }
-
-  .profit-card {
-    background: #f6ffed;
-    border-left: 4px solid #52c41a;
-  }
-
-  .profit-rate-card {
-    background: #f9f0ff;
-    border-left: 4px solid #722ed1;
-  }
-
-  .price-title, 
-  .discount-title, 
-  .profit-title, 
-  .profit-rate-title {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-    font-size: 16px;
-    font-weight: 500;
+  
+  // 特定于DouyinDiscount的其他样式
+  .discount-info {
+    margin-top: 16px;
     
-    .price-icon, 
-    .discount-icon, 
-    .profit-icon, 
-    .profit-rate-icon {
-      margin-right: 8px;
-      font-size: 18px;
+    .info-title {
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      
+      .info-icon {
+        margin-right: 8px;
+        color: @primary-color;
+      }
     }
   }
-
-  .price-icon {
-    color: #ff4d4f;
-  }
-
-  .discount-icon {
-    color: #1890ff;
-  }
-
-  .profit-icon {
-    color: #52c41a;
-  }
-
-  .profit-rate-icon {
-    color: #722ed1;
-  }
-
-  .price-description, 
-  .discount-value, 
-  .profit-description, 
-  .profit-rate-description {
-    margin-top: 8px;
-    color: #888;
-    font-size: 14px;
-  }
-
+  
+  // 折扣值的特殊样式
   .discount-value {
     font-size: 18px;
-    font-weight: 500;
+    font-weight: 600;
     color: #1890ff;
-  }
-
-  .result-details-title {
-    margin-top: 32px;
-    margin-bottom: 16px;
-  }
-
-  .result-details {
-    margin-bottom: 24px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
     
-    .ant-descriptions-item-label {
-      width: 120px;
-      background-color: #fafafa;
+    .discount-icon {
+      margin-right: 8px;
+      font-size: 16px;
     }
   }
-
-  .info-alert {
+  
+  // 可以保留以前的卡片颜色样式，如果需要的话
+  .price-value {
+    color: #ff4d4f;
+    font-weight: 600;
+  }
+  
+  .discount-item-value {
+    color: #1890ff;
+    font-weight: 600;
+  }
+  
+  .profit-value {
+    color: #52c41a;
+    font-weight: 600;
+    
+    &.negative {
+      color: #ff4d4f;
+    }
+  }
+  
+  .profit-rate-value {
+    color: #722ed1;
+    font-weight: 600;
+  }
+  
+  // 结果详情部分的样式
+  .result-details-section {
     margin-top: 24px;
-    border-radius: 8px;
+    
+    .result-details-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      
+      .details-icon {
+        margin-right: 8px;
+        color: @primary-color;
+      }
+    }
+    
+    .ant-descriptions {
+      background-color: #fff;
+      border-radius: @border-radius-base;
+      padding: 16px;
+      box-shadow: @card-shadow;
+      
+      .ant-descriptions-item-label {
+        font-weight: 500;
+        color: @text-color;
+        background-color: #fafafa;
+        padding: 8px 12px;
+      }
+      
+      .ant-descriptions-item-content {
+        padding: 8px 12px;
+      }
+    }
   }
-
-  .ant-input-number-group-wrapper {
-    width: 100%;
-  }
-
+  
+  // 平台扣点信息样式
   .platform-fee-info {
-    margin-top: 8px;
+    margin-top: 10px;
     font-size: 14px;
     color: #fa8c16;
     

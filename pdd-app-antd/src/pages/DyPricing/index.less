@@ -1,4 +1,4 @@
-@import '../../theme.less';
+@import '../../styles/calculators.less';
 
 // 全局变量定义
 @primary-color: #1890ff;
@@ -11,550 +11,338 @@
 @border-color-base: #d9d9d9;
 @box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15);
 
-.calculator-page {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 12px;
-  min-height: calc(100vh - 64px);
-  
-  .main-card {
-    width: 100%;
-    max-width: 1200px;
-    position: relative;
-    border-radius: 8px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
-    
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-color-light) 100%);
-    }
-  }
+.douyin-pricing-page {
+  .calculator-container();
   
   .page-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
-    
-    .header-icon {
-      font-size: 28px;
-      color: @primary-color;
-      margin-right: 16px;
-      padding: 12px;
-      background-color: rgba(24, 144, 255, 0.1);
-      border-radius: 50%;
-    }
+    margin-bottom: 20px;
+    padding: 0;
     
     .header-content {
-      flex: 1;
-    }
-    
-    .header-title {
-      margin-bottom: 4px !important;
-      font-weight: 600;
-    }
-    
-    .header-subtitle {
-      margin-bottom: 0 !important;
-      color: @text-color-secondary;
-    }
-  }
-  
-  .header-divider {
-    margin: 16px 0 !important;
-  }
-  
-  // 输入区域和结果区域通用样式
-  .input-section,
-  .results-section,
-  .profit-rate-section {
-    padding: 16px;
-    background-color: #f7fafc;
-    border-radius: 8px;
-    height: 100%;
-    border: 1px solid #e8eef7;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-    
-    .section-title,
-    .profit-analysis-header {
       display: flex;
       align-items: center;
-      font-size: 14px;
-      font-weight: 500;
-      color: #333;
-      margin-bottom: 16px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e6f7ff 100%);
+      padding: 16px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       position: relative;
-      padding-left: 12px;
+      overflow: hidden;
       
       &::before {
         content: '';
         position: absolute;
+        top: 0;
         left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 16px;
-        background-color: @primary-color;
-        border-radius: 2px;
+        width: 5px;
+        height: 100%;
+        background: @primary-color;
       }
       
-      .anticon {
-        margin-right: 6px;
+      .header-icon {
+        font-size: 24px;
         color: @primary-color;
+        margin-right: 12px;
+        background: #fff;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
+      }
+      
+      .header-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: @heading-color;
       }
     }
   }
   
-  // 输入表单样式
-  .calculator-form {
-    padding: 0;
+  .content-row {
+    .calculator-content-row();
+  }
+  
+  .form-card {
+    .calculator-form-card();
     
-    .ant-form-item {
-      margin-bottom: 12px;
+    // 改进表单卡片边框
+    border-top: 3px solid @primary-color;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    
+    .calc-form {
+      .calculator-form();
       
-      &:last-child {
-        margin-bottom: 0;
-      }
-      
-      .ant-form-item-label {
-        label {
-          color: @heading-color;
-          font-weight: 500;
+      .buttons-container {
+        .ant-btn {
+          height: 44px;
+          font-size: 16px;
+          border-radius: 8px;
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
+          }
         }
       }
     }
+  }
+  
+  .result-card {
+    .calculator-result-card();
     
-    .ant-input-number {
-      width: 100%;
-      background-color: white;
-      border: 1px solid @border-color-base;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    // 改进结果卡片边框
+    border-top: 3px solid @primary-color;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    
+    .card-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid @border-color-split;
+      
+      .title-icon {
+        font-size: 20px;
+        color: #faad14;
+        margin-right: 10px;
+      }
+      
+      span {
+        font-size: 18px;
+        font-weight: 600;
+        color: @heading-color;
+      }
+    }
+    
+    .result-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 12px;
+      margin: 0 -20px 10px;
+      border-bottom: 1px solid #f0f0f0;
       transition: all 0.3s;
       
       &:hover {
-        border-color: @primary-color;
+        transform: translateX(5px);
       }
       
-      &-focused {
-        box-shadow: 0 0 0 2px rgba(26, 54, 93, 0.1);
+      &.item-red {
+        background-color: #fff1f0;
+        border-bottom: 1px solid #ffccc7;
+        
+        .item-icon {
+          color: #ff4d4f;
+        }
+        
+        .item-value {
+          color: #ff4d4f;
+        }
       }
       
-      &-input {
+      &.item-blue {
+        background-color: #e6f7ff;
+        border-bottom: 1px solid #bae7ff;
+        
+        .item-icon {
+          color: #1890ff;
+        }
+        
+        .item-value {
+          color: #1890ff;
+        }
+      }
+      
+      &.item-purple {
+        background-color: #f9f0ff;
+        border-bottom: 1px solid #efdbff;
+        
+        .item-icon {
+          color: #722ed1;
+        }
+        
+        .item-value {
+          color: #722ed1;
+        }
+      }
+      
+      &.item-orange {
+        background-color: #fff7e6;
+        border-bottom: 1px solid #ffe7ba;
+        
+        .item-icon {
+          color: #fa8c16;
+        }
+        
+        .item-value {
+          color: #fa8c16;
+        }
+      }
+      
+      .item-icon {
+        font-size: 18px;
+        margin-right: 12px;
+        margin-left: 10px;
+      }
+      
+      .item-label {
+        font-size: 15px;
+        color: @text-color;
+        margin-right: 12px;
+        min-width: 64px;
+      }
+      
+      .item-value {
+        font-size: 18px;
         font-weight: 600;
+        margin-right: auto;
+      }
+      
+      .item-desc {
+        font-size: 13px;
+        color: @text-color-secondary;
+        margin-left: 6px;
+        margin-right: 10px;
+      }
+      
+      .price-adjustment {
+        font-size: 12px;
+        font-weight: normal;
+        margin-left: 8px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        
+        &.price-high {
+          background-color: #fff1f0;
+          color: #f5222d;
+        }
+        
+        &.price-low {
+          background-color: #f6ffed;
+          color: #52c41a;
+        }
+      }
+    }
+    
+    .slider-control {
+      margin: 20px 0;
+      padding: 20px;
+      background-color: #f0f5ff;
+      border-radius: 10px;
+      
+      .slider-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+        font-weight: 500;
+        color: @heading-color;
         font-size: 16px;
-        text-align: left;
-        padding-left: 40px;
-      }
-      
-      &-handler-wrap {
-        opacity: 1;
-        border-left: 1px solid @border-color-base;
-      }
-    }
-    
-    .ant-input-prefix {
-      color: @primary-color;
-      font-size: 16px;
-      margin-right: 8px;
-    }
-    
-    .help-text {
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 12px;
-    }
-    
-    @media (max-width: 992px) {
-      padding: 0;
-    }
-  }
-  
-  // 通用卡片样式 - 同时应用于结果卡片和利润档位按钮
-  .result-card,
-  .profit-rate-btn {
-    background-color: white;
-    border-radius: 8px;
-    padding: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s @animation-easing-base;
-    height: calc(100% - 2px);
-    border: 1px solid #e8eef7;
-    display: flex;
-    flex-direction: column;
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      border-color: #40a9ff;
-    }
-  }
-  
-  // 结果区域样式
-  .results-section {
-    .result-group {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 12px;
-      
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-    
-    .result-card {
-      .result-label {
-        color: @text-color-secondary;
-        font-size: 13px;
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
         
-        .anticon {
-          margin-left: 4px;
-          color: @accent-color;
-          font-size: 10px;
+        .slider-icon {
+          margin-right: 10px;
+          font-size: 18px;
+          color: #1890ff;
         }
       }
       
-      .result-value {
-        font-size: 18px;
-        font-weight: 600;
-        margin-top: auto;
+      .slider-container {
+        padding: 0 12px;
         
-        &.primary {
-          color: @primary-color;
-        }
-        
-        &.profit {
-          color: @success-color;
-        }
-        
-        &.loss {
-          color: @error-color;
-        }
-      }
-    }
-  }
-  
-  // 利润率选择器样式
-  .profit-rate-section {
-    .profit-analysis-header {
-      display: flex;
-      align-items: flex-start;
-      flex-direction: column;
-      
-      .current-profit-rate {
-        margin-top: 4px;
-        font-size: 13px;
-        margin-left: 12px;
-        
-        .profit-amount {
-          margin-left: 4px;
-          font-size: 12px;
+        .ant-slider {
+          margin: 12px 0;
+          
+          &-track {
+            background-color: #1890ff;
+            height: 6px;
+          }
+          
+          &-rail {
+            height: 6px;
+          }
+          
+          &-handle {
+            width: 16px;
+            height: 16px;
+            margin-top: -5px;
+            border-color: #1890ff;
+            background-color: #fff;
+            
+            &:focus {
+              box-shadow: 0 0 0 5px rgba(24, 144, 255, 0.12);
+            }
+          }
         }
       }
     }
     
-    .profit-rate-selector {
+    .divider {
+      margin: 16px 0;
+    }
+    
+    .profit-result {
       margin-top: 16px;
+      background-color: #f6ffed;
+      padding: 20px;
+      border-radius: 10px;
       
-      .selector-label {
-        margin-bottom: 12px;
-        font-size: 13px;
-        color: @text-color-secondary;
-      }
-      
-      .profit-rate-btn {
-        cursor: pointer;
-        padding: 12px;
-        border: 1px solid #e8eef7;
-        
-        &.selected {
-          border-color: @primary-color;
-          background-color: rgba(20, 61, 105, 0.05);
-        }
-        
-        &.near-current {
-          background-color: rgba(82, 196, 26, 0.05);
-        }
-        
-        .rate-header {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 6px;
-          
-          .rate-label {
-            font-weight: 500;
-            color: @heading-color;
-          }
-          
-          .rate-value {
-            color: @primary-color;
-            font-weight: 600;
-          }
-        }
-        
-        .rate-price,
-        .rate-profit {
-          display: flex;
-          align-items: center;
-          margin-bottom: 4px;
-          font-size: 12px;
-          
-          .price-label,
-          .profit-label {
-            color: @text-color-secondary;
-            width: 60px;
-          }
-          
-          .price-value,
-          .profit-value {
-            font-weight: 500;
-          }
-          
-          .price-exceeded {
-            margin-left: 4px;
-            color: @error-color;
-          }
-        }
-        
-        .rate-desc {
-          margin-top: 6px;
-          font-size: 11px;
-          color: @text-color-secondary;
-        }
-      }
-    }
-  }
-  
-  .profit-rate-selector-placeholder {
-    padding: 20px 0;
-  }
-  
-  .calculation-note {
-    padding: 8px 0;
-    margin-top: 24px;
-    
-    .ant-alert {
-      border-radius: 8px;
-      background-color: rgba(var(--primary-rgb), 0.04);
-      border: 1px solid rgba(var(--primary-rgb), 0.15);
-      
-      .note-title {
-        font-weight: 600;
-        margin-bottom: 8px;
+      .formula {
         display: flex;
         align-items: center;
+        margin-bottom: 16px;
+        font-size: 16px;
+        color: @text-color;
         
-        .anticon {
-          margin-right: 6px;
-          color: @accent-color;
+        .formula-icon {
+          margin-right: 10px;
+          font-size: 18px;
+          color: #52c41a;
         }
       }
       
-      .note-list {
-        padding-left: 24px;
-        margin-bottom: 0;
+      .final-profit {
+        font-size: 28px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 16px;
         
-        li {
-          margin-bottom: 4px;
-          
-          &:last-child {
-            margin-bottom: 0;
-          }
+        &.positive {
+          color: #52c41a;
+        }
+        
+        &.negative {
+          color: #f5222d;
         }
       }
     }
   }
   
-  // 抖音价格计算器样式
-  .dy-price-calculator {
-    padding: 8px;
-    background-color: #f7fafc;
-    border-radius: 8px;
-    height: 100%;
-    border: 1px solid #e8eef7;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  .strategy-info {
+    margin-top: 20px;
     
-    .section-title {
-      display: flex;
-      align-items: center;
-      font-size: 14px;
-      font-weight: 500;
-      color: #333;
-      margin-bottom: 16px;
-      position: relative;
-      padding-left: 12px;
+    .info-alert {
+      border: none;
+      background-color: #f6f9ff;
+      padding: 16px;
+      border-radius: 8px;
       
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 16px;
-        background-color: @primary-color;
-        border-radius: 2px;
-      }
-      
-      .anticon {
-        margin-right: 6px;
-        color: @primary-color;
-      }
-    }
-    
-    .help-text {
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 12px;
-    }
-    
-    .formula-text {
-      color: @primary-color;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-    
-    .price-result {
-      font-weight: 600;
-      color: @heading-color;
-      
-      &:hover {
-        border-color: @primary-color;
-      }
-    }
-    
-    .ant-slider {
-      margin-top: 8px;
-      margin-bottom: 4px;
-      
-      &-track {
-        background-color: @primary-color;
-      }
-      
-      &-handle {
-        border-color: @primary-color;
-        
-        &:focus {
-          box-shadow: 0 0 0 5px rgba(20, 61, 105, 0.12);
-        }
-      }
-    }
-    
-    .final-price-display {
-      display: flex;
-      gap: 16px;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      
-      .price-card,
-      .price-vs-card,
-      .profit-card {
-        flex: 1;
-        min-width: 200px;
-        background-color: white;
-        border-radius: 8px;
-        padding: 16px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e8eef7;
-        text-align: center;
-        
-        &:hover {
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-      }
-      
-      .price-title,
-      .profit-title {
-        font-size: 14px;
-        color: @text-color-secondary;
-        margin-bottom: 8px;
-      }
-      
-      .price-value,
-      .profit-value {
-        font-size: 24px;
+      .ant-alert-message {
         font-weight: 600;
-        color: @primary-color;
-        margin-bottom: 8px;
-        
-        &.profit {
-          color: @success-color;
-        }
-        
-        &.loss {
-          color: @error-color;
-        }
+        color: @heading-color;
+        font-size: 16px;
+        margin-bottom: 12px;
       }
       
-      .price-formula {
-        font-size: 12px;
-        color: @text-color-secondary;
-        line-height: 1.5;
-      }
-      
-      .price-diff {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 8px;
-        
-        &.match {
-          color: @success-color;
-        }
-        
-        &.mismatch {
-          color: @warning-color;
-        }
-      }
-      
-      .price-comparison {
-        font-size: 12px;
-        color: @text-color-secondary;
-        text-align: left;
-        padding: 0 8px;
-        
-        div {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 4px;
-          
-          span {
-            font-weight: 500;
-            color: @heading-color;
+      .ant-alert-description {
+        .ant-space {
+          .ant-typography {
+            font-size: 14px;
+            line-height: 1.8;
           }
         }
       }
       
-      .profit-percent {
-        font-size: 12px;
-        color: @text-color-secondary;
-        
-        span.profit {
-          color: @success-color;
-          font-weight: 500;
-        }
-        
-        span.loss {
-          color: @error-color;
-          font-weight: 500;
-        }
+      .ant-alert-icon {
+        font-size: 16px;
+        margin-right: 12px;
       }
-    }
-
-    .fee-amount {
-      color: #fa8c16;
-      font-weight: 500;
     }
   }
 }

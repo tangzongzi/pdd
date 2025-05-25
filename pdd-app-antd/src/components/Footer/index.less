@@ -2,63 +2,14 @@
 
 .app-footer {
   text-align: center;
-  color: @text-color-secondary;
-  font-size: 13px;
-  background-color: #f8fafd;
-  padding: 20px 0;
-  border-top: 1px solid #edf2f7;
+  background-color: #f5f5f5;
+  padding: 0;
+  border-top: 1px solid #eee;
+  height: 20px;  // 设置一个很小的高度
   
   .footer-content {
     max-width: 1200px;
     margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  
-  .footer-logo {
-    display: flex;
-    align-items: center;
-    
-    .footer-icon {
-      font-size: 20px;
-      color: @primary-color;
-      margin-right: 8px;
-    }
-    
-    .footer-app-name {
-      font-weight: 600;
-      color: @heading-color;
-      font-size: 14px;
-    }
-  }
-  
-  .footer-copyright {
-    color: @text-color-secondary;
-    font-size: 13px;
-  }
-  
-  .footer-links {
-    display: flex;
-    gap: 16px;
-    
-    .footer-link {
-      display: flex;
-      align-items: center;
-      color: @text-color-secondary;
-      transition: color 0.2s;
-      
-      .anticon {
-        margin-right: 4px;
-        font-size: 14px;
-      }
-      
-      &:hover {
-        color: @primary-color;
-      }
-    }
   }
 }
 

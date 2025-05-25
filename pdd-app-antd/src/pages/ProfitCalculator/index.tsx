@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
-import { Card, Form, InputNumber, Button, Space, Typography, Row, Col, Divider } from 'antd';
-import { PlusOutlined, MinusOutlined, MoneyCollectOutlined, TagOutlined, PercentageOutlined, GiftOutlined, CalculatorOutlined } from '@ant-design/icons';
+import { Card, Form, InputNumber, Button, Typography, Row, Col, Divider } from 'antd';
+import { 
+  PlusOutlined, 
+  MinusOutlined, 
+  MoneyCollectOutlined, 
+  TagOutlined, 
+  PercentageOutlined, 
+  GiftOutlined, 
+  CalculatorOutlined 
+} from '@ant-design/icons';
+import './index.less';
 
 const { Title } = Typography;
 
@@ -77,34 +86,58 @@ const ProfitCalculator: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      <Title level={4}><CalculatorOutlined style={{marginRight: 8}}/>利润计算器</Title>
-      <Divider style={{ marginTop: 8, marginBottom: 24 }} />
+    <div className="page-container">
+      <div className="page-header">
+        <Title level={4} className="page-title">
+          <CalculatorOutlined className="header-icon" />
+          利润计算器
+        </Title>
+      </div>
       
-      <Row gutter={[24, 16]}>
+      <Row gutter={[24, 24]} className="content-row">
         {/* 左侧表单 */}
         <Col xs={24} md={10}>
-          <Card style={{ boxShadow: '0 2px 12px rgba(20,61,105,0.07)', borderRadius: '8px', height: '100%' }} bordered={false}>
+          <Card className="form-card" bordered={false}>
             <Form
               form={form}
               layout="vertical"
               onValuesChange={handleValuesChange}
               initialValues={{ supplyPrice: 0, originalPrice: 0, discount: 0.7, coupon: 0 }}
+              className="calc-form"
             >
-              <Form.Item label={<span><MoneyCollectOutlined style={{color:'#1677ff',marginRight:4}}/>供货价</span>} name="supplyPrice" rules={[{ required: true, message: '请输入供货价' }]}> 
+              <Form.Item 
+                label={<span className="form-label"><MoneyCollectOutlined />供货价</span>} 
+                name="supplyPrice" 
+                rules={[{ required: true, message: '请输入供货价' }]}
+              > 
                 <InputNumber min={0} precision={2} style={{ width: '100%' }} placeholder="请输入供货价" />
               </Form.Item>
-              <Form.Item label={<span><TagOutlined style={{color:'#1677ff',marginRight:4}}/>原价</span>} name="originalPrice" rules={[{ required: true, message: '请输入原价' }]}> 
+              
+              <Form.Item 
+                label={<span className="form-label"><TagOutlined />原价</span>} 
+                name="originalPrice" 
+                rules={[{ required: true, message: '请输入原价' }]}
+              > 
                 <InputNumber min={0} precision={2} style={{ width: '100%' }} placeholder="请输入原价" />
               </Form.Item>
-              <Form.Item label={<span><PercentageOutlined style={{color:'#1677ff',marginRight:4}}/>折扣（如0.7）</span>} name="discount" rules={[{ required: true, message: '请输入折扣' }]}> 
+              
+              <Form.Item 
+                label={<span className="form-label"><PercentageOutlined />折扣（如0.7）</span>} 
+                name="discount" 
+                rules={[{ required: true, message: '请输入折扣' }]}
+              > 
                 <InputNumber min={0} max={1} step={0.01} precision={2} style={{ width: '100%' }} placeholder="请输入折扣" />
               </Form.Item>
-              <Form.Item label={<span><GiftOutlined style={{color:'#1677ff',marginRight:4}}/>优惠券</span>} name="coupon"> 
+              
+              <Form.Item 
+                label={<span className="form-label"><GiftOutlined />优惠券</span>} 
+                name="coupon"
+              > 
                 <InputNumber min={0} step={1} precision={0} style={{ width: '100%' }} placeholder="自动反推或手动输入" />
               </Form.Item>
-              <Form.Item>
-                <Button type="primary" onClick={handleReset}>重置</Button>
+              
+              <Form.Item className="submit-item">
+                <Button type="primary" onClick={handleReset}>重置计算</Button>
               </Form.Item>
             </Form>
           </Card>
@@ -112,46 +145,65 @@ const ProfitCalculator: React.FC = () => {
         
         {/* 右侧结果 */}
         <Col xs={24} md={14}>
-          <Card style={{ background: '#f8fafc', boxShadow: '0 2px 12px rgba(20,61,105,0.07)', borderRadius: '8px' }} bordered={false}>
-            <div style={{ marginBottom: '16px', fontSize: '18px', fontWeight: 600, color: '#143d69' }}>计算结果</div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '18px', gap: '8px' }}>
-              <b>目标利润：</b>
-              <Button style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0 }} type="primary" shape="circle" icon={<MinusOutlined />} onClick={() => handleProfitChange(-PROFIT_STEP)} />
-              <span style={{ fontWeight: 'bold', color: '#1677ff', fontSize: '20px', margin: '0 4px' }}>¥{targetProfit.toFixed(2)}</span>
-              <Button style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0 }} type="primary" shape="circle" icon={<PlusOutlined />} onClick={() => handleProfitChange(PROFIT_STEP)} />
+          <Card className="result-card" bordered={false}>
+            <div className="card-title">
+              <CalculatorOutlined className="title-icon" />
+              <span>计算结果</span>
             </div>
             
-            <Divider style={{ margin: '12px 0' }} />
-            
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', fontSize: '15px', color: '#333', gap: '8px' }}>
-              <TagOutlined style={{ color: '#1677ff', fontSize: '18px' }}/>
-              <span>外漏价</span>
-              <b>¥{externalPrice.toFixed(2)}</b>
-              <span style={{ color: '#888', fontSize: '13px', marginLeft: '4px' }}>(原价 × 折扣)</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', fontSize: '15px', color: '#333', gap: '8px' }}>
-              <MoneyCollectOutlined style={{ color: '#1677ff', fontSize: '18px' }}/>
-              <span>供货价</span>
-              <b>¥{form.getFieldValue('supplyPrice') || 0}</b>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', fontSize: '15px', color: '#333', gap: '8px' }}>
-              <PercentageOutlined style={{ color: '#1677ff', fontSize: '18px' }}/>
-              <span>平台扣点</span>
-              <b>¥{commission.toFixed(2)}</b>
-              <span style={{ color: '#888', fontSize: '13px', marginLeft: '4px' }}>(外漏价 × 2%)</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', fontSize: '15px', color: '#333', gap: '8px' }}>
-              <GiftOutlined style={{ color: '#1677ff', fontSize: '18px' }}/>
-              <span>优惠券</span>
-              <b>¥{coupon}</b>
+            <div className="profit-control">
+              <span className="label">目标利润：</span>
+              <Button 
+                className="control-btn minus-btn" 
+                type="default" 
+                icon={<MinusOutlined />} 
+                onClick={() => handleProfitChange(-PROFIT_STEP)} 
+              />
+              <span className="profit-value">¥{targetProfit.toFixed(2)}</span>
+              <Button 
+                className="control-btn plus-btn" 
+                type="primary" 
+                icon={<PlusOutlined />} 
+                onClick={() => handleProfitChange(PROFIT_STEP)} 
+              />
             </div>
             
-            <Divider style={{ margin: '16px 0' }} />
+            <Divider className="divider" />
             
-            <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#52c41a', margin: '12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CalculatorOutlined style={{ color: '#1677ff', fontSize: '18px' }}/>
-              <span>利润 = 外漏价 - 优惠券 - 供货价 - 扣点</span>
-              <span style={{ color: '#52c41a', fontWeight: 'bold', fontSize: '22px', marginLeft: '8px' }}>¥{profit.toFixed(2)}</span>
+            <div className="result-item">
+              <TagOutlined className="item-icon" />
+              <span className="item-label">外漏价</span>
+              <span className="item-value">¥{externalPrice.toFixed(2)}</span>
+              <span className="item-desc">(原价 × 折扣)</span>
+            </div>
+            
+            <div className="result-item">
+              <MoneyCollectOutlined className="item-icon" />
+              <span className="item-label">供货价</span>
+              <span className="item-value">¥{form.getFieldValue('supplyPrice') || 0}</span>
+            </div>
+            
+            <div className="result-item">
+              <PercentageOutlined className="item-icon" />
+              <span className="item-label">平台扣点</span>
+              <span className="item-value">¥{commission.toFixed(2)}</span>
+              <span className="item-desc">(外漏价 × 2%)</span>
+            </div>
+            
+            <div className="result-item">
+              <GiftOutlined className="item-icon" />
+              <span className="item-label">优惠券</span>
+              <span className="item-value">¥{coupon}</span>
+            </div>
+            
+            <Divider className="divider" />
+            
+            <div className="profit-result">
+              <div className="formula">
+                <CalculatorOutlined className="formula-icon" />
+                <span>利润 = 外漏价 - 优惠券 - 供货价 - 扣点</span>
+              </div>
+              <div className="final-profit">¥{profit.toFixed(2)}</div>
             </div>
           </Card>
         </Col>

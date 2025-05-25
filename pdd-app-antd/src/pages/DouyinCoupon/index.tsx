@@ -49,7 +49,7 @@ const DouyinCouponCalculator: React.FC = () => {
   const [limitedTimePrice, setLimitedTimePrice] = useState<number>(0); // 限时7折价格
   const [couponAmount, setCouponAmount] = useState<number>(0); // 优惠券金额
   const [newUserPrice, setNewUserPrice] = useState<number>(0); // 新人价格
-  const [showResults, setShowResults] = useState<boolean>(false);
+  const [showResults, setShowResults] = useState<boolean>(true); // 默认显示结果区域
   const [sellerPrice, setSellerPrice] = useState<number>(0);
   const [profit, setProfit] = useState<number>(0);
   const [profitRate, setProfitRate] = useState<number>(0);
@@ -62,8 +62,6 @@ const DouyinCouponCalculator: React.FC = () => {
         allValues.supplierPrice > 0 && allValues.expectedPrice > 0) {
       calculateResults(allValues);
       setShowResults(true);
-    } else {
-      setShowResults(false);
     }
   };
 
@@ -124,279 +122,190 @@ const DouyinCouponCalculator: React.FC = () => {
     }
   };
 
+  // 重置计算
+  const handleReset = () => {
+    const supplierPrice = form.getFieldValue('supplierPrice');
+    const expectedPrice = form.getFieldValue('expectedPrice');
+    
+    if (supplierPrice && expectedPrice && 
+        supplierPrice > 0 && expectedPrice > 0) {
+      calculateResults({
+        supplierPrice,
+        expectedPrice
+      });
+    } else {
+      form.resetFields();
+      setShowResults(true);
+    }
+  };
+
   return (
     <div className="douyin-coupon-page">
-      <Card title="抖音外漏优惠券计算器" bordered={false}>
-        <Form
-          form={form}
-          layout="vertical"
-          onValuesChange={valuesChange}
-        >
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Form.Item
-              label={
-                <span className="input-label">
-                  供应商价格（元）
-                  <Tooltip title="从供应商处获得商品的成本价">
-                    <InfoCircleOutlined className="info-icon" />
-                  </Tooltip>
-                </span>
-              }
-              name="supplierPrice"
-              rules={[{ required: true, message: '请输入供货价' }]}
+      <div className="page-header">
+        <Title level={4} className="header-title">
+          <CalculatorOutlined className="header-icon" />
+          抖音外漏优惠券计算器
+        </Title>
+      </div>
+      
+      <Row gutter={[24, 24]} className="content-row">
+        {/* 左侧表单 */}
+        <Col xs={24} md={10}>
+          <Card className="form-card" bordered={false}>
+            <Form
+              form={form}
+              layout="vertical"
+              onValuesChange={valuesChange}
+              className="calc-form"
             >
-              <InputNumber
-                style={{ width: '100%' }}
-                min={0.01}
-                precision={2}
-                placeholder="请输入供货价/成本"
-                addonBefore="¥"
-              />
-            </Form.Item>
+              <Form.Item
+                label={
+                  <span className="form-label">
+                    <DollarOutlined />供应商价格
+                    <Tooltip title="从供应商处获得商品的成本价">
+                      <InfoCircleOutlined className="info-icon" />
+                    </Tooltip>
+                  </span>
+                }
+                name="supplierPrice"
+                rules={[{ required: true, message: '请输入供货价' }]}
+              >
+                <InputNumber
+                  min={0.01}
+                  precision={2}
+                  placeholder="请输入供货价/成本"
+                  style={{ width: '100%' }}
+                  addonBefore="¥"
+                />
+              </Form.Item>
 
-            <Form.Item
-              label={
-                <span className="input-label">
-                  期望成交价（元）
-                  <Tooltip title="您希望用户最终购买的价格">
-                    <InfoCircleOutlined className="info-icon" />
-                  </Tooltip>
-                </span>
-              }
-              name="expectedPrice"
-              rules={[{ required: true, message: '请输入期望售价' }]}
-            >
-              <InputNumber
-                style={{ width: '100%' }}
-                min={0.01}
-                precision={2}
-                placeholder="请输入期望售价(成本+利润)"
-                addonBefore="¥"
-              />
-            </Form.Item>
-            
-            <Form.Item
-              label={
-                <span className="input-label">
-                  启用限时7折
-                  <Tooltip title="前5-10天使用限时7折价格进行快速拉新">
-                    <InfoCircleOutlined className="info-icon" />
-                  </Tooltip>
-                </span>
-              }
-            >
-              <Switch 
-                checked={enableLimitedDiscount} 
-                onChange={handleToggleLimitedDiscount}
-                checkedChildren="已启用"
-                unCheckedChildren="已关闭"
-              />
-            </Form.Item>
-          </Space>
-        </Form>
-
-        {showResults ? (
-          <>
-            <Divider />
-            
-            <div className="result-section">
-              {/* 主要计算结果卡片 */}
-              <div className="key-results-container">
-                <Row gutter={[16, 16]} className="key-results">
-                  {/* 上架价格 */}
-                  <Col xs={24} sm={12}>
-                    <Card 
-                      className="price-card" 
-                      bordered={false}
-                    >
-                      <Statistic
-                        title={
-                          <div className="price-title">
-                            <DollarOutlined className="price-icon" />
-                            <span>抖音上架价格</span>
-                          </div>
-                        }
-                        value={listingPrice}
-                        precision={2}
-                        prefix="¥"
-                        valueStyle={{ color: '#ff4d4f', fontSize: '28px', fontWeight: 'bold' }}
-                      />
-                      <div className="price-description">
-                        在抖音后台设置此上架价格
-                      </div>
-                    </Card>
-                  </Col>
-                  
-                  {/* 限时折扣价格 */}
-                  {enableLimitedDiscount && (
-                    <Col xs={24} sm={12}>
-                      <Card 
-                        className="discount-card" 
-                        bordered={false}
-                      >
-                        <Statistic
-                          title={
-                            <div className="discount-title">
-                              <PercentageOutlined className="discount-icon" />
-                              <span>限时7折价格</span>
-                            </div>
-                          }
-                          value={limitedTimePrice}
-                          precision={2}
-                          prefix="¥"
-                          valueStyle={{ color: '#faad14', fontSize: '28px', fontWeight: 'bold' }}
-                        />
-                        <div className="discount-description">
-                          开启限时折扣活动时的价格
-                        </div>
-                      </Card>
-                    </Col>
-                  )}
-
-                  {/* 优惠券金额 */}
-                  <Col xs={24} sm={12}>
-                    <Card 
-                      className="coupon-card" 
-                      bordered={false}
-                    >
-                      <Statistic
-                        title={
-                          <div className="coupon-title">
-                            <TagOutlined className="coupon-icon" />
-                            <span>优惠券金额</span>
-                          </div>
-                        }
-                        value={couponAmount}
-                        precision={2}
-                        prefix="¥"
-                        valueStyle={{ color: '#1890ff', fontSize: '28px', fontWeight: 'bold' }}
-                      />
-                      <div className="coupon-description">
-                        设置此金额的全店通用券
-                      </div>
-                    </Card>
-                  </Col>
-                  
-                  {/* 新人价格 */}
-                  <Col xs={24} sm={12}>
-                    <Card 
-                      className="new-user-card" 
-                      bordered={false}
-                    >
-                      <Statistic
-                        title={
-                          <div className="new-user-title">
-                            <UserOutlined className="new-user-icon" />
-                            <span>新人到手价</span>
-                          </div>
-                        }
-                        value={newUserPrice}
-                        precision={2}
-                        prefix="¥"
-                        valueStyle={{ color: '#52c41a', fontSize: '28px', fontWeight: 'bold' }}
-                      />
-                      <div className="new-user-description">
-                        新用户领券后的到手价
-                      </div>
-                    </Card>
-                  </Col>
-                  
-                  {/* 利润 */}
-                  <Col xs={24} sm={12}>
-                    <Card 
-                      className="profit-card" 
-                      bordered={false}
-                    >
-                      <Statistic
-                        title={
-                          <div className="profit-title">
-                            <ShoppingOutlined className="profit-icon" />
-                            <span>利润</span>
-                          </div>
-                        }
-                        value={profit}
-                        precision={2}
-                        prefix="¥"
-                        valueStyle={{ 
-                          color: profit >= 0 ? '#52c41a' : '#ff4d4f', 
-                          fontSize: '28px', 
-                          fontWeight: 'bold' 
-                        }}
-                      />
-                      <div className="profit-description">
-                        新人到手价 - 供货价
-                      </div>
-                    </Card>
-                  </Col>
-                  
-                  {/* 利润率 */}
-                  <Col xs={24} sm={12}>
-                    <Card 
-                      className="profit-rate-card" 
-                      bordered={false}
-                    >
-                      <Statistic
-                        title={
-                          <div className="profit-rate-title">
-                            <CalculatorOutlined className="profit-rate-icon" />
-                            <span>利润率</span>
-                          </div>
-                        }
-                        value={profitRate}
-                        precision={1}
-                        suffix="%"
-                        valueStyle={{ 
-                          color: profitRate >= 0 ? '#722ed1' : '#ff4d4f', 
-                          fontSize: '28px', 
-                          fontWeight: 'bold' 
-                        }}
-                      />
-                      <div className="profit-rate-description">
-                        利润 ÷ 供货价 × 100%
-                      </div>
-                    </Card>
-                  </Col>
-                </Row>
-              </div>
+              <Form.Item
+                label={
+                  <span className="form-label">
+                    <ShoppingOutlined />期望成交价
+                    <Tooltip title="您希望用户最终购买的价格">
+                      <InfoCircleOutlined className="info-icon" />
+                    </Tooltip>
+                  </span>
+                }
+                name="expectedPrice"
+                rules={[{ required: true, message: '请输入期望售价' }]}
+              >
+                <InputNumber
+                  min={0.01}
+                  precision={2}
+                  placeholder="请输入期望售价(成本+利润)"
+                  style={{ width: '100%' }}
+                  addonBefore="¥"
+                />
+              </Form.Item>
               
-              <Divider style={{ margin: '24px 0 16px' }} />
-              
+              <Form.Item className="buttons-container">
+                <Button 
+                  type="primary" 
+                  onClick={handleReset}
+                  block
+                >
+                  开始计算
+                </Button>
+              </Form.Item>
+            </Form>
+            
+            <div className="strategy-info">
               <Alert
                 className="info-alert"
                 type="info"
                 message="抖音外漏优惠券说明"
                 description={
-                  <Space direction="vertical">
-                    <Text>1. 在抖音后台将商品价格设置为 ¥{listingPrice.toFixed(2)}</Text>
-                    {enableLimitedDiscount && (
-                      <Text>2. 开启限时折扣活动，价格设为 ¥{limitedTimePrice.toFixed(2)}（原价的7折）</Text>
-                    )}
-                    <Text>{enableLimitedDiscount ? '3' : '2'}. 设置全店通用券，金额为 ¥{couponAmount.toFixed(2)}</Text>
-                    <Text>{enableLimitedDiscount ? '4' : '3'}. 利用抖音平台自带的新人礼金机制（¥{NEW_USER_DISCOUNT}），最终新人到手价为 ¥{newUserPrice.toFixed(2)}</Text>
-                    <Text>{enableLimitedDiscount ? '5' : '4'}. 最终利润 = 新人到手价 - 供货价 = ¥{profit.toFixed(2)}</Text>
+                  <Space direction="vertical" size={2}>
+                    <Text>1. 上架价格: ¥{listingPrice ? listingPrice.toFixed(2) : '30.00'} {formData ? `(期望价×2+1元)` : '(期望价×2+1元)'}</Text>
+                    <Text>2. 限时7折价: ¥{limitedTimePrice ? limitedTimePrice.toFixed(2) : '21.00'} {formData ? `(上架价×0.7)` : '(上架价×0.7)'}</Text>
+                    <Text>3. 优惠券金额: ¥{couponAmount ? couponAmount.toFixed(2) : '3.50'} {formData ? `(确保领券后价格接近期望价)` : '(确保领券后价格接近期望价)'}</Text>
+                    <Text>4. 新人到手价: ¥{newUserPrice ? newUserPrice.toFixed(2) : '6.00'} {formData ? `(含8元新人礼金)` : '(含8元新人礼金)'}</Text>
+                    <Text>5. 最终利润 = 新人到手价 - 供货价 = ¥{profit ? profit.toFixed(2) : '？？'}</Text>
+                    <Text>6. 建议：新品前5-10天使用超低价引流，之后关闭新人礼金转为正常价格</Text>
                   </Space>
                 }
+                showIcon
               />
-              
-              <div className="strategy-explanation">
-                <Title level={5} className="strategy-title">
-                  <SettingOutlined /> 策略说明
-                </Title>
-                <Paragraph className="strategy-content">
-                  此计算器帮助您设置抖音外漏低价策略。通过设置高于实际期望售价的优惠券，触发抖音外漏低价机制，吸引新客户。同时，利用抖音平台的新人礼金机制，进一步降低新用户的购买门槛。
-                </Paragraph>
+            </div>
+          </Card>
+        </Col>
+        
+        {/* 右侧结果 */}
+        <Col xs={24} md={14}>
+          <Card className="result-card" bordered={false}>
+            <div className="card-title">
+              <CalculatorOutlined className="title-icon" />
+              <span>计算结果</span>
+            </div>
+            
+            {/* 上架价格 */}
+            <div className="result-item item-red">
+              <DollarOutlined className="item-icon" />
+              <span className="item-label">上架价格</span>
+              <span className="item-value">¥{listingPrice ? listingPrice.toFixed(2) : '30.00'}</span>
+              <span className="item-desc">{formData ? `(期望价×2+1元)` : '(示例)'}</span>
+            </div>
+            
+            {/* 限时折扣价格 */}
+            <div className="result-item item-blue">
+              <PercentageOutlined className="item-icon" />
+              <span className="item-label">限时7折</span>
+              <span className="item-value">¥{limitedTimePrice ? limitedTimePrice.toFixed(2) : '21.00'}</span>
+              <span className="item-desc">{formData ? '(上架价×0.7)' : '(示例)'}</span>
+              <div className="switch-container">
+                <Switch 
+                  checked={enableLimitedDiscount} 
+                  onChange={handleToggleLimitedDiscount}
+                  checkedChildren="开启"
+                  unCheckedChildren="关闭"
+                  size="small"
+                />
               </div>
             </div>
-          </>
-        ) : (
-          <div className="empty-container">
-            <Empty 
-              description="请输入供货价和期望售价获取计算结果" 
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-            />
-          </div>
-        )}
-      </Card>
+            
+            {/* 优惠券金额 */}
+            <div className="result-item item-purple">
+              <TagOutlined className="item-icon" />
+              <span className="item-label">优惠券</span>
+              <span className="item-value">¥{couponAmount ? couponAmount.toFixed(2) : '3.50'}</span>
+              <span className="item-desc">{formData ? '(自动计算)' : '(示例)'}</span>
+            </div>
+            
+            {/* 新人价格 */}
+            <div className="result-item item-orange">
+              <UserOutlined className="item-icon" />
+              <span className="item-label">新人价格</span>
+              <span className="item-value">¥{newUserPrice ? newUserPrice.toFixed(2) : '9.50'}</span>
+              <span className="item-desc">{formData ? '(含8元新人礼金)' : '(示例)'}</span>
+            </div>
+            
+            <Divider className="divider" />
+            
+            {/* 利润区域 */}
+            <div className="profit-result">
+              <div className="formula">
+                <CalculatorOutlined className="formula-icon" />
+                <span>利润 = 新人到手价 - 供货价</span>
+              </div>
+              <div className={profit >= 0 ? "final-profit positive" : "final-profit negative"}>
+                ¥{profit ? profit.toFixed(2) : '0.00'} ({profitRate ? profitRate.toFixed(1) : '0.0'}%)
+              </div>
+            </div>
+            
+            {!showResults && (
+              <div className="empty-result">
+                <Alert
+                  message="请输入供货价和期望售价获取计算结果"
+                  type="info"
+                  showIcon
+                />
+              </div>
+            )}
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 };

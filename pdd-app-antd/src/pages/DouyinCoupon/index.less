@@ -1,211 +1,80 @@
+@import '../../styles/calculators.less';
+
 .douyin-coupon-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-
-  .ant-card {
-    border-radius: 8px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  .ant-card-head {
-    border-bottom: 1px solid #f0f0f0;
-    padding: 16px 24px;
-  }
-
-  .ant-card-head-title {
-    font-size: 18px;
-    font-weight: 500;
-  }
-
-  .ant-form {
-    margin-top: 20px;
-  }
-
-  .result-section {
-    margin-top: 24px;
-  }
-
-  .key-results-container {
-    margin-bottom: 24px;
-  }
-
-  .key-results {
-    .ant-col {
-      margin-bottom: 16px;
-    }
-  }
-
-  // 卡片基础样式
-  .price-card, 
-  .coupon-card, 
-  .final-price-card, 
-  .new-user-card,
-  .platform-fee-card,
-  .profit-card,
-  .discount-card {
-    border-radius: 12px;
-    padding: 16px;
-    height: 100%;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-    }
-  }
-
-  // 各卡片的特定样式
-  .price-card {
-    background: #fff9f9;
-    border-left: 4px solid #ff4d4f;
-  }
-
-  .coupon-card {
-    background: #f0f7ff;
-    border-left: 4px solid #1890ff;
-  }
-
-  .discount-card {
-    background: #f0f7ff;
-    border-left: 4px solid #1890ff;
-  }
-
-  .final-price-card {
-    background: #f6ffed;
-    border-left: 4px solid #52c41a;
-  }
-
-  .new-user-card {
-    background: #f9f0ff;
-    border-left: 4px solid #722ed1;
+  .calculator-container();
+  
+  .page-header {
+    .calculator-header();
   }
   
-  .platform-fee-card {
-    background: #fff7e6;
-    border-left: 4px solid #fa8c16;
+  .content-row {
+    .calculator-content-row();
   }
   
-  .profit-card {
-    background: #f6ffed;
-    border-left: 4px solid #52c41a;
+  .form-card {
+    .calculator-form-card();
     
-    // 当利润为负时改变边框颜色
-    &.negative {
-      background: #fff1f0;
-      border-left: 4px solid #f5222d;
+    .calc-form {
+      .calculator-form();
     }
   }
-
-  // 标题和图标样式
-  .price-title, 
-  .coupon-title, 
-  .final-price-title, 
-  .new-user-title,
-  .platform-fee-title,
-  .profit-title,
-  .discount-title {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-    font-size: 16px;
-    font-weight: 500;
+  
+  .result-card {
+    .calculator-result-card();
+  }
+  
+  // 特定于DouyinCoupon的其他样式
+  .coupon-info {
+    margin-top: 16px;
     
-    .price-icon, 
-    .coupon-icon, 
-    .final-price-icon, 
-    .new-user-icon,
-    .platform-fee-icon,
-    .profit-icon,
-    .discount-icon {
-      margin-right: 8px;
-      font-size: 18px;
+    .info-title {
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      
+      .info-icon {
+        margin-right: 8px;
+        color: @primary-color;
+      }
     }
   }
-
-  // 图标颜色
-  .price-icon {
+  
+  // 可以保留以前的卡片颜色样式，如果需要的话
+  .price-value {
     color: #ff4d4f;
+    font-weight: 600;
   }
-
-  .coupon-icon {
+  
+  .coupon-value {
     color: #1890ff;
+    font-weight: 600;
   }
-
-  .discount-icon {
-    color: #1890ff;
-  }
-
-  .final-price-icon {
+  
+  .final-price-value {
     color: #52c41a;
+    font-weight: 600;
   }
-
-  .new-user-icon {
+  
+  .new-user-value {
     color: #722ed1;
+    font-weight: 600;
   }
   
-  .platform-fee-icon {
+  .platform-fee-value {
     color: #fa8c16;
+    font-weight: 600;
   }
   
-  .profit-icon {
-    color: #52c41a;
-  }
-
-  // 描述文本样式
-  .price-description, 
-  .coupon-description, 
-  .final-price-description, 
-  .new-user-description,
-  .platform-fee-description,
-  .profit-description,
-  .discount-description {
-    margin-top: 8px;
-    color: #888;
-    font-size: 14px;
-  }
-  
-  // 利润率的样式
-  .profit-positive {
-    color: #52c41a;
-    font-weight: bold;
-  }
-  
-  .profit-negative {
-    color: #f5222d;
-    font-weight: bold;
-  }
-
-  .info-alert {
-    margin-top: 24px;
-    border-radius: 8px;
-  }
-
-  .ant-input-number-group-wrapper {
-    width: 100%;
-  }
-  
-  // 折扣值样式
-  .discount-value {
-    font-size: 16px;
-    color: #1890ff;
-    font-weight: bold;
-    margin-top: 4px;
-  }
-  
-  // 开关样式
-  .ant-switch {
-    margin-left: 8px;
-  }
-  
-  .input-label {
-    display: flex;
-    align-items: center;
+  .profit-value {
+    font-weight: 600;
     
-    .info-icon {
-      margin-left: 6px;
-      color: #1890ff;
+    &.positive {
+      color: #52c41a;
+    }
+    
+    &.negative {
+      color: #ff4d4f;
     }
   }
 } 

@@ -1,47 +1,45 @@
-// 拼多多主题定制
+// 黑白蓝专业主题
 
-// 品牌颜色 - 专业商务深色主题
-@primary-color: #1a365d;        // 主色调 - 深邃蓝色
-@primary-color-dark: #0f2942;   // 更深邃的蓝色
+// 品牌颜色 - 黑白蓝专业风格
+@primary-color: #1677ff;        // 主色调
+@primary-color-dark: #0958d9;   // 深色主色调
 @primary-color-light: #edf2f7;  // 浅色背景，更高对比度
-@success-color: #2c7a42;        // 柔和成功色
-@warning-color: #dd6b20;        // 更鲜明的警告色
-@error-color: #c53030;          // 更深沉的错误色
-@accent-color: #3182ce;         // 中蓝色强调
+@success-color: #52c41a;        // 成功色
+@warning-color: #faad14;        // 警告色
+@error-color: #f5222d;          // 错误色
+@accent-color: #4096ff;         // 强调色
 
 // 文本色
-@heading-color: #1a202c;        // 更深的标题颜色，增强对比度
-@text-color: #2d3748;           // 主要文本颜色
-@text-color-secondary: #718096; // 次要文本颜色
+@heading-color: #262626;        // 标题文本颜色
+@text-color: #595959;           // 主要文本颜色
+@text-color-secondary: #8c8c8c; // 次要文本颜色
 
 // 布局
-@layout-header-height: 48px;
-@layout-header-background: @primary-color;
-@layout-body-background: #f7fafc;
+@body-background: #f7fafc;              // 背景色 - 浅蓝灰
+@border-radius-base: 6px;               // 基础圆角
+@btn-border-radius-base: 6px;           // 按钮圆角
+@border-color-base: #e2e8f0;            // 边框色 - 浅蓝灰
+@border-color-split: #edf2f7;           // 分割线颜色 - 更浅蓝灰
+@box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.08);
+@card-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 
-// 边框和阴影
-@border-radius-base: 6px;                 // 增大圆角
-@border-color-base: #e2e8f0;
-@box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.1);
-@card-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.1); // 更细腻的阴影
+// 按钮样式
+@btn-font-weight: 500;                 // 按钮字重
 
-// 导航变量
-@side-bar-width: 60px;         // 适当加宽
-@side-bar-icon-size: 18px;     // 增大图标尺寸
-@side-bar-text-size: 11px;     // 增大文本尺寸
-
-// 按钮样式变量
-@btn-primary-bg: @primary-color;
-@btn-primary-color: white;
-@btn-default-color: @text-color;
-@btn-default-border: @border-color-base;
-@btn-border-radius-base: 5px;  // 按钮圆角稍大
-@btn-font-weight: 500;         // 增加按钮字重
+// 侧边栏变量
+@layout-sider-background: #fff;  // 侧边栏背景色 - 白色
+@menu-bg: transparent;           // 菜单背景色 - 透明
+@menu-item-color: @text-color;   // 菜单项文本色
+@menu-highlight-color: @primary-color; // 菜单高亮色
+@menu-item-active-bg: #edf2f7;   // 菜单项激活背景色 - 浅蓝灰
 
 // 针对组件的变量
-@table-header-bg: #f0f5fa;     // 表头采用浅色背景，深色文字提高可读性
+@table-header-bg: #f0f5fa;      // 表头采用浅蓝背景，深色文字提高可读性
 @table-header-color: @heading-color;
-@table-row-hover-bg: #f5f9ff;  // 悬停行背景
+@table-row-hover-bg: #f5f9ff;   // 悬停行背景为浅蓝色
+@input-hover-border-color: @accent-color;
+@input-outline-width: 0;
+@select-item-selected-bg: #ebf4ff;
 
 // 间距变量
 @space-xs: 4px;
@@ -70,13 +68,13 @@
 // 导出CSS变量用于JS访问（兼容方式）
 :export {
   primaryColor: @primary-color;
-  primaryRgb: '26, 54, 93';
+  primaryRgb: '22, 119, 255';
   secondaryColor: @accent-color;
   accentColor: @primary-color-dark;
   textColor: @text-color;
   textColorSecondary: @text-color-secondary;
-  bgColor: @layout-body-background;
-  navBg: @layout-header-background;
+  bgColor: @body-background;
+  navBg: #fff;
   cardBg: white;
   borderColor: @border-color-base;
   borderRadius: '6px';
