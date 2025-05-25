@@ -10,6 +10,10 @@
 /build
 /dist
 
+# Next.js
+/.next/
+/out/
+
 # Misc
 .DS_Store
 .env.local
@@ -31,4 +35,10 @@ pnpm-debug.log*
 *.ntvs*
 *.njsproj
 *.sln
-*.sw? 
+*.sw?
+
+# Backup folders
+*-backup/
+*-备份/
+资产/
+公共/ 
