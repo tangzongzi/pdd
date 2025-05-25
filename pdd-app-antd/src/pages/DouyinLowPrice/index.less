@@ -1,115 +1,411 @@
-.douyin-low-price-page {
-  max-width: 800px;
-  margin: 0 auto;
+@import '../../styles/calculators.less';
 
+// 使用主题变量
+.page-container {
+  .calculator-container();
+  background-color: @body-background;
+}
+
+.page-header {
+  .calculator-header();
+}
+
+.content-row {
+  .calculator-content-row();
+}
+
+// 表单卡片样式
+.form-card {
+  .calculator-form-card();
+  
+  .calc-form {
+    .calculator-form();
+    
+    .price-slider-container {
+      .slider-container();
+    }
+  }
+  
+  .strategy-info {
+    margin-top: 16px;
+    
+    .info-alert {
+      border: none;
+      background-color: #f6f9ff;
+      padding: 10px 12px;
+      
+      .ant-alert-message {
+        font-weight: 500;
+        color: @heading-color;
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+      
+      .ant-alert-description {
+        margin-top: 8px;
+        
+        .ant-space {
+          width: 100%;
+          
+          .ant-typography {
+            line-height: 1.5;
+            font-size: 13px;
+            color: @text-color;
+            margin-bottom: 2px;
+          }
+        }
+      }
+      
+      .ant-alert-icon {
+        color: @primary-color;
+        font-size: 15px;
+      }
+    }
+  }
+}
+
+// 结果卡片样式
+.result-section {
   .key-results-container {
     margin-bottom: 20px;
   }
-
-  .price-card, .coupon-card, .final-price-card, .profit-card {
+  
+  .card-wrapper {
     height: 100%;
-    background-color: #f9f9f9;
+  }
+  
+  // 卡片通用样式
+  .price-card, .discount-card, .coupon-card, .final-price-card, .profit-card, .adjust-card {
+    height: 100%;
+    background-color: #f8fafc;
+    border-radius: @border-radius-base;
+    box-shadow: @card-shadow;
     transition: all 0.3s;
-
+    border: none;
+    
     &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       transform: translateY(-3px);
     }
+    
+    .ant-statistic-title {
+      margin-bottom: 12px;
+    }
   }
-
+  
+  // 卡片左边框样式
   .price-card {
-    border-left: 4px solid #ff4d4f;
+    border-left: 3px solid @error-color;
   }
-
+  
+  .discount-card {
+    border-left: 3px solid @accent-color;
+  }
+  
   .coupon-card {
-    border-left: 4px solid #1890ff;
+    border-left: 3px solid @primary-color;
   }
-
+  
   .final-price-card {
-    border-left: 4px solid #722ed1;
+    border-left: 3px solid #722ed1;
   }
-
+  
   .profit-card {
-    border-left: 4px solid #52c41a;
+    border-left: 3px solid @success-color;
   }
-
-  .input-label {
+  
+  .adjust-card {
+    border-left: 3px solid @warning-color;
+    
+    .ant-card-head {
+      padding: 0 16px;
+      border-bottom: 1px solid @border-color-split;
+      
+      .ant-card-head-title {
+        font-weight: 600;
+        font-size: 16px;
+        color: @heading-color;
+        padding: 12px 0;
+      }
+    }
+    
+    .slider-container {
+      padding: 16px 8px 8px;
+      
+      .ant-slider {
+        margin: 10px 0;
+        
+        &-handle {
+          border-color: @primary-color;
+          
+          &:focus {
+            box-shadow: 0 0 0 5px fade(@primary-color, 12%);
+          }
+        }
+        
+        &-track {
+          background-color: @primary-color;
+        }
+      }
+    }
+  }
+  
+  // 标题和图标样式
+  .price-title, .discount-title, .coupon-title, .profit-title, .final-price-title {
     display: flex;
     align-items: center;
+    font-weight: 500;
+    color: @heading-color;
   }
-
-  .info-icon {
-    margin-left: 5px;
-    color: #1890ff;
-  }
-
-  .price-title, .coupon-title, .profit-title, .final-price-title {
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-  }
-
-  .price-icon, .coupon-icon, .profit-icon, .final-price-icon {
+  
+  .price-icon, .discount-icon, .coupon-icon, .profit-icon, .final-price-icon {
     margin-right: 8px;
-    font-size: 20px;
+    font-size: 18px;
   }
-
+  
   .price-icon {
     color: #ff4d4f;
   }
-
+  
+  .discount-icon {
+    color: @accent-color;
+  }
+  
   .coupon-icon {
-    color: #1890ff;
+    color: @primary-color;
   }
-
+  
   .profit-icon {
-    color: #52c41a;
+    color: @success-color;
   }
-
+  
   .final-price-icon {
     color: #722ed1;
   }
-
-  .price-description, .coupon-description, .profit-description, .final-price-description {
-    margin-top: 8px;
-    color: #666;
-    font-size: 12px;
+  
+  // 说明文字样式
+  .price-description, .discount-description, .coupon-description, .final-price-description {
+    margin-top: 12px;
+    color: @text-color-secondary;
+    font-size: 13px;
   }
-
-  .slider-container {
-    padding: 10px 20px;
-  }
-
-  .adjust-card {
-    margin-bottom: 16px;
-  }
-
-  .info-alert {
-    margin-top: 16px;
-  }
-
-  .profit-rate {
-    margin-top: 8px;
+  
+  // 利润相关样式
+  .profit-rate, .platform-fee-info {
+    margin-top: 10px;
     font-size: 14px;
-
+    color: @text-color;
+    
     .positive {
-      color: #52c41a;
-      font-weight: bold;
+      color: @success-color;
+      font-weight: 600;
     }
-
+    
     .negative {
       color: #ff4d4f;
-      font-weight: bold;
+      font-weight: 600;
     }
-  }
-
-  .platform-fee-info {
-    margin-top: 8px;
-    font-size: 14px;
-    color: #fa8c16;
     
     span {
       font-weight: 500;
+    }
+  }
+  
+  // 信息提示框样式
+  .info-alert {
+    margin-top: 16px;
+    border-radius: @border-radius-base;
+    border: none;
+    box-shadow: @card-shadow;
+    
+    .ant-alert-message {
+      font-weight: 500;
+      color: @heading-color;
+    }
+    
+    .ant-alert-description {
+      margin-top: 8px;
+      
+      .ant-typography {
+        line-height: 1.8;
+      }
+    }
+  }
+
+  .divider {
+    margin: 16px 0;
+  }
+
+  .slider-control {
+    margin: 16px 0 20px;
+    
+    .slider-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      font-weight: 500;
+      color: @heading-color;
+      font-size: 15px;
+      
+      .slider-icon {
+        margin-right: 8px;
+        font-size: 16px;
+        color: @primary-color;
+      }
+    }
+    
+    .slider-container {
+      padding: 8px 12px;
+    }
+  }
+
+  .profit-result {
+    margin-top: 8px;
+    
+    .formula {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: @text-color;
+      
+      .formula-icon {
+        margin-right: 8px;
+        font-size: 16px;
+        color: @primary-color;
+      }
+    }
+    
+    .final-profit {
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 16px;
+    }
+  }
+
+  .submit-item,
+  .buttons-container {
+    margin-top: 24px;
+    margin-bottom: 0 !important;
+    
+    .ant-row {
+      .ant-col:first-child {
+        .ant-btn {
+          background-color: @warning-color;
+          border-color: @warning-color;
+          
+          &:hover {
+            background-color: lighten(@warning-color, 5%);
+            border-color: lighten(@warning-color, 5%);
+          }
+        }
+      }
+      
+      .ant-col:last-child {
+        .ant-btn {
+          background-color: @primary-color;
+          border-color: @primary-color;
+          
+          &:hover {
+            background-color: @accent-color;
+            border-color: @accent-color;
+          }
+        }
+      }
+    }
+    
+    .ant-btn {
+      height: 40px;
+      border-radius: 6px;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+      font-size: 15px;
+      font-weight: 500;
+    }
+  }
+}
+
+.result-card {
+  .calculator-result-card();
+  
+  .result-item {
+    &:nth-child(1) {
+      .item-red();
+    }
+    
+    &.limited-discount-row {
+      .item-blue();
+    }
+    
+    &:nth-child(3) {
+      .item-purple();
+    }
+    
+    &:nth-child(4) {
+      .item-orange();
+    }
+  }
+}
+
+// 帮助函数，设置不同颜色的结果项
+.item-red() {
+  background-color: #fff1f0;
+  padding: 14px 8px;
+  margin: 0 -20px 8px;
+  border-bottom: 1px solid #ffccc7;
+  .item-icon { color: #ff4d4f; }
+  .item-value { color: #ff4d4f; }
+}
+
+.item-blue() {
+  background-color: #e6f7ff;
+  padding: 14px 8px;
+  margin: 0 -20px 8px;
+  border-bottom: 1px solid #bae7ff;
+  .item-icon { color: #1890ff; }
+  .item-value { color: #1890ff; }
+}
+
+.item-purple() {
+  background-color: #f9f0ff;
+  padding: 14px 8px;
+  margin: 0 -20px 8px;
+  border-bottom: 1px solid #efdbff;
+  .item-icon { color: #722ed1; }
+  .item-value { color: #722ed1; }
+}
+
+.item-orange() {
+  background-color: #fff7e6;
+  padding: 14px 8px;
+  margin: 0 -20px 8px;
+  border-bottom: 1px solid #ffe7ba;
+  .item-icon { color: #fa8c16; }
+  .item-value { color: #fa8c16; }
+}
+
+.item-green() {
+  background-color: #f6ffed;
+  padding: 14px 8px;
+  margin: 0 -20px 8px;
+  border-bottom: 1px solid #b7eb8f;
+  .item-icon { color: #52c41a; }
+  .item-value { color: #52c41a; }
+}
+
+// 响应式样式
+@media (max-width: 768px) {
+  .page-container {
+    padding: 12px;
+  }
+  
+  .result-section {
+    .key-results-container {
+      margin-bottom: 16px;
+    }
+    
+    .price-card, .discount-card, .coupon-card, .final-price-card, .profit-card {
+      margin-bottom: 16px;
     }
   }
 } 
