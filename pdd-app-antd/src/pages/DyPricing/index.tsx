@@ -91,15 +91,16 @@ const DyPriceCalculator: React.FC = () => {
           setAdjustment(calculatedAdjustment);
         } else {
           // 正常情况：计算所需新人礼金使最终售价等于目标零售价
-          // 新人礼金 = 卖家看到的价格 - 目标零售价
-          const recommendedCoupon = Math.round((calculatedSellerViewPrice - retail) * 100) / 100;
+          // 新人礼金 = 卖家看到的价格 - 目标零售价，并取整
+          const recommendedCoupon = Math.floor(calculatedSellerViewPrice - retail);
           setCouponAmount(recommendedCoupon > 0 ? recommendedCoupon : 0);
           
-          // 设置最终售价（等于目标零售价）
-          setFinalPrice(retail);
+          // 设置最终售价（卖家价格减去整数礼金）
+          const calculatedFinalPrice = Math.round((calculatedSellerViewPrice - recommendedCoupon) * 100) / 100;
+          setFinalPrice(calculatedFinalPrice);
           
           // 计算价格差额
-          const calculatedAdjustment = Math.round((calculatedSellerViewPrice - recommendedCoupon - retail) * 100) / 100;
+          const calculatedAdjustment = Math.round((calculatedFinalPrice - retail) * 100) / 100;
           setAdjustment(calculatedAdjustment);
         }
         
@@ -142,11 +143,13 @@ const DyPriceCalculator: React.FC = () => {
   
   // 当优惠券金额改变时，更新最终售价
   const handleCouponChange = (value: number) => {
-    setCouponAmount(value);
+    // 确保新人礼金为整数
+    const intValue = Math.floor(value);
+    setCouponAmount(intValue);
     
     if (sellerViewPrice > 0) {
       // 计算最终售价（扣除新人礼金）
-      const calculatedFinalPrice = Math.max(0.01, Math.round((sellerViewPrice - value) * 100) / 100);
+      const calculatedFinalPrice = Math.max(0.01, Math.round((sellerViewPrice - intValue) * 100) / 100);
       setFinalPrice(calculatedFinalPrice);
       
       // 如果有供货价，计算利润
@@ -537,13 +540,13 @@ const DyPriceCalculator: React.FC = () => {
                 <div className="slider-container">
                   <Slider
                     min={0}
-                    max={maxCouponAmount}
-                    step={0.01}
+                    max={Math.floor(maxCouponAmount)}
+                    step={1}
                     value={couponAmount}
                     onChange={handleCouponChange}
                     tooltip={{
                       formatter: (val: number | undefined) => {
-                        return val !== undefined ? `¥${val.toFixed(2)}` : '¥0.00';
+                        return val !== undefined ? `¥${val}` : '¥0';
                       }
                     }}
                   />
