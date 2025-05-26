@@ -240,11 +240,12 @@ const DyPriceCalculator: React.FC = () => {
   
   // 处理折扣率变化
   const handleDiscountChange = (value: number) => {
-    setDiscountRate(value / 100);
+    const newDiscountRate = value / 100;
+    setDiscountRate(newDiscountRate);
     
     // 如果有供货价，重新计算价格
     if (supplyPrice) {
-      calculatePrices(supplyPrice, retailPrice, priceAddition, value / 100);
+      calculatePrices(supplyPrice, retailPrice, priceAddition, newDiscountRate);
     }
   };
   
@@ -381,6 +382,7 @@ const DyPriceCalculator: React.FC = () => {
                     step={1}
                     value={discountRate * 100}
                     onChange={handleDiscountChange}
+                    onAfterChange={handleDiscountChange}
                     tipFormatter={(value) => value ? `${value}%` : '70%'}
                     marks={{
                       10: '10%',
@@ -462,7 +464,7 @@ const DyPriceCalculator: React.FC = () => {
                   <Space direction="vertical" size={2}>
                     <Text>1. 抖音设置价格: ¥{originalPrice ? originalPrice.toFixed(2) : '90.00'} {supplyPrice ? `(供货价×2+${priceAddition}元)` : '(供货价×2+加价)'}</Text>
                     <Text>2. 卖家看到的价格: ¥{sellerViewPrice ? sellerViewPrice.toFixed(2) : '63.00'} {supplyPrice ? `(抖音价×${(discountRate * 100).toFixed(0)}%)` : '(抖音价×限时折扣)'}</Text>
-                    <Text>3. 新人礼金/优惠券: ¥{couponAmount ? couponAmount.toFixed(2) : '15.00'} {supplyPrice ? `(可调整)` : '(可调整)'}</Text>
+                    <Text>3. 新人礼金/优惠券: ¥{couponAmount || 0} {supplyPrice ? `(可调整)` : '(可调整)'}</Text>
                     <Text>4. 最终售价: ¥{finalPrice ? finalPrice.toFixed(2) : '48.00'} {supplyPrice ? `(卖家价-礼金)` : '(卖家价-礼金)'}</Text>
                     <Text>5. 利润 = 最终售价 - 供货价 = ¥{profit ? profit.toFixed(2) : '？？'}</Text>
                     <Text>6. 通过调整新人礼金/优惠券，可以将最终售价控制在目标零售价附近</Text>
@@ -510,7 +512,7 @@ const DyPriceCalculator: React.FC = () => {
             <div className="result-item item-purple">
               <TagOutlined className="item-icon" />
               <span className="item-label">新人礼金</span>
-              <span className="item-value">¥{couponAmount ? couponAmount.toFixed(2) : '15.00'}</span>
+              <span className="item-value">¥{couponAmount || 0}</span>
               <span className="item-desc">{supplyPrice ? '(可调整)' : '(示例)'}</span>
             </div>
             
@@ -533,6 +535,37 @@ const DyPriceCalculator: React.FC = () => {
             </div>
             
             <Divider className="divider" />
+            
+            {/* 限时折扣滑块 - 添加到结果区域 */}
+            {supplyPrice && supplyPrice > 0 && (
+              <div className="slider-control">
+                <div className="slider-title">
+                  <PercentageOutlined className="slider-icon" />
+                  <span>调整限时折扣</span>
+                </div>
+                <div className="slider-container">
+                  <Slider
+                    min={10}
+                    max={100}
+                    step={1}
+                    value={discountRate * 100}
+                    onChange={handleDiscountChange}
+                    onAfterChange={handleDiscountChange}
+                    tooltip={{
+                      formatter: (val: number | undefined) => {
+                        return val !== undefined ? `${val}%` : '70%';
+                      }
+                    }}
+                    marks={{
+                      10: '10%',
+                      50: '50%',
+                      70: '70%',
+                      100: '100%'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
             
             {/* 新人礼金滑块 */}
             {supplyPrice && supplyPrice > 0 && !priceWarning && (
