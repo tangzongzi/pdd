@@ -11,7 +11,8 @@ import {
   Tooltip, 
   Slider, 
   Space,
-  Button 
+  Button,
+  InputNumber as AntInputNumber
 } from 'antd';
 import { 
   CalculatorOutlined, 
@@ -20,7 +21,10 @@ import {
   DollarOutlined,
   ShopOutlined,
   PercentageOutlined,
-  TrophyOutlined
+  TrophyOutlined,
+  PlusOutlined,
+  MinusOutlined,
+  WarningOutlined
 } from '@ant-design/icons';
 import { useHistoryStore } from '@/stores/historyStore';
 import { CalculationType, Platform } from '@/types/history';
@@ -41,6 +45,8 @@ const DyPriceCalculator: React.FC = () => {
   const [adjustment, setAdjustment] = useState<number>(0); // 调整金额
   const [profit, setProfit] = useState<number>(0); // 利润
   const [profitRate, setProfitRate] = useState<number>(0); // 利润率
+  const [priceAddition, setPriceAddition] = useState<number>(10); // 价格加成，默认10元
+  const [priceWarning, setPriceWarning] = useState<boolean>(false); // 价格警告
   const { addRecord } = useHistoryStore();
   
   // 当表单值变化时计算价格
@@ -49,7 +55,7 @@ const DyPriceCalculator: React.FC = () => {
     
     if (supplyPrice) {
       setSupplyPrice(supplyPrice);
-      calculatePrices(supplyPrice, retailPrice);
+      calculatePrices(supplyPrice, retailPrice, priceAddition);
     }
     
     if (retailPrice !== undefined) {
@@ -58,31 +64,46 @@ const DyPriceCalculator: React.FC = () => {
   };
   
   // 计算所有价格
-  const calculatePrices = (supply: number, retail: number | null) => {
+  const calculatePrices = (supply: number, retail: number | null, addition: number) => {
     if (supply > 0) {
-      // 根据公式计算抖音设置价格: 供货价 * 3
-      const calculatedOriginalPrice = Math.round(supply * 3 * 100) / 100;
+      // 根据公式计算抖音设置价格: 供货价 * 2 + 加价金额
+      const calculatedOriginalPrice = Math.round((supply * 2 + addition) * 100) / 100;
       setOriginalPrice(calculatedOriginalPrice);
       
       // 计算卖家看到的价格: 抖音设置价格 * 0.5
       const calculatedSellerViewPrice = Math.round((calculatedOriginalPrice * 0.5) * 100) / 100;
       setSellerViewPrice(calculatedSellerViewPrice);
       
+      // 重置价格警告
+      setPriceWarning(false);
+      
       if (retail && retail > 0) {
-        // 计算所需新人礼金：使最终售价等于目标零售价
-        // 新人礼金 = 卖家看到的价格 - 目标零售价
-        const recommendedCoupon = Math.round((calculatedSellerViewPrice - retail) * 100) / 100;
-        setCouponAmount(recommendedCoupon > 0 ? recommendedCoupon : 0);
-        
-        // 设置最终售价（等于目标零售价）
-        setFinalPrice(retail);
-        
-        // 计算价格差额
-        const calculatedAdjustment = Math.round((calculatedSellerViewPrice - recommendedCoupon - retail) * 100) / 100;
-        setAdjustment(calculatedAdjustment);
+        // 检查目标零售价是否大于卖家看到的价格
+        if (retail > calculatedSellerViewPrice) {
+          setPriceWarning(true);
+          // 设置新人礼金为0（因为卖家价格已经低于目标零售价）
+          setCouponAmount(0);
+          // 最终售价就是卖家价格
+          setFinalPrice(calculatedSellerViewPrice);
+          // 计算价格差额
+          const calculatedAdjustment = Math.round((calculatedSellerViewPrice - retail) * 100) / 100;
+          setAdjustment(calculatedAdjustment);
+        } else {
+          // 正常情况：计算所需新人礼金使最终售价等于目标零售价
+          // 新人礼金 = 卖家看到的价格 - 目标零售价
+          const recommendedCoupon = Math.round((calculatedSellerViewPrice - retail) * 100) / 100;
+          setCouponAmount(recommendedCoupon > 0 ? recommendedCoupon : 0);
+          
+          // 设置最终售价（等于目标零售价）
+          setFinalPrice(retail);
+          
+          // 计算价格差额
+          const calculatedAdjustment = Math.round((calculatedSellerViewPrice - recommendedCoupon - retail) * 100) / 100;
+          setAdjustment(calculatedAdjustment);
+        }
         
         // 计算利润
-        const calculatedProfit = Math.round((retail - supply) * 100) / 100;
+        const calculatedProfit = Math.round((finalPrice - supply) * 100) / 100;
         setProfit(calculatedProfit);
         
         // 计算利润率
@@ -96,8 +117,8 @@ const DyPriceCalculator: React.FC = () => {
           supplyPrice: supply,
           originalPrice: calculatedOriginalPrice,
           sellerViewPrice: calculatedSellerViewPrice,
-          couponAmount: recommendedCoupon > 0 ? recommendedCoupon : 0,
-          finalPrice: retail,
+          couponAmount: couponAmount,
+          finalPrice: finalPrice,
           profit: calculatedProfit,
           platformFee: 0, // 为满足类型要求
         } as any);
@@ -172,7 +193,42 @@ const DyPriceCalculator: React.FC = () => {
       if (retailPrice) {
         const calculatedAdjustment = Math.round((calculatedFinalPrice - retailPrice) * 100) / 100;
         setAdjustment(calculatedAdjustment);
+        
+        // 检查目标零售价是否大于卖家看到的价格
+        setPriceWarning(retailPrice > calculatedSellerViewPrice);
       }
+    }
+  };
+  
+  // 处理加价金额变化
+  const handlePriceAdditionChange = (value: number) => {
+    setPriceAddition(value);
+    
+    // 如果有供货价，重新计算价格
+    if (supplyPrice) {
+      calculatePrices(supplyPrice, retailPrice, value);
+    }
+  };
+  
+  // 增加加价金额
+  const increasePriceAddition = () => {
+    const newAddition = priceAddition + 1;
+    setPriceAddition(newAddition);
+    
+    // 如果有供货价，重新计算价格
+    if (supplyPrice) {
+      calculatePrices(supplyPrice, retailPrice, newAddition);
+    }
+  };
+  
+  // 减少加价金额
+  const decreasePriceAddition = () => {
+    const newAddition = Math.max(0, priceAddition - 1);
+    setPriceAddition(newAddition);
+    
+    // 如果有供货价，重新计算价格
+    if (supplyPrice) {
+      calculatePrices(supplyPrice, retailPrice, newAddition);
     }
   };
   
@@ -182,7 +238,7 @@ const DyPriceCalculator: React.FC = () => {
     const retailPrice = form.getFieldValue('retailPrice');
     
     if (supplyPrice) {
-      calculatePrices(supplyPrice, retailPrice);
+      calculatePrices(supplyPrice, retailPrice, priceAddition);
     } else {
       form.resetFields();
     }
@@ -190,6 +246,32 @@ const DyPriceCalculator: React.FC = () => {
   
   // 计算滑块的最大值
   const maxCouponAmount = sellerViewPrice > 0 ? sellerViewPrice - 0.01 : 10;
+  
+  // 建议的价格加成，使卖家价格能达到目标零售价
+  const getSuggestedAddition = () => {
+    if (supplyPrice && retailPrice) {
+      // 卖家价格 = (供货价*2 + 加价)*0.5
+      // 如果要让卖家价格 >= 目标零售价
+      // 则 (供货价*2 + 加价)*0.5 >= 目标零售价
+      // 加价 >= 目标零售价*2 - 供货价*2
+      const suggestedAddition = Math.ceil((retailPrice * 2 - supplyPrice * 2) * 100) / 100;
+      return Math.max(0, suggestedAddition);
+    }
+    return 0;
+  };
+  
+  // 获取建议的价格加成
+  const suggestedAddition = getSuggestedAddition();
+  
+  // 应用建议的价格加成
+  const applySuggestedAddition = () => {
+    if (suggestedAddition > 0) {
+      setPriceAddition(suggestedAddition);
+      if (supplyPrice) {
+        calculatePrices(supplyPrice, retailPrice, suggestedAddition);
+      }
+    }
+  };
   
   return (
     <div className="douyin-pricing-page">
@@ -234,6 +316,36 @@ const DyPriceCalculator: React.FC = () => {
               <Form.Item
                 label={
                   <span className="form-label">
+                    <PlusOutlined />价格加成
+                    <Tooltip title="在供货价基础上额外增加的金额">
+                      <InfoCircleOutlined className="info-icon" />
+                    </Tooltip>
+                  </span>
+                }
+              >
+                <div className="price-addition-control">
+                  <Button 
+                    icon={<MinusOutlined />} 
+                    onClick={decreasePriceAddition}
+                    disabled={priceAddition <= 0}
+                  />
+                  <AntInputNumber
+                    min={0}
+                    value={priceAddition}
+                    onChange={(value) => handlePriceAdditionChange(value as number)}
+                    style={{ width: '100px', margin: '0 10px' }}
+                    addonBefore="¥"
+                  />
+                  <Button 
+                    icon={<PlusOutlined />} 
+                    onClick={increasePriceAddition}
+                  />
+                </div>
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <span className="form-label">
                     <DollarOutlined />目标零售价
                     <Tooltip title="您希望商品最终售出的价格">
                       <InfoCircleOutlined className="info-icon" />
@@ -251,6 +363,31 @@ const DyPriceCalculator: React.FC = () => {
                   addonBefore="¥"
                 />
               </Form.Item>
+              
+              {/* 价格警告提示 */}
+              {priceWarning && retailPrice && (
+                <Alert
+                  message="价格设置警告"
+                  description={
+                    <div>
+                      <p>目标零售价(¥{retailPrice.toFixed(2)})大于卖家价格(¥{sellerViewPrice.toFixed(2)})，无法通过新人礼金调整达到目标价格。</p>
+                      <p>建议：增加价格加成至少 ¥{suggestedAddition.toFixed(2)} 使卖家价格大于等于目标零售价。</p>
+                      <Button 
+                        type="primary" 
+                        size="small" 
+                        onClick={applySuggestedAddition}
+                        style={{ marginTop: '8px' }}
+                      >
+                        应用建议加价
+                      </Button>
+                    </div>
+                  }
+                  type="warning"
+                  showIcon
+                  icon={<WarningOutlined />}
+                  style={{ marginBottom: '16px' }}
+                />
+              )}
               
               <Form.Item className="buttons-container">
                 <Button 
@@ -271,12 +408,15 @@ const DyPriceCalculator: React.FC = () => {
                 message="抖音价格计算说明"
                 description={
                   <Space direction="vertical" size={2}>
-                    <Text>1. 抖音设置价格: ¥{originalPrice ? originalPrice.toFixed(2) : '90.00'} {supplyPrice ? `(供货价×3)` : '(供货价×3)'}</Text>
+                    <Text>1. 抖音设置价格: ¥{originalPrice ? originalPrice.toFixed(2) : '90.00'} {supplyPrice ? `(供货价×2+${priceAddition}元)` : '(供货价×2+加价)'}</Text>
                     <Text>2. 卖家看到的价格: ¥{sellerViewPrice ? sellerViewPrice.toFixed(2) : '45.00'} {supplyPrice ? `(抖音设置价×0.5)` : '(抖音设置价×0.5)'}</Text>
                     <Text>3. 新人礼金/优惠券: ¥{couponAmount ? couponAmount.toFixed(2) : '15.00'} {supplyPrice ? `(可调整)` : '(可调整)'}</Text>
                     <Text>4. 最终售价: ¥{finalPrice ? finalPrice.toFixed(2) : '30.00'} {supplyPrice ? `(卖家价-礼金)` : '(卖家价-礼金)'}</Text>
                     <Text>5. 利润 = 最终售价 - 供货价 = ¥{profit ? profit.toFixed(2) : '？？'}</Text>
                     <Text>6. 通过调整新人礼金/优惠券，可以将最终售价控制在目标零售价附近</Text>
+                    {priceWarning && retailPrice && (
+                      <Text type="danger">注意: 目标零售价大于卖家价格，需要增加价格加成！</Text>
+                    )}
                   </Space>
                 }
                 showIcon
@@ -298,15 +438,20 @@ const DyPriceCalculator: React.FC = () => {
               <DollarOutlined className="item-icon" />
               <span className="item-label">抖音价格</span>
               <span className="item-value">¥{originalPrice ? originalPrice.toFixed(2) : '90.00'}</span>
-              <span className="item-desc">{supplyPrice ? '(供货价×3)' : '(示例)'}</span>
+              <span className="item-desc">{supplyPrice ? `(供货价×2+${priceAddition}元)` : '(示例)'}</span>
             </div>
             
             {/* 卖家价格 */}
-            <div className="result-item item-blue">
+            <div className={`result-item item-blue ${priceWarning ? 'warning' : ''}`}>
               <PercentageOutlined className="item-icon" />
               <span className="item-label">卖家价格</span>
               <span className="item-value">¥{sellerViewPrice ? sellerViewPrice.toFixed(2) : '45.00'}</span>
               <span className="item-desc">{supplyPrice ? '(抖音价×0.5)' : '(示例)'}</span>
+              {priceWarning && retailPrice && (
+                <Tooltip title="卖家价格低于目标零售价">
+                  <WarningOutlined className="warning-icon" />
+                </Tooltip>
+              )}
             </div>
             
             {/* 新人礼金/优惠券 */}
@@ -336,7 +481,7 @@ const DyPriceCalculator: React.FC = () => {
             <Divider className="divider" />
             
             {/* 新人礼金滑块 */}
-            {supplyPrice && supplyPrice > 0 && (
+            {supplyPrice && supplyPrice > 0 && !priceWarning && (
               <div className="slider-control">
                 <div className="slider-title">
                   <TagOutlined className="slider-icon" />

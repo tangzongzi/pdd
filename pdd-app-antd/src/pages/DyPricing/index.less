@@ -177,6 +177,17 @@
         }
       }
       
+      &.warning {
+        border-left: 3px solid #faad14;
+        
+        .warning-icon {
+          color: #faad14;
+          font-size: 16px;
+          margin-left: 8px;
+          animation: pulse 1.5s infinite;
+        }
+      }
+      
       .item-icon {
         font-size: 18px;
         margin-right: 12px;
@@ -616,6 +627,41 @@
     &:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
+  }
+}
+
+// 添加价格加成控制器的样式
+.price-addition-control {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  
+  .ant-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 4px;
+  }
+  
+  .ant-input-number {
+    .ant-input-number-input {
+      text-align: center;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
   }
 }
 
