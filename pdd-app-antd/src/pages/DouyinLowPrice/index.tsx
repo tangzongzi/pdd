@@ -245,40 +245,40 @@ const DouyinLowPrice: React.FC = () => {
         {/* 左侧表单 */}
         <Col xs={24} md={10}>
           <Card className="form-card" bordered={false}>
-            <Form
-              form={form}
-              layout="vertical"
-              onValuesChange={valuesChange}
+        <Form
+          form={form}
+          layout="vertical"
+          onValuesChange={valuesChange}
               className="calc-form"
               initialValues={{ 
                 supplierPrice: undefined, 
                 priceAddition: DEFAULT_PRICE_ADDITION 
               }}
-            >
-              <Form.Item
+        >
+            <Form.Item
                 label={<span className="form-label"><ShopOutlined />供货价</span>}
-                name="supplierPrice"
-                rules={[{ required: true, message: '请输入供货价' }]}
-              >
-                <InputNumber
-                  min={0.01}
-                  precision={2}
-                  placeholder="请输入供货价/成本"
+              name="supplierPrice"
+              rules={[{ required: true, message: '请输入供货价' }]}
+            >
+              <InputNumber
+                min={0.01}
+                precision={2}
+                placeholder="请输入供货价/成本"
                   style={{ width: '100%' }}
-                />
-              </Form.Item>
-              
-              <Form.Item
-                label={
+              />
+            </Form.Item>
+            
+            <Form.Item
+              label={
                   <span className="form-label">
                     <DollarOutlined />价格加成金额
                     <Tooltip title="在供货价×2的基础上额外增加的金额">
-                      <InfoCircleOutlined className="info-icon" />
-                    </Tooltip>
-                  </span>
-                }
+                    <InfoCircleOutlined className="info-icon" />
+                  </Tooltip>
+                </span>
+              }
                 name="priceAddition"
-              >
+            >
                 <InputNumber
                   min={0}
                   precision={2}
@@ -312,9 +312,9 @@ const DouyinLowPrice: React.FC = () => {
                 >
                   开始计算
                 </Button>
-              </Form.Item>
-            </Form>
-            
+            </Form.Item>
+        </Form>
+
             <div className="strategy-info">
               <Alert
                 className="info-alert"
@@ -334,9 +334,9 @@ const DouyinLowPrice: React.FC = () => {
                 }
                 showIcon
               />
-            </div>
-          </Card>
-        </Col>
+                      </div>
+                    </Card>
+                  </Col>
         
         {/* 右侧结果 */}
         <Col xs={24} md={14}>
@@ -353,8 +353,8 @@ const DouyinLowPrice: React.FC = () => {
               <span className="item-value" style={{ color: '#ff4d4f' }}>¥{listingPrice ? listingPrice.toFixed(2) : '0.00'}</span>
               <span className="item-desc">{formData ? `(供货价×2+${priceAddition}元)` : ''}</span>
             </div>
-            
-            {/* 限时折扣价格 */}
+                  
+                  {/* 限时折扣价格 */}
             <div className="result-item limited-discount-row">
               <PercentageOutlined className="item-icon" />
               <span className="item-label">限时7折</span>
@@ -368,16 +368,16 @@ const DouyinLowPrice: React.FC = () => {
                   unCheckedChildren="关闭"
                   size="small"
                 />
-              </div>
-            </div>
-            
+                            </div>
+                        </div>
+                  
             {/* 新人券 */}
             <div className="result-item">
               <TagOutlined className="item-icon" />
               <span className="item-label">新人券</span>
               <span className="item-value" style={{ color: '#722ed1' }}>¥{newUserCoupon || '0'}</span>
               <span className="item-desc">{formData ? '(自动计算)' : ''}</span>
-            </div>
+                          </div>
             
             {/* 平台扣点 */}
             <div className="result-item">
@@ -385,10 +385,10 @@ const DouyinLowPrice: React.FC = () => {
               <span className="item-label">平台扣点</span>
               <span className="item-value" style={{ color: '#fa8c16' }}>¥{platformFee ? platformFee.toFixed(2) : '0.00'}</span>
               <span className="item-desc">{formData ? '(最终价格×2%)' : ''}</span>
-            </div>
+                      </div>
             
             <Divider className="divider" />
-            
+                  
             {/* 新人券调整区域 - 只在有计算结果时显示 */}
             {showResults && (
               <>
@@ -397,47 +397,47 @@ const DouyinLowPrice: React.FC = () => {
                     <TagOutlined className="slider-icon" />
                     <span>调整新人券金额</span>
                   </div>
-                  <div className="slider-container">
-                    <Slider
-                      min={0}
-                      max={getMaxCoupon()}
-                      onChange={handleCouponChange}
-                      value={newUserCoupon}
-                      step={1}
-                      tooltip={{ formatter: value => `¥${value}` }}
-                    />
-                  </div>
+                      <div className="slider-container">
+                        <Slider
+                          min={0}
+                          max={getMaxCoupon()}
+                          onChange={handleCouponChange}
+                          value={newUserCoupon}
+                          step={1}
+                          tooltip={{ formatter: value => `¥${value}` }}
+                        />
+                      </div>
                 </div>
                 
                 <Divider className="divider" />
-                
+                  
                 {/* 最终结果区域 */}
                 <div className="profit-result">
                   <div className="formula">
                     <CalculatorOutlined className="formula-icon" />
                     <span>最终价格 = {enableLimitedDiscount ? '限时7折价' : '上架价'} - 新人券 = ¥{finalPrice.toFixed(2)}</span>
-                  </div>
+                          </div>
                   <div className="formula">
                     <CalculatorOutlined className="formula-icon" />
                     <span>利润 = 最终价格 - 供货价 - 平台扣点</span>
-                  </div>
+                      </div>
                   <div className="final-profit" style={{ color: profit >= 0 ? '#52c41a' : '#ff4d4f' }}>
                     ¥{profit.toFixed(2)} ({profitRate.toFixed(1)}%)
-                  </div>
-                </div>
+                      </div>
+              </div>
               </>
             )}
-            
+              
             {!showResults && (
               <div className="empty-result">
-                <Alert
+              <Alert
                   message="请输入供货价并点击「开始计算」按钮"
-                  type="info"
-                  showIcon
-                />
-              </div>
-            )}
-          </Card>
+                type="info"
+                showIcon
+              />
+            </div>
+        )}
+      </Card>
         </Col>
       </Row>
     </div>

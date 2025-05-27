@@ -19,7 +19,6 @@ const App: React.FC = () => {
           <Route path="/calculator" element={<Calculator />} />
           <Route path="/batch" element={<BatchAnalysis />} />
           <Route path="/history" element={<History />} />
-          <Route path="/dy-pricing" element={<DyPriceCalculator />} />
           <Route path="/douyin-discount" element={<DouyinDiscount />} />
           <Route path="/douyin-coupon" element={<DouyinCouponCalculator />} />
           <Route path="/douyin-low-price" element={<DouyinLowPrice />} />

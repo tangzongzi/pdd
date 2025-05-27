@@ -152,54 +152,54 @@ const DouyinCouponCalculator: React.FC = () => {
         {/* 左侧表单 */}
         <Col xs={24} md={10}>
           <Card className="form-card" bordered={false}>
-            <Form
-              form={form}
-              layout="vertical"
-              onValuesChange={valuesChange}
+        <Form
+          form={form}
+          layout="vertical"
+          onValuesChange={valuesChange}
               className="calc-form"
-            >
-              <Form.Item
-                label={
+        >
+            <Form.Item
+              label={
                   <span className="form-label">
                     <DollarOutlined />供应商价格
-                    <Tooltip title="从供应商处获得商品的成本价">
-                      <InfoCircleOutlined className="info-icon" />
-                    </Tooltip>
-                  </span>
-                }
-                name="supplierPrice"
-                rules={[{ required: true, message: '请输入供货价' }]}
-              >
-                <InputNumber
-                  min={0.01}
-                  precision={2}
-                  placeholder="请输入供货价/成本"
+                  <Tooltip title="从供应商处获得商品的成本价">
+                    <InfoCircleOutlined className="info-icon" />
+                  </Tooltip>
+                </span>
+              }
+              name="supplierPrice"
+              rules={[{ required: true, message: '请输入供货价' }]}
+            >
+              <InputNumber
+                min={0.01}
+                precision={2}
+                placeholder="请输入供货价/成本"
                   style={{ width: '100%' }}
-                  addonBefore="¥"
-                />
-              </Form.Item>
+                addonBefore="¥"
+              />
+            </Form.Item>
 
-              <Form.Item
-                label={
+            <Form.Item
+              label={
                   <span className="form-label">
                     <ShoppingOutlined />期望成交价
-                    <Tooltip title="您希望用户最终购买的价格">
-                      <InfoCircleOutlined className="info-icon" />
-                    </Tooltip>
-                  </span>
-                }
-                name="expectedPrice"
-                rules={[{ required: true, message: '请输入期望售价' }]}
-              >
-                <InputNumber
-                  min={0.01}
-                  precision={2}
-                  placeholder="请输入期望售价(成本+利润)"
+                  <Tooltip title="您希望用户最终购买的价格">
+                    <InfoCircleOutlined className="info-icon" />
+                  </Tooltip>
+                </span>
+              }
+              name="expectedPrice"
+              rules={[{ required: true, message: '请输入期望售价' }]}
+            >
+              <InputNumber
+                min={0.01}
+                precision={2}
+                placeholder="请输入期望售价(成本+利润)"
                   style={{ width: '100%' }}
-                  addonBefore="¥"
-                />
-              </Form.Item>
-              
+                addonBefore="¥"
+              />
+            </Form.Item>
+            
               <Form.Item className="buttons-container">
                 <Button 
                   type="primary" 
@@ -208,9 +208,9 @@ const DouyinCouponCalculator: React.FC = () => {
                 >
                   开始计算
                 </Button>
-              </Form.Item>
-            </Form>
-            
+            </Form.Item>
+        </Form>
+
             <div className="strategy-info">
               <Alert
                 className="info-alert"
@@ -300,10 +300,10 @@ const DouyinCouponCalculator: React.FC = () => {
                   message="请输入供货价和期望售价获取计算结果"
                   type="info"
                   showIcon
-                />
-              </div>
-            )}
-          </Card>
+            />
+          </div>
+        )}
+      </Card>
         </Col>
       </Row>
     </div>

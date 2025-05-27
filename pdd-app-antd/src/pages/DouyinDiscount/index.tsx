@@ -119,13 +119,13 @@ const DouyinDiscount: React.FC = () => {
         {/* 左侧表单 */}
         <Col xs={24} md={10}>
           <Card className="form-card" bordered={false}>
-            <Form
-              form={form}
-              layout="vertical"
-              onValuesChange={valuesChange}
+        <Form
+          form={form}
+          layout="vertical"
+          onValuesChange={valuesChange}
               className="calc-form"
-            >
-              <Form.Item
+        >
+            <Form.Item
                 label={
                   <span className="form-label">
                     <ShopOutlined />供货价
@@ -134,19 +134,19 @@ const DouyinDiscount: React.FC = () => {
                     </Tooltip>
                   </span>
                 }
-                name="supplierPrice"
-                rules={[{ required: true, message: '请输入供货价' }]}
-              >
-                <InputNumber
-                  min={0}
-                  precision={2}
+              name="supplierPrice"
+              rules={[{ required: true, message: '请输入供货价' }]}
+            >
+              <InputNumber
+                min={0}
+                precision={2}
                   placeholder="请输入供货价/成本"
                   style={{ width: '100%' }}
-                  addonBefore="¥"
-                />
-              </Form.Item>
+                addonBefore="¥"
+              />
+            </Form.Item>
 
-              <Form.Item
+            <Form.Item
                 label={
                   <span className="form-label">
                     <DollarOutlined />目标零售价
@@ -155,17 +155,17 @@ const DouyinDiscount: React.FC = () => {
                     </Tooltip>
                   </span>
                 }
-                name="targetPrice"
-                rules={[{ required: true, message: '请输入目标零售价' }]}
-              >
-                <InputNumber
-                  min={0}
-                  precision={2}
-                  placeholder="请输入目标零售价"
+              name="targetPrice"
+              rules={[{ required: true, message: '请输入目标零售价' }]}
+            >
+              <InputNumber
+                min={0}
+                precision={2}
+                placeholder="请输入目标零售价"
                   style={{ width: '100%' }}
-                  addonBefore="¥"
-                />
-              </Form.Item>
+                addonBefore="¥"
+              />
+            </Form.Item>
               
               <Form.Item className="buttons-container">
                 <Button 
@@ -176,8 +176,8 @@ const DouyinDiscount: React.FC = () => {
                   开始计算
                 </Button>
               </Form.Item>
-            </Form>
-            
+        </Form>
+
             <div className="discount-info">
               <Alert
                 className="info-alert"
@@ -260,7 +260,7 @@ const DouyinDiscount: React.FC = () => {
                 />
               </div>
             )}
-          </Card>
+      </Card>
         </Col>
       </Row>
     </div>

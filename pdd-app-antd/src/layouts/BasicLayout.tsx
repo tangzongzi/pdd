@@ -78,11 +78,6 @@ export const BasicLayout = () => {
               label: '抖音平台',
               children: [
                 {
-                  key: 'dy-pricing',
-                  icon: <DollarOutlined />,
-                  label: <Link to="/dy-pricing">抖音控价</Link>,
-                },
-                {
                   key: 'douyin-low-price',
                   icon: <ShoppingOutlined />,
                   label: <Link to="/douyin-low-price">低价起价</Link>,
@@ -146,7 +141,6 @@ export const BasicLayout = () => {
               {currentPath === '/calculator' && '拼单计算器'}
               {currentPath === '/batch' && '批量计算'}
               {currentPath === '/history' && '历史记录'}
-              {currentPath === '/dy-pricing' && '抖音控价'}
               {currentPath === '/douyin-discount' && '抖音折扣价'}
               {currentPath === '/douyin-coupon' && '外漏优惠券'}
               {currentPath === '/douyin-low-price' && '低价起价'}

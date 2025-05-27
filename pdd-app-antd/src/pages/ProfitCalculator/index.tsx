@@ -201,7 +201,7 @@ const ProfitCalculator: React.FC = () => {
             <div className="profit-result">
               <div className="formula">
                 <CalculatorOutlined className="formula-icon" />
-                <span>利润 = 外漏价 - 优惠券 - 供货价 - 扣点</span>
+              <span>利润 = 外漏价 - 优惠券 - 供货价 - 扣点</span>
               </div>
               <div className="final-profit">¥{profit.toFixed(2)}</div>
             </div>
